@@ -1,12 +1,14 @@
 import express, { Request, Response } from "express";
 import authRouter from "./routes/auth.route";
 import { requireAuth } from "./middleware/requireAuth";
+import cors from "cors";
 
 const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 // Public routes
 app.use("/auth", authRouter);
