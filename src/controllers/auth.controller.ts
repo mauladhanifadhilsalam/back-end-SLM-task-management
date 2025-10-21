@@ -42,7 +42,12 @@ async function login(req: Request, res: Response) {
   if (!ok) return res.status(401).json({ message: "Invalid credentials" });
 
   const token = signJwt({ sub: user.id, role: user.role });
-  res.json({ token, token_type: "Bearer", expires_in: env.jwtExpiresIn });
+  res.json({
+    token,
+    token_type: "Bearer",
+    expires_in: env.jwtExpiresIn,
+    role: user.role,
+  });
 }
 
 export { register, login };
