@@ -13,3 +13,255 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// ===================== ENUMS =============================
+
+enum RoleType {
+  ADMIN
+  PROJECT_MANAGER
+  DEVELOPER
+}
+
+enum ProjectRoleType {
+  TECH_LEAD
+  FRONT_END
+  BACK_END
+  DEVOPS
+  CLOUD_ENGINEER
+}
+
+enum ProjectStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  ON_HOLD
+  DONE
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum NotifyStatusType {
+  SENT
+  PENDING
+  FAILED
+}
+
+enum TicketType {
+  ISSUE
+  TASK
+}
+
+enum TicketStatus {
+  NEW
+  IN_PROGRESS
+  IN_REVIEW
+  RESOLVED
+  CLOSED
+  TO_DO
+  DONE
+}
+
+enum ActivityTargetType {
+  USER
+  PROJECT
+  TICKET
+  COMMENT
+  ATTACHMENT
+  NOTIFICATION
+  PROJECT_PHASE
+  PROJECT_ASSIGNMENT
+  PROJECT_OWNER
+}
+
+// ===================== MODELS ===========================
+
+model User {
+  id           Int             @id @default(autoincrement())
+  fullName     String
+  email        String          @unique
+  passwordHash String
+  role         RoleType
+  isActive     Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  // Relations
+  projectAssignments ProjectAssignment[]
+  requestedTickets   Ticket[]          @relation("TicketRequester")
+  ticketAssignees    TicketAssignee[]
+  comments           Comment[]
+  attachments        Attachment[]
+  notifications      Notification[]    @relation("NotificationRecipient")
+  activityLogs       ActivityLog[]
+
+}
+
+model ProjectOwner {
+  id        Int        @id @default(autoincrement())
+  name      String
+  company   String?
+  email     String?
+  phone     String?
+  address   String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  projects Project[]
+
+}
+
+model Project {
+  id         Int            @id @default(autoincrement())
+  name       String
+  categories Json           @db.JsonB
+  phases     Json?          @db.JsonB
+  ownerId    Int
+  startDate  DateTime       @db.Date
+  endDate    DateTime       @db.Date
+  status     ProjectStatus  @default(NOT_STARTED)
+  completion Decimal        @default(0.00) @db.Decimal(5, 2)
+  notes      String?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  // Relations
+  owner         ProjectOwner      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  assignments   ProjectAssignment[]
+  phasesRel     ProjectPhase[]
+  tickets       Ticket[]
+
+  @@index([ownerId])
+}
+
+model ProjectAssignment {
+  id            Int              @id @default(autoincrement())
+  projectId     Int
+  userId        Int
+  roleInProject ProjectRoleType
+  assignedAt    DateTime         @default(now())
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId, roleInProject])
+}
+
+model ProjectPhase {
+  id        Int       @id @default(autoincrement())
+  name      String
+  startDate DateTime  @db.Date
+  endDate   DateTime  @db.Date
+  projectId Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, startDate, endDate])
+}
+
+model Ticket {
+  id           Int           @id @default(autoincrement())
+  projectId    Int
+  type         TicketType
+  title        String
+  description  String?
+  priority     TicketPriority?
+  status       TicketStatus  @default(TO_DO)
+  requesterId  Int
+  startDate    DateTime?
+  dueDate      DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relations
+  project    Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  requester  User            @relation("TicketRequester", fields: [requesterId], references: [id], onDelete: Restrict)
+  assignees  TicketAssignee[]
+  comments   Comment[]
+  attachments Attachment[]
+  notifications Notification[]
+
+  @@index([projectId, status, priority, updatedAt])
+  @@index([requesterId, updatedAt])
+}
+
+model TicketAssignee {
+  id         Int      @id @default(autoincrement())
+  ticketId   Int
+  userId     Int
+  assignedAt DateTime @default(now())
+
+  // Relations
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([ticketId, userId])
+  @@index([userId])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  userId    Int
+  message   String
+  createdAt DateTime @default(now())
+
+  // Relations
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+}
+
+model Attachment {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  userId    Int
+  fileName  String
+  filePath  String
+  fileSize  Int
+  createdAt DateTime @default(now())
+
+  // Relations
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+}
+
+model Notification {
+  id          Int              @id @default(autoincrement())
+  ticketId    Int?
+  recipientId Int
+  message     String
+  sentAt      DateTime?
+  status      NotifyStatusType @default(PENDING)
+
+  // Relations
+  ticket    Ticket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  recipient User    @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+
+}
+
+model ActivityLog {
+  id         Int                 @id @default(autoincrement())
+  userId     Int?
+  action     String
+  targetType ActivityTargetType
+  targetId   Int
+  details    Json?               @db.JsonB
+  occurredAt DateTime            @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([occurredAt])
+  @@index([targetType, targetId])
+  @@index([userId, occurredAt])
+}
