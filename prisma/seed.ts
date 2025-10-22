@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { createUser } from "../src/services/auth.service";
+import { createUser } from "../src/services/user.service";
 import prisma from "../src/db/prisma";
 
 async function main() {
