@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { hashPassword } from "../utils/auth";
+import { hashPassword, verifyPassword } from "../utils/auth";
 import {
   findUsers,
   findUser,
   createUser,
   editUser,
   deleteUser,
+  editPassword,
 } from "../services/user.service";
 
 const userSchema = z.object({
@@ -15,6 +16,12 @@ const userSchema = z.object({
   role: z.enum(["PROJECT_MANAGER", "DEVELOPER"]),
   password: z.string().min(8),
   isActive: z.boolean().optional(),
+});
+
+const changePasswordSchema = z.object({
+  email: z.email(),
+  password: z.string(),
+  newPassword: z.string().min(8),
 });
 
 async function getAllUsers(_req: Request, res: Response) {
@@ -85,7 +92,42 @@ async function deleteUserById(req: Request, res: Response) {
   if (!user) return res.status(404).json({ message: "User not found" });
 
   await deleteUser(Number(id));
-  res.status(204).send();
+  res.status(200).send({ message: "User deleted successfully" });
 }
 
-export { getAllUsers, getUserById, insertUser, updateUser, deleteUserById };
+async function changePassword(req: Request, res: Response) {
+  const parsed = changePasswordSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json(parsed.error.format());
+  const { email, password, newPassword } = parsed.data;
+
+  const user = await findUser({ email });
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const isVerified = await verifyPassword(password, user.passwordHash);
+
+  if (!isVerified) {
+    return res.status(401).json({ message: "Invalid password" });
+  }
+
+  const isPasswordSame = await verifyPassword(newPassword, user.passwordHash);
+
+  if (isPasswordSame) {
+    return res
+      .status(400)
+      .json({ message: "New password cannot be the same as the old one" });
+  }
+
+  const passwordHash = await hashPassword(newPassword);
+
+  await editPassword(Number(user.id), passwordHash);
+  res.status(200).send({ message: "Password changed successfully" });
+}
+
+export {
+  getAllUsers,
+  getUserById,
+  insertUser,
+  updateUser,
+  deleteUserById,
+  changePassword,
+};

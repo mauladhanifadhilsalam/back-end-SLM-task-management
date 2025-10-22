@@ -56,4 +56,11 @@ async function deleteUser(id: number) {
   return await prisma.user.delete({ where: { id } });
 }
 
-export { findUsers, findUser, createUser, editUser, deleteUser };
+async function editPassword(id: number, passwordHash: string) {
+  return await prisma.user.update({
+    where: { id },
+    data: { passwordHash },
+  });
+}
+
+export { findUsers, findUser, createUser, editUser, deleteUser, editPassword };

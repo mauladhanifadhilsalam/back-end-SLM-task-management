@@ -22,7 +22,7 @@ app.get("/health", (_req: Request, res: Response) => {
 // Protected routes
 app.use(requireAuth);
 
-app.use("/users", requireRole(RoleType.ADMIN), userRouter);
+app.use("/users", userRouter);
 
 // Endpoint without requireRole can be accessed by any authenticated user
 app.get("/", (_req: Request, res: Response) => {
