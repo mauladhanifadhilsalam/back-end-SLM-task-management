@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import env from "../utils/env";
+import { RoleType } from "../generated/prisma";
 
 declare global {
   namespace Express {
     interface Request {
-      user?: { sub: string; role: string };
+      user?: { sub: string; role: RoleType };
     }
   }
 }
@@ -20,7 +21,16 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   }
   try {
     const decoded = jwt.verify(token, env.jwtSecret) as any;
-    req.user = { sub: decoded.sub, role: decoded.role };
+    const role = decoded.role as RoleType;
+    const isValidRole = role
+      ? (Object.values(RoleType) as string[]).includes(role)
+      : false;
+
+    if (!isValidRole) {
+      return res.status(401).json({ message: "Invalid or expired token" });
+    }
+
+    req.user = { sub: decoded.sub, role };
     next();
   } catch (error) {
     return res.status(401).json({ message: "Invalid or expired token" });
