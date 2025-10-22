@@ -4,7 +4,6 @@ import authRouter from "./routes/auth.route";
 import { requireAuth } from "./middleware/requireAuth";
 import requireRole from "./middleware/requireRole";
 import { RoleType } from "./generated/prisma";
-// import { _readonly } from "zod/v4/core";
 
 const app = express();
 
