@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import authRouter from "./routes/auth.route";
+import userRouter from "./routes/user.route";
 import { requireAuth } from "./middleware/requireAuth";
 import requireRole from "./middleware/requireRole";
 import { RoleType } from "./generated/prisma";
@@ -20,6 +21,8 @@ app.get("/health", (_req: Request, res: Response) => {
 
 // Protected routes
 app.use(requireAuth);
+
+app.use("/users", userRouter);
 
 // Endpoint without requireRole can be accessed by any authenticated user
 app.get("/", (_req: Request, res: Response) => {
