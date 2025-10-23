@@ -104,9 +104,9 @@ model ProjectOwner {
   id        Int        @id @default(autoincrement())
   name      String
   company   String?
-  email     String?
-  phone     String?
-  address   String?
+  email     String     @unique
+  phone     String
+  address   String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 

@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
+function requireAuth(req: Request, res: Response, next: NextFunction) {
   const header = req.header("Authorization") || "";
   const [scheme, token] = header.split(" ");
   if (scheme !== "Bearer" || !token) {
@@ -36,3 +36,5 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 }
+
+export default requireAuth;
