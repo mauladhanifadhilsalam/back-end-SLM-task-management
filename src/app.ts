@@ -31,7 +31,11 @@ app.get("/health", (_req: Request, res: Response) => {
 app.use(requireAuth);
 
 app.use("/users", userRouter);
-app.use("/project-owners", projectOwnerRouter);
+app.use(
+  "/project-owners",
+  requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]),
+  projectOwnerRouter,
+);
 
 // endpoint without requireRole can be accessed by any authenticated user
 app.get("/", (_req: Request, res: Response) => {
