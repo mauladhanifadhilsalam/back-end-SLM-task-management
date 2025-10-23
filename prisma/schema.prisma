@@ -119,7 +119,6 @@ model Project {
   id         Int            @id @default(autoincrement())
   name       String
   categories Json           @db.JsonB
-  phases     Json?          @db.JsonB
   ownerId    Int
   startDate  DateTime       @db.Date
   endDate    DateTime       @db.Date
@@ -132,7 +131,7 @@ model Project {
   // Relations
   owner         ProjectOwner      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   assignments   ProjectAssignment[]
-  phasesRel     ProjectPhase[]
+  phases        ProjectPhase[]
   tickets       Ticket[]
 
   @@index([ownerId])
