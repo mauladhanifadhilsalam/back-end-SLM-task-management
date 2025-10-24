@@ -22,6 +22,14 @@ const projectInclude = {
       email: true,
     },
   },
+  phases: {
+    select: {
+      id: true,
+      name: true,
+      startDate: true,
+      endDate: true,
+    },
+  },
 } satisfies Prisma.ProjectInclude;
 
 async function findProjects() {
