@@ -17,6 +17,13 @@ const createProjectSchema = z
     ownerId: z.number().int().positive(),
     startDate: z.coerce.date(),
     endDate: z.coerce.date(),
+    phases: z.array(
+      z.object({
+        name: z.string(),
+        startDate: z.coerce.date(),
+        endDate: z.coerce.date(),
+      }),
+    ),
     status: z.enum(ProjectStatus).optional(),
     completion: z.number().min(0).max(100).optional(),
     notes: z.string().optional(),
@@ -31,10 +38,19 @@ const createProjectSchema = z
     }
   });
 
-const updateProjectSchema = createProjectSchema
-  .partial()
+const updateProjectSchema = z
+  .object({
+    name: z.string(),
+    categories: z.array(z.string()).min(1),
+    ownerId: z.number().int().positive(),
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date(),
+    status: z.enum(ProjectStatus).optional(),
+    completion: z.number().min(0).max(100).optional(),
+    notes: z.string().optional(),
+  })
   .superRefine((data, ctx) => {
-    if (data.startDate && data.endDate && data.endDate < data.startDate) {
+    if (data.endDate < data.startDate) {
       ctx.addIssue({
         code: "custom",
         message: "End date must be on or after start date",
@@ -67,8 +83,15 @@ async function insertProject(req: Request, res: Response) {
   const parsed = createProjectSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.format());
 
-  const { ownerId, completion, categories, startDate, endDate, ...rest } =
-    parsed.data;
+  const {
+    ownerId,
+    completion,
+    categories,
+    startDate,
+    endDate,
+    phases,
+    ...rest
+  } = parsed.data;
 
   const owner = await findProjectOwner({ id: ownerId });
   if (!owner)
@@ -80,6 +103,17 @@ async function insertProject(req: Request, res: Response) {
     completion,
     startDate,
     endDate,
+    ...(phases && phases.length
+      ? {
+          phases: {
+            create: phases.map((p) => ({
+              name: p.name,
+              startDate: p.startDate,
+              endDate: p.endDate,
+            })),
+          },
+        }
+      : {}),
     ...rest,
   });
 

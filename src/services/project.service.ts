@@ -11,6 +11,7 @@ type NewProjectInput = Pick<
   | "status"
   | "completion"
   | "notes"
+  | "phases"
 >;
 
 const projectInclude = {
