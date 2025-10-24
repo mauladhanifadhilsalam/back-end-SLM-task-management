@@ -43,11 +43,7 @@ app.use(
   requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]),
   projectRouter,
 );
-app.use(
-  "/project-phases",
-  requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]),
-  projectPhaseRouter,
-);
+app.use("/project-phases", requireRole(RoleType.ADMIN), projectPhaseRouter);
 
 // endpoint without requireRole can be accessed by any authenticated user
 app.get("/", (_req: Request, res: Response) => {
