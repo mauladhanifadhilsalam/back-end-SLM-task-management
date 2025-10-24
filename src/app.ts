@@ -1,10 +1,20 @@
+// Core framework and type imports
 import express, { Request, Response } from "express";
-import cors from "cors";
+import { RoleType } from "./generated/prisma";
+
+// Route handlers for different parts of the application
 import authRouter from "./routes/auth.route";
 import userRouter from "./routes/user.route";
-import { requireAuth } from "./middleware/requireAuth";
+import projectOwnerRouter from "./routes/project-owner.route";
+import projectRouter from "./routes/project.route";
+import projectPhaseRouter from "./routes/project-phase.route";
+
+// Middleware for authentication and role-based access control
+import requireAuth from "./middleware/requireAuth";
 import requireRole from "./middleware/requireRole";
-import { RoleType } from "./generated/prisma";
+
+// Third-party middleware utilities
+import cors from "cors";
 
 const app = express();
 
@@ -23,46 +33,21 @@ app.get("/health", (_req: Request, res: Response) => {
 app.use(requireAuth);
 
 app.use("/users", userRouter);
+app.use(
+  "/project-owners",
+  requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]),
+  projectOwnerRouter,
+);
+app.use(
+  "/projects",
+  requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]),
+  projectRouter,
+);
+app.use("/project-phases", requireRole(RoleType.ADMIN), projectPhaseRouter);
 
-// Endpoint without requireRole can be accessed by any authenticated user
+// endpoint without requireRole can be accessed by any authenticated user
 app.get("/", (_req: Request, res: Response) => {
   res.json({ message: "Welcome to SLM Project Management API" });
 });
-
-// Admin role authorization example
-app.get(
-  "/admin-dashboard",
-  requireRole(RoleType.ADMIN),
-  (_req: Request, res: Response) => {
-    res.json({ message: "Welcome to Admin Dashboard" });
-  },
-);
-
-// Project Manager role authorization example
-app.get(
-  "/pm-dashboard",
-  requireRole(RoleType.PROJECT_MANAGER),
-  (_req: Request, res: Response) => {
-    res.json({ message: "Welcome to PM Dashboard" });
-  },
-);
-
-// Developer role authorization example
-app.get(
-  "/developer-dashboard",
-  requireRole(RoleType.DEVELOPER),
-  (_req: Request, res: Response) => {
-    res.json({ message: "Welcome to Developer Dashboard" });
-  },
-);
-
-// multiple role authorization example
-app.get(
-  "/projects",
-  requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]),
-  (_req: Request, res: Response) => {
-    res.json({ projects: ["Project 1", "Project 2", "Project 3"] });
-  },
-);
 
 export default app;
