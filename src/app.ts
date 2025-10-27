@@ -6,6 +6,8 @@ import { RoleType } from "./generated/prisma";
 import authRouter from "./routes/auth.route";
 import userRouter from "./routes/user.route";
 import projectOwnerRouter from "./routes/project-owner.route";
+import projectRouter from "./routes/project.route";
+import projectPhaseRouter from "./routes/project-phase.route";
 
 // Middleware for authentication and role-based access control
 import requireAuth from "./middleware/requireAuth";
@@ -36,6 +38,12 @@ app.use(
   requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]),
   projectOwnerRouter,
 );
+app.use(
+  "/projects",
+  requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]),
+  projectRouter,
+);
+app.use("/project-phases", requireRole(RoleType.ADMIN), projectPhaseRouter);
 
 // endpoint without requireRole can be accessed by any authenticated user
 app.get("/", (_req: Request, res: Response) => {
