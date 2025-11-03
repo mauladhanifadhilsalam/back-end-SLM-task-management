@@ -4,6 +4,30 @@ import seedProject from "./seeders/project.seeder";
 import seedTicket from "./seeders/ticket.seeder";
 import seedUser from "./seeders/user.seeder";
 
+async function resetSequences() {
+  console.log("Resetting ID sequences...");
+  const tableNames = [
+    "Notification",
+    "Attachment",
+    "Comment",
+    "TicketAssignee",
+    "Ticket",
+    "ProjectAssignment",
+    "ProjectPhase",
+    "Project",
+    "ProjectOwner",
+    "User"
+  ];
+
+  for (const table of tableNames) {
+    await prisma.$executeRawUnsafe(
+      `ALTER SEQUENCE "${table}_id_seq" RESTART WITH 1;`
+    );
+  }
+
+  console.log("Sequences reset complete.");
+}
+
 async function main() {
   console.log("Starting database seed...");
 
@@ -19,6 +43,8 @@ async function main() {
   await prisma.user.deleteMany();
 
   console.log("Cleared existing data");
+
+  await resetSequences();
 
   await seedUser();
   await seedProjectOwner();
