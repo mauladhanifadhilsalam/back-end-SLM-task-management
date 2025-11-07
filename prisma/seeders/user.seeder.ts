@@ -24,4 +24,39 @@ export default async function seedUser() {
     role: "DEVELOPER",
     passwordHash,
   });
+
+  await createUser({
+    fullName: "Frodo Baggins",
+    email: "frodo@gmail.com",
+    role: "DEVELOPER",
+    passwordHash,
+  });
+
+  await createUser({
+    fullName: "Samwise Gamgee",
+    email: "samwise@gmail.com",
+    role: "DEVELOPER",
+    passwordHash,
+  });
+
+  await createUser({
+    fullName: "Legolas Greenleaf",
+    email: "legolas@gmail.com",
+    role: "DEVELOPER",
+    passwordHash,
+  });
+
+  await createUser({
+    fullName: "Aragorn Elessar",
+    email: "aragorn@gmail.com",
+    role: "DEVELOPER",
+    passwordHash,
+  });
+
+  await createUser({
+    fullName: "Bard Bowman",
+    email: "bard@gmail.com",
+    role: "DEVELOPER",
+    passwordHash,
+  });
 }
