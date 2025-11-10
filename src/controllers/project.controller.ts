@@ -1,14 +1,16 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { ProjectStatus } from "../generated/prisma";
+import { ProjectStatus, ProjectRoleType } from "../generated/prisma";
 import {
   findProjects,
   findProject,
   createProject,
   editProject,
   deleteProject,
+  verifyUsersExist,
 } from "../services/project.service";
 import { findProjectOwner } from "../services/project-owner.service";
+import { da } from "zod/v4/locales";
 
 const createProjectSchema = z
   .object({
@@ -23,7 +25,13 @@ const createProjectSchema = z
         startDate: z.coerce.date(),
         endDate: z.coerce.date(),
       }),
-    ),
+    ).min(1),
+    assignments: z.array(
+      z.object({
+        userId: z.number().int().positive(),
+        roleInProject: z.enum(ProjectRoleType),
+      })
+    ).optional(),
     status: z.enum(ProjectStatus).optional(),
     completion: z.number().min(0).max(100).optional(),
     notes: z.string().optional(),
@@ -40,17 +48,23 @@ const createProjectSchema = z
 
 const updateProjectSchema = z
   .object({
-    name: z.string(),
-    categories: z.array(z.string()).min(1),
-    ownerId: z.number().int().positive(),
-    startDate: z.coerce.date(),
-    endDate: z.coerce.date(),
+    name: z.string().optional(),
+    categories: z.array(z.string()).min(1).optional(),
+    ownerId: z.number().int().positive().optional(),
+    startDate: z.coerce.date().optional(),
+    endDate: z.coerce.date().optional(),
     status: z.enum(ProjectStatus).optional(),
     completion: z.number().min(0).max(100).optional(),
     notes: z.string().optional(),
+    assignments: z.array(
+      z.object({
+        userId: z.number().int().positive(),
+        roleInProject: z.enum(ProjectRoleType),
+      }),
+    ).optional()
   })
   .superRefine((data, ctx) => {
-    if (data.endDate < data.startDate) {
+    if (data.endDate && data.startDate && data.endDate < data.startDate) {
       ctx.addIssue({
         code: "custom",
         message: "End date must be on or after start date",
@@ -90,6 +104,7 @@ async function insertProject(req: Request, res: Response) {
     startDate,
     endDate,
     phases,
+    assignments,
     ...rest
   } = parsed.data;
 
@@ -97,13 +112,22 @@ async function insertProject(req: Request, res: Response) {
   if (!owner)
     return res.status(404).json({ message: "Project owner not found" });
 
+  if (assignments) {
+    const {allExist, missingUserIds} = await verifyUsersExist(assignments.map(a => a.userId));
+    if (!allExist) {
+      return res.status(404).json({ message: {
+        missing: missingUserIds.map(id => `User with ID ${id} not found`)
+      }});
+    }
+  }
+
   const project = await createProject({
     ownerId,
     categories,
     completion,
     startDate,
     endDate,
-    ...(phases && phases.length
+    ...(phases?.length
       ? {
           phases: {
             create: phases.map((p) => ({
@@ -111,6 +135,19 @@ async function insertProject(req: Request, res: Response) {
               startDate: p.startDate,
               endDate: p.endDate,
             })),
+          },
+        }
+      : {}),
+    ...(assignments?.length
+      ? {
+          assignments: {
+            createMany: {
+              data: assignments.map(a => ({
+                userId: a.userId,
+                roleInProject: a.roleInProject,
+              })),
+              skipDuplicates: true,
+            },
           },
         }
       : {}),
@@ -132,7 +169,7 @@ async function updateProject(req: Request, res: Response) {
   const parsed = updateProjectSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.format());
 
-  const { ownerId, categories, completion, startDate, endDate, ...rest } =
+  const { ownerId, categories, completion, startDate, endDate, assignments, ...rest } =
     parsed.data;
 
   if (ownerId !== undefined && ownerId !== existing.ownerId) {
@@ -150,6 +187,17 @@ async function updateProject(req: Request, res: Response) {
     });
   }
 
+  if (assignments) {
+    const {allExist, missingUserIds} = await verifyUsersExist(assignments.map(a => a.userId));
+    if (!allExist) {
+      return res.status(404).json({ message: {
+        missing: missingUserIds.map(id => `User with ID ${id} not found`)
+      }});
+    }
+  }
+
+
+
   const updated = await editProject(projectId, {
     ...rest,
     ownerId,
@@ -157,6 +205,19 @@ async function updateProject(req: Request, res: Response) {
     completion,
     startDate,
     endDate,
+    ...(assignments?.length
+      ? {
+          assignments: {
+            createMany: {
+              data: assignments.map(a => ({
+                userId: a.userId,
+                roleInProject: a.roleInProject,
+              })),
+              skipDuplicates: true,
+            },
+          },
+        }
+      : {}),
   });
 
   res.status(200).json(updated);

@@ -1,5 +1,5 @@
 import prisma from "../db/prisma";
-import { Prisma } from "../generated/prisma";
+import { Prisma, RoleType } from "../generated/prisma";
 
 type NewProjectInput = Pick<
   Prisma.ProjectUncheckedCreateInput,
@@ -12,6 +12,7 @@ type NewProjectInput = Pick<
   | "completion"
   | "notes"
   | "phases"
+  | "assignments"
 >;
 
 const projectInclude = {
@@ -31,6 +32,17 @@ const projectInclude = {
       endDate: true,
     },
   },
+  assignments: {
+    select: {
+      roleInProject: true,
+      user: {
+        select: {
+          id: true,
+          fullName: true,
+        }
+      }
+    }
+  }
 } satisfies Prisma.ProjectInclude;
 
 async function findProjects() {
@@ -71,4 +83,27 @@ async function deleteProject(id: number) {
   });
 }
 
-export { findProjects, findProject, createProject, editProject, deleteProject };
+async function verifyUsersExist(userIds: number[]) {
+  if (!userIds.length) return { allExist: true, missingUserIds: [] };
+
+  const users = await prisma.user.findMany({
+    where: {
+      id: { in: userIds },
+      role: {
+        in: [RoleType.PROJECT_MANAGER, RoleType.DEVELOPER],
+      },
+    },
+    select: { id: true },
+  });
+
+  const foundIds = new Set(users.map(u => u.id));
+  const missingUserIds = userIds.filter(id => !foundIds.has(id));
+
+  return {
+    allExist: missingUserIds.length === 0,
+    missingUserIds,
+  };
+}
+
+
+export { findProjects, findProject, createProject, editProject, deleteProject, verifyUsersExist };
