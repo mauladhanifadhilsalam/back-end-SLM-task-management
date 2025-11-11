@@ -252,6 +252,7 @@ async function deleteTicket(id: number) {
 }
 
 export {
+  ticketInclude,
   findTickets,
   findTicket,
   createTicket,
