@@ -25,7 +25,6 @@ const createProjectSchema = z
       }),
     ),
     status: z.enum(ProjectStatus).optional(),
-    completion: z.number().min(0).max(100).optional(),
     notes: z.string().optional(),
   })
   .superRefine((data, ctx) => {
@@ -46,7 +45,6 @@ const updateProjectSchema = z
     startDate: z.coerce.date(),
     endDate: z.coerce.date(),
     status: z.enum(ProjectStatus).optional(),
-    completion: z.number().min(0).max(100).optional(),
     notes: z.string().optional(),
   })
   .superRefine((data, ctx) => {
@@ -83,15 +81,8 @@ async function insertProject(req: Request, res: Response) {
   const parsed = createProjectSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.format());
 
-  const {
-    ownerId,
-    completion,
-    categories,
-    startDate,
-    endDate,
-    phases,
-    ...rest
-  } = parsed.data;
+  const { ownerId, categories, startDate, endDate, phases, ...rest } =
+    parsed.data;
 
   const owner = await findProjectOwner({ id: ownerId });
   if (!owner)
@@ -100,7 +91,6 @@ async function insertProject(req: Request, res: Response) {
   const project = await createProject({
     ownerId,
     categories,
-    completion,
     startDate,
     endDate,
     ...(phases && phases.length
@@ -132,8 +122,7 @@ async function updateProject(req: Request, res: Response) {
   const parsed = updateProjectSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.format());
 
-  const { ownerId, categories, completion, startDate, endDate, ...rest } =
-    parsed.data;
+  const { ownerId, categories, startDate, endDate, ...rest } = parsed.data;
 
   if (ownerId !== undefined && ownerId !== existing.ownerId) {
     const owner = await findProjectOwner({ id: ownerId });
@@ -154,7 +143,6 @@ async function updateProject(req: Request, res: Response) {
     ...rest,
     ownerId,
     categories,
-    completion,
     startDate,
     endDate,
   });
