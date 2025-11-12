@@ -1,11 +1,5 @@
 import { Request, Response } from "express";
-import { z } from "zod";
-import {
-  RoleType,
-  TicketPriority,
-  TicketStatus,
-  TicketType,
-} from "../generated/prisma";
+import { RoleType, TicketType } from "../generated/prisma";
 import {
   findTickets,
   findTicket,
@@ -16,6 +10,11 @@ import {
 } from "../services/ticket.service";
 import { findProject } from "../services/project.service";
 import { findUser } from "../services/user.service";
+import {
+  ticketQuerySchema,
+  createTicketSchema,
+  updateTicketSchema,
+} from "../schemas/ticket.schema";
 
 type Viewer = { id: number; role: RoleType };
 type TicketWithRelations = NonNullable<
@@ -96,61 +95,6 @@ function canModifyTicket(ticket: TicketWithRelations, viewer: Viewer) {
   const assigneeIds = ticket.assignees.map((assignee) => assignee.user.id);
   return canModifyTicketState(ticket.type, ticket.requesterId, assigneeIds, viewer);
 }
-
-const ticketQuerySchema = z.object({
-  projectId: z.coerce.number().int().positive().optional(),
-  requesterId: z.coerce.number().int().positive().optional(),
-  status: z.enum(TicketStatus).optional(),
-  priority: z.enum(TicketPriority).optional(),
-  type: z.enum(TicketType).optional(),
-  assigneeId: z.coerce.number().int().positive().optional(),
-  search: z.string().trim().min(1).optional(),
-});
-
-const nullableDateSchema = z
-  .union([z.literal(null), z.coerce.date()])
-  .optional();
-
-const createTicketSchema = z
-  .object({
-    projectId: z.number().int().positive(),
-    requesterId: z.number().int().positive().optional(),
-    type: z.enum(TicketType),
-    title: z.string().min(1),
-    description: z.string().optional().nullable(),
-    priority: z.enum(TicketPriority),
-    status: z.enum(TicketStatus).optional(),
-    startDate: nullableDateSchema,
-    dueDate: nullableDateSchema,
-    assigneeIds: z.array(z.number().int().positive()).optional(),
-  })
-  .superRefine((data, ctx) => {
-    const start = data.startDate instanceof Date ? data.startDate : null;
-    const due = data.dueDate instanceof Date ? data.dueDate : null;
-
-    if (start && due && due < start) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["dueDate"],
-        message: "Due date must be on or after start date",
-      });
-    }
-  });
-
-const updateTicketSchema = createTicketSchema.partial().superRefine(
-  (data, ctx) => {
-    const start = data.startDate instanceof Date ? data.startDate : null;
-    const due = data.dueDate instanceof Date ? data.dueDate : null;
-
-    if (start && due && due < start) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["dueDate"],
-        message: "Due date must be on or after start date",
-      });
-    }
-  },
-);
 
 function parseIdParam(value: string) {
   const parsed = Number(value);

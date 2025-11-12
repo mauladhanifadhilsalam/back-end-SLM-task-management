@@ -1,13 +1,8 @@
 import { Request, Response } from "express";
-import { z } from "zod";
 import { verifyPassword, signJwt } from "../utils/auth";
 import { findUserByEmail, findUserById } from "../services/auth.service";
 import env from "../utils/env";
-
-const loginSchema = z.object({
-  email: z.email(),
-  password: z.string(),
-});
+import { loginSchema } from "../schemas/auth.schema";
 
 async function login(req: Request, res: Response) {
   const parsed = loginSchema.safeParse(req.body);

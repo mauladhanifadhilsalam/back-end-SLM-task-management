@@ -1,6 +1,4 @@
 import { Request, Response } from "express";
-import { z } from "zod";
-import { ProjectStatus, ProjectRoleType } from "../generated/prisma";
 import {
   findProjects,
   findProject,
@@ -10,59 +8,10 @@ import {
   verifyUsersExist,
 } from "../services/project.service";
 import { findProjectOwner } from "../services/project-owner.service";
-
-const createProjectSchema = z
-  .object({
-    name: z.string(),
-    categories: z.array(z.string()).min(1),
-    ownerId: z.number().int().positive(),
-    startDate: z.coerce.date(),
-    endDate: z.coerce.date(),
-    phases: z.array(
-      z.object({
-        name: z.string(),
-        startDate: z.coerce.date(),
-        endDate: z.coerce.date(),
-      }),
-    ).min(1),
-    assignments: z.array(
-      z.object({
-        userId: z.number().int().positive(),
-        roleInProject: z.enum(ProjectRoleType),
-      })
-    ).optional(),
-    status: z.enum(ProjectStatus).optional(),
-    notes: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.endDate < data.startDate) {
-      ctx.addIssue({
-        code: "custom",
-        message: "End date must be on or after start date",
-        path: ["endDate"],
-      });
-    }
-  });
-
-const updateProjectSchema = z
-  .object({
-    name: z.string().optional(),
-    categories: z.array(z.string()).min(1).optional(),
-    ownerId: z.number().int().positive().optional(),
-    startDate: z.coerce.date().optional(),
-    endDate: z.coerce.date().optional(),
-    status: z.enum(ProjectStatus).optional(),
-    notes: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.endDate && data.startDate && data.endDate < data.startDate) {
-      ctx.addIssue({
-        code: "custom",
-        message: "End date must be on or after start date",
-        path: ["endDate"],
-      });
-    }
-  });
+import {
+  createProjectSchema,
+  updateProjectSchema,
+} from "../schemas/project.schema";
 
 async function getAllProjects(_req: Request, res: Response) {
   try {

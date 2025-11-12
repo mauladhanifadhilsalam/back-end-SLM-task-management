@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { z } from "zod";
 import { RoleType, TicketType } from "../generated/prisma";
 import {
   findTicketAssignees,
@@ -9,20 +8,15 @@ import {
 } from "../services/ticket-assignee.service";
 import { findTicket } from "../services/ticket.service";
 import { findUser } from "../services/user.service";
+import {
+  ticketAssigneeQuerySchema,
+  createTicketAssigneeSchema,
+} from "../schemas/ticket-assignee.schema";
 
 type Viewer = { id: number; role: RoleType };
 type TicketWithRelations = NonNullable<
   Awaited<ReturnType<typeof findTicket>>
 >;
-
-const ticketAssigneeQuerySchema = z.object({
-  ticketId: z.coerce.number().int().positive(),
-});
-
-const createTicketAssigneeSchema = z.object({
-  ticketId: z.number().int().positive(),
-  userId: z.number().int().positive(),
-});
 
 function getViewer(req: Request): Viewer | null {
   if (!req.user) {
