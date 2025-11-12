@@ -13,7 +13,7 @@ type TicketSeed = {
   type: TicketType;
   title: string;
   description?: string;
-  priority?: TicketPriority | null;
+  priority: TicketPriority;
   status?: TicketStatus;
   startDate?: string;
   dueDate?: string;

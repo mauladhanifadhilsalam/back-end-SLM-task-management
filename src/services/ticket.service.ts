@@ -23,7 +23,7 @@ type NewTicketInput = {
   type: TicketType;
   title: string;
   description?: string | null;
-  priority?: TicketPriority | null;
+  priority: TicketPriority;
   status?: TicketStatus;
   startDate?: Date | null;
   dueDate?: Date | null;
@@ -93,11 +93,7 @@ function buildTicketWhere(filters: TicketFilters = {}) {
     ...(requesterId ? { requesterId } : {}),
     ...(status ? { status } : {}),
     ...(type ? { type } : {}),
-    ...(priority !== undefined
-      ? priority === null
-        ? { priority: null }
-        : { priority }
-      : {}),
+    ...(priority ? { priority } : {}),
     ...(assigneeId
       ? {
           assignees: {
@@ -168,7 +164,7 @@ async function createTicket(data: NewTicketInput) {
     ? Array.from(new Set(assigneeIds))
     : undefined;
 
-  return await prisma.ticket.create({
+  const ticket = await prisma.ticket.create({
     data: {
       ...rest,
       ...(uniqueAssigneeIds && uniqueAssigneeIds.length
@@ -181,6 +177,12 @@ async function createTicket(data: NewTicketInput) {
     },
     include: ticketInclude,
   });
+
+  if (ticket.type === TicketType.TASK) {
+    await recalculateCompletion(ticket.projectId);
+  }
+
+  return ticket;
 }
 
 async function editTicket(id: number, data: UpdateTicketInput) {
@@ -189,7 +191,7 @@ async function editTicket(id: number, data: UpdateTicketInput) {
     ? Array.from(new Set(assigneeIds))
     : undefined;
 
-  return await prisma.ticket.update({
+  const ticket = await prisma.ticket.update({
     where: { id },
     data: {
       ...rest,
@@ -208,12 +210,48 @@ async function editTicket(id: number, data: UpdateTicketInput) {
     },
     include: ticketInclude,
   });
+
+  if (ticket.type === TicketType.TASK) {
+    await recalculateCompletion(ticket.projectId);
+  }
+
+  return ticket;
 }
 
 async function deleteTicket(id: number) {
-  return await prisma.ticket.delete({
+  const ticket = await prisma.ticket.delete({
     where: { id },
   });
+
+  if (ticket.type === TicketType.TASK) {
+    await recalculateCompletion(ticket.projectId);
+  }
+
+  return ticket;
+}
+
+
+export async function recalculateCompletion(projectId: number) {
+  return prisma.$transaction(
+    async (tx) => {
+      const [total, done] = await Promise.all([
+        tx.ticket.count({ where: { projectId, type: TicketType.TASK } }),
+        tx.ticket.count({
+          where: { projectId, type: TicketType.TASK, status: TicketStatus.DONE },
+        }),
+      ]);
+
+      if (total === 0) return 0;
+
+      const percentage = (done / total) * 100;
+      const completion = Math.round(percentage * 100) / 100;
+
+      return tx.project.update({
+        where: { id: projectId },
+        data: { completion },
+      });
+    },
+  );
 }
 
 export {

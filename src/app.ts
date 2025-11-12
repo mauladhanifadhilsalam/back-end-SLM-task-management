@@ -10,6 +10,7 @@ import projectRouter from "./routes/project.route";
 import projectPhaseRouter from "./routes/project-phase.route";
 import ticketRouter from "./routes/ticket.route";
 import commentRouter from "./routes/comment.route";
+import ticketAssigneeRouter from "./routes/ticket-assignee.route";
 
 // Middleware for authentication and role-based access control
 import requireAuth from "./middleware/requireAuth";
@@ -48,6 +49,7 @@ app.use(
 app.use("/project-phases", requireRole(RoleType.ADMIN), projectPhaseRouter);
 app.use("/tickets", ticketRouter);
 app.use("/comments", commentRouter);
+app.use("/ticket-assignees", ticketAssigneeRouter);
 
 // endpoint without requireRole can be accessed by any authenticated user
 app.get("/", (_req: Request, res: Response) => {

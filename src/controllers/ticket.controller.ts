@@ -40,7 +40,7 @@ const createTicketSchema = z
     type: z.enum(TicketType),
     title: z.string().min(1),
     description: z.string().optional().nullable(),
-    priority: z.enum(TicketPriority).optional().nullable(),
+    priority: z.enum(TicketPriority),
     status: z.enum(TicketStatus).optional(),
     startDate: nullableDateSchema,
     dueDate: nullableDateSchema,

@@ -1,8 +1,12 @@
 import prisma from "../db/prisma";
 import { User, Prisma } from "../generated/prisma";
 
-async function findUser(email: Prisma.UserWhereUniqueInput) {
+async function findUserByEmail(email: Prisma.UserWhereUniqueInput) {
   return await prisma.user.findUnique({ where: email });
 }
 
-export { findUser };
+async function findUserById(id: number) {
+  return await prisma.user.findUnique({ where: { id } });
+}
+
+export { findUserByEmail, findUserById };
