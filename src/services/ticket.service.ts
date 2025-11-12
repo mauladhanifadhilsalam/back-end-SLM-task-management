@@ -15,9 +15,6 @@ type TicketFilters = {
   type?: TicketType;
   assigneeId?: number;
   search?: string;
-  accessibleByUserId?: number;
-  includeAllTasksForDevelopers?: boolean;
-  includeAllIssuesForDevelopers?: boolean;
 };
 
 type NewTicketInput = {
@@ -89,9 +86,6 @@ function buildTicketWhere(filters: TicketFilters = {}) {
     type,
     assigneeId,
     search,
-    accessibleByUserId,
-    includeAllTasksForDevelopers,
-    includeAllIssuesForDevelopers,
   } = filters;
 
   const where: Prisma.TicketWhereInput = {
@@ -133,35 +127,6 @@ function buildTicketWhere(filters: TicketFilters = {}) {
   }
 
   const orClauses: Prisma.TicketWhereInput[] = [];
-
-  if (typeof accessibleByUserId === "number") {
-    orClauses.push({ requesterId: accessibleByUserId });
-    orClauses.push({
-      assignees: {
-        some: {
-          userId: accessibleByUserId,
-        },
-      },
-    });
-  }
-
-  if (includeAllTasksForDevelopers) {
-    orClauses.push({ type: TicketType.TASK });
-  }
-
-  if (includeAllIssuesForDevelopers) {
-    orClauses.push({ type: TicketType.ISSUE });
-  }
-
-  if (orClauses.length) {
-    const currentAnd = Array.isArray(where.AND) ? where.AND : [];
-    where.AND = [
-      ...currentAnd,
-      {
-        OR: orClauses,
-      },
-    ];
-  }
 
   return where;
 }

@@ -14,11 +14,10 @@ import { findUser } from "../services/user.service";
 import {
   getViewer,
   isAdmin,
-  isDeveloper,
   canViewTicket,
   canModifyTicketState,
   canModifyTicket,
-} from "../utils/ticketHelpers";
+} from "../utils/ticketPermissions";
 
 const ticketQuerySchema = z.object({
   projectId: z.coerce.number().int().positive().optional(),
@@ -95,16 +94,7 @@ async function getAllTickets(req: Request, res: Response) {
       return res.status(400).json(parsed.error.format());
     }
 
-    const filters = isAdmin(viewer)
-      ? parsed.data
-      : {
-          ...parsed.data,
-          accessibleByUserId: viewer.id,
-          includeAllTasksForDevelopers: isDeveloper(viewer),
-          includeAllIssuesForDevelopers: isDeveloper(viewer),
-        };
-
-    const tickets = await findTickets(filters);
+    const tickets = await findTickets(parsed.data);
     res.status(200).json(tickets);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { z } from "zod";
+import { RoleType } from "../generated/prisma";
 import {
   findComments,
   findComment,
@@ -12,9 +13,8 @@ import {
   Viewer,
   TicketWithRelations,
   getViewer,
-  canViewTicket,
   isAdmin,
-} from "../utils/ticketHelpers";
+} from "../utils/ticketPermissions";
 
 const messageSchema = z.object({
   message: z.string().trim().min(1),
@@ -51,9 +51,15 @@ function requireViewer(req: Request, res: Response): Viewer | null {
   return viewer;
 }
 
+function canManageOwnComment(viewer: Viewer, authorId: number) {
+  const allowedRole =
+    viewer.role === RoleType.PROJECT_MANAGER ||
+    viewer.role === RoleType.DEVELOPER;
+  return allowedRole && viewer.id === authorId;
+}
+
 async function ensureTicketAccess(
   ticketId: number,
-  viewer: Viewer,
   res: Response,
 ): Promise<TicketWithRelations | null> {
   const ticket = await findTicket({ id: ticketId });
@@ -62,19 +68,10 @@ async function ensureTicketAccess(
     return null;
   }
 
-  if (!canViewTicket(ticket, viewer)) {
-    res.status(403).json({ message: "Insufficient permissions" });
-    return null;
-  }
-
   return ticket;
 }
 
-async function ensureCommentAccessible(
-  commentId: number,
-  viewer: Viewer,
-  res: Response,
-) {
+async function ensureCommentAccessible(commentId: number, res: Response) {
   const comment = await findComment({ id: commentId });
   if (!comment) {
     res.status(404).json({ message: "Comment not found" });
@@ -84,11 +81,6 @@ async function ensureCommentAccessible(
   const ticket = comment.ticket as TicketWithRelations;
   if (!ticket) {
     res.status(500).json({ message: "Comment missing ticket reference" });
-    return null;
-  }
-
-  if (!canViewTicket(ticket, viewer)) {
-    res.status(403).json({ message: "Insufficient permissions" });
     return null;
   }
 
@@ -109,20 +101,13 @@ async function getComments(req: Request, res: Response) {
   const { ticketId } = parsed.data;
 
   if (ticketId) {
-    const ticket = await ensureTicketAccess(ticketId, viewer, res);
+    const ticket = await ensureTicketAccess(ticketId, res);
     if (!ticket) {
       return;
     }
   }
 
-  let comments = await findComments({ ticketId });
-  if (!isAdmin(viewer)) {
-    comments = comments.filter((comment) => {
-      const ticket = comment.ticket as TicketWithRelations;
-      return ticket ? canViewTicket(ticket, viewer) : false;
-    });
-  }
-
+  const comments = await findComments({ ticketId });
   res.status(200).json(comments);
 }
 
@@ -137,7 +122,7 @@ async function getCommentById(req: Request, res: Response) {
     return res.status(400).json({ message: "Invalid comment id" });
   }
 
-  const comment = await ensureCommentAccessible(commentId, viewer, res);
+  const comment = await ensureCommentAccessible(commentId, res);
   if (!comment) {
     return;
   }
@@ -156,7 +141,7 @@ async function insertComment(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
-  const ticket = await ensureTicketAccess(parsed.data.ticketId, viewer, res);
+  const ticket = await ensureTicketAccess(parsed.data.ticketId, res);
   if (!ticket) {
     return;
   }
@@ -186,13 +171,15 @@ async function updateComment(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
-  const existing = await ensureCommentAccessible(commentId, viewer, res);
+  const existing = await ensureCommentAccessible(commentId, res);
   if (!existing) {
     return;
   }
 
-  if (!isAdmin(viewer) && existing.userId !== viewer.id) {
-    return res.status(403).json({ message: "Only the author can modify this comment" });
+  if (!isAdmin(viewer) && !canManageOwnComment(viewer, existing.userId)) {
+    return res
+      .status(403)
+      .json({ message: "Only admins or eligible authors can modify this comment" });
   }
 
   const updated = await editComment(commentId, { message: parsed.data.message });
@@ -210,13 +197,15 @@ async function deleteCommentById(req: Request, res: Response) {
     return res.status(400).json({ message: "Invalid comment id" });
   }
 
-  const existing = await ensureCommentAccessible(commentId, viewer, res);
+  const existing = await ensureCommentAccessible(commentId, res);
   if (!existing) {
     return;
   }
 
-  if (!isAdmin(viewer) && existing.userId !== viewer.id) {
-    return res.status(403).json({ message: "Only the author can delete this comment" });
+  if (!isAdmin(viewer) && !canManageOwnComment(viewer, existing.userId)) {
+    return res
+      .status(403)
+      .json({ message: "Only admins or eligible authors can delete this comment" });
   }
 
   await deleteComment(commentId);
