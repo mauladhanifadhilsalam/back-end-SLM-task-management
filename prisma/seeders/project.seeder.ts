@@ -11,7 +11,6 @@ export default async function seedProject() {
       startDate: "2025-01-06",
       endDate: "2025-04-11",
       status: ProjectStatus.IN_PROGRESS,
-      completion: 42.5,
       notes:
         "MFA rollout blocked on legacy ERP app; dependency on Infra for reverse proxy rule changes. Zero-trust enforcement date: April 5.",
       phases: [
@@ -32,7 +31,6 @@ export default async function seedProject() {
       startDate: "2025-02-03",
       endDate: "2025-05-30",
       status: ProjectStatus.NOT_STARTED,
-      completion: 0,
       notes:
         "Checkout flow requires payment gateway approval (ETA Feb 15). Mobile team must deliver loyalty SDK before Interface phase. Launch tied to Q2 client summit.",
       phases: [
@@ -53,7 +51,6 @@ export default async function seedProject() {
       startDate: "2024-11-11",
       endDate: "2025-04-25",
       status: ProjectStatus.IN_PROGRESS,
-      completion: 64.0,
       notes:
         "Sensor network depends on finalizing TLS cert rotation policy. Data retention SLA under legal review. No downtime allowed during migration window.",
       phases: [
@@ -89,7 +86,6 @@ export default async function seedProject() {
         startDate: new Date(proj.startDate),
         endDate: new Date(proj.endDate),
         status: proj.status,
-        completion: proj.completion,
         notes: proj.notes,
         phases: {
           create: proj.phases.map((p) => ({

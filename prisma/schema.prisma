@@ -172,7 +172,7 @@ model Ticket {
   type         TicketType
   title        String
   description  String?
-  priority     TicketPriority?
+  priority     TicketPriority
   status       TicketStatus  @default(TO_DO)
   requesterId  Int
   startDate    DateTime?
