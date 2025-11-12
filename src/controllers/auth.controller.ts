@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { z } from "zod";
 import { verifyPassword, signJwt } from "../utils/auth";
-import { findUser } from "../services/auth.service";
+import { findUserByEmail, findUserById } from "../services/auth.service";
 import env from "../utils/env";
 
 const loginSchema = z.object({
@@ -14,7 +14,7 @@ async function login(req: Request, res: Response) {
   if (!parsed.success) return res.status(400).json(parsed.error.format());
   const { email, password } = parsed.data;
 
-  const user = await findUser({ email });
+  const user = await findUserByEmail({ email });
   if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
   const ok = await verifyPassword(password, user.passwordHash);
@@ -29,4 +29,16 @@ async function login(req: Request, res: Response) {
   });
 }
 
-export { login };
+async function getUser(req: Request, res: Response) {
+  const user = await findUserById(Number(req.user!.sub));
+  if (!user) return res.status(404).json({ message: "User not found" });
+  res.json({
+    id: user.id,
+    fullName: user.fullName,
+    email: user.email,
+    role: user.role,
+    isActive: user.isActive,
+  });
+}
+
+export { login, getUser };
