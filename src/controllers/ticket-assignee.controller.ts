@@ -9,6 +9,9 @@ import {
 } from "../services/ticket-assignee.service";
 import { findTicket } from "../services/ticket.service";
 import { findUser } from "../services/user.service";
+import { transporter } from "../utils/transporter";
+import { SendMailOptions } from "nodemailer";
+import env from "../utils/env";
 
 type Viewer = { id: number; role: RoleType };
 type TicketWithRelations = NonNullable<
@@ -168,6 +171,17 @@ async function addTicketAssignee(req: Request, res: Response) {
   }
 
   const created = await createTicketAssignee({ ticketId: ticket.id, userId });
+
+  const mailOptions: SendMailOptions = {
+    from: `${ticket.requester.fullName} <${env.emailUser}>`,
+    replyTo: ticket.requester.email,
+    to: assignee.email,
+    subject: `${ticket.title} #${ticket.id} `,
+    text: `You have been assigned to ${ticket.type.toLowerCase()} #${ticket.id}`,
+  };
+
+  await transporter.sendMail(mailOptions);
+
   res.status(201).json(created);
 }
 
