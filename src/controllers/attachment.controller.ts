@@ -17,7 +17,7 @@ import {
 import env from "../utils/env";
 
 const attachmentQuerySchema = z.object({
-  ticketId: z.coerce.number().int().positive(),
+  ticketId: z.coerce.number().int().positive().optional(),
 });
 
 const createAttachmentSchema = z.object({
@@ -71,6 +71,11 @@ async function getAttachments(req: Request, res: Response) {
   const parsed = attachmentQuerySchema.safeParse(req.query);
   if (!parsed.success) {
     return res.status(400).json(parsed.error.format());
+  }
+
+  if (!parsed.data.ticketId) {
+    const attachments = await findAttachments();
+    return res.status(200).json(attachments);
   }
 
   const ticket = await findTicket({ id: parsed.data.ticketId });
