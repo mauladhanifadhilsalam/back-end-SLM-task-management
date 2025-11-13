@@ -130,7 +130,7 @@ async function addAttachment(req: Request, res: Response) {
     ticketId: ticket.id,
     userId: viewer.id,
     fileName: file.originalname,
-    filePath: env.baseUrl + relativePath,
+    filePath: `${env.baseUrl}/${relativePath}`,
     fileSize: file.size,
   });
 
