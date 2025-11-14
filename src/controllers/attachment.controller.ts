@@ -49,8 +49,7 @@ function resolveStoredPath(filePath: string) {
     return filePath;
   }
 
-  const sanitized = filePath.replace(/^uploads[\\/]/, "");
-  return path.join(process.cwd(), "uploads", sanitized);
+  return path.join(process.cwd(), filePath);
 }
 
 async function removeStoredFile(filePath?: string | null) {
