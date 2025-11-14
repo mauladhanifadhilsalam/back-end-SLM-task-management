@@ -32,10 +32,6 @@ app.use("/auth", authRouter);
 app.get("/health", (_req: Request, res: Response) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
-app.use(
-  "/uploads",
-  express.static(path.join(process.cwd(), "uploads")),
-);
 
 // Protected routes
 app.use(requireAuth);
