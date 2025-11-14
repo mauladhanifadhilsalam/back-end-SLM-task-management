@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { z } from "zod";
 import {
   findProjectPhases,
   findProjectPhase,
@@ -8,35 +7,10 @@ import {
   deleteProjectPhase,
 } from "../services/project-phase.service";
 import { findProject } from "../services/project.service";
-
-const createProjectPhaseSchema = z
-  .object({
-    name: z.string().min(1),
-    startDate: z.coerce.date(),
-    endDate: z.coerce.date(),
-    projectId: z.number().int().positive(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.endDate < data.startDate) {
-      ctx.addIssue({
-        code: "custom",
-        message: "End date must be on or after start date",
-        path: ["endDate"],
-      });
-    }
-  });
-
-const updateProjectPhaseSchema = createProjectPhaseSchema
-  .partial()
-  .superRefine((data, ctx) => {
-    if (data.startDate && data.endDate && data.endDate < data.startDate) {
-      ctx.addIssue({
-        code: "custom",
-        message: "End date must be on or after start date",
-        path: ["endDate"],
-      });
-    }
-  });
+import {
+  createProjectPhaseSchema,
+  updateProjectPhaseSchema,
+} from "../schemas/project-phase.schema";
 
 async function getAllProjectPhases(req: Request, res: Response) {
   try {

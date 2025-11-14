@@ -10,6 +10,7 @@ import projectOwnerRouter from "./routes/project-owner.route";
 import projectRouter from "./routes/project.route";
 import projectPhaseRouter from "./routes/project-phase.route";
 import ticketRouter from "./routes/ticket.route";
+import commentRouter from "./routes/comment.route";
 import ticketAssigneeRouter from "./routes/ticket-assignee.route";
 import attachmentRouter from "./routes/attachment.route";
 
@@ -49,6 +50,7 @@ app.use(
 );
 app.use("/project-phases", requireRole(RoleType.ADMIN), projectPhaseRouter);
 app.use("/tickets", ticketRouter);
+app.use("/comments", commentRouter);
 app.use("/ticket-assignees", ticketAssigneeRouter);
 app.use("/attachments", attachmentRouter);
 
