@@ -81,8 +81,17 @@ async function getAttachments(req: Request, res: Response) {
     if (!isAdmin(viewer!)) {
       return res.status(403).json({ message: "You are not allowed to access all attachments" });
     }
+
     const attachments = await findAttachments();
-    return res.status(200).json(attachments);
+
+    const base64Attachments = await Promise.all(
+      attachments.map(async (attachment) => {
+        const base64 = await getBase64(attachment.filePath);
+        return { ...attachment, base64 };
+      })
+    );
+
+    return res.status(200).json(base64Attachments);
   }
 
   const ticket = await findTicket({ id: parsed.data.ticketId });
@@ -94,14 +103,14 @@ async function getAttachments(req: Request, res: Response) {
 
   const base64Attachments = await Promise.all(
     attachments.map(async (attachment) => {
-      const filePath = attachment.filePath;
-      const base64 = await getBase64(filePath);
+      const base64 = await getBase64(attachment.filePath);
       return { ...attachment, base64 };
     })
   );
 
   res.status(200).json(base64Attachments);
 }
+
 
 async function addAttachment(req: Request, res: Response) {
   const file = req.file as Express.Multer.File | undefined;
