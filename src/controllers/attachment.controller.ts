@@ -13,6 +13,7 @@ import {
   getViewer,
   canViewTicket,
   canModifyTicket,
+  isAdmin,
 } from "../utils/ticketPermissions";
 import env from "../utils/env";
 
@@ -62,18 +63,24 @@ async function removeStoredFile(filePath?: string | null) {
   } catch {}
 }
 
-async function getAttachments(req: Request, res: Response) {
-  const viewer = getViewer(req);
-  if (!viewer) {
-    return res.status(401).json({ message: "Authentication required" });
-  }
+async function getBase64(FilePath: string) {
+  const file = await fs.readFile(FilePath);
+  const base64 = file.toString("base64");
+  return base64;
+}
 
+async function getAttachments(req: Request, res: Response) {
   const parsed = attachmentQuerySchema.safeParse(req.query);
   if (!parsed.success) {
     return res.status(400).json(parsed.error.format());
   }
 
+  const viewer = getViewer(req);
+
   if (!parsed.data.ticketId) {
+    if (!isAdmin(viewer!)) {
+      return res.status(403).json({ message: "You are not allowed to access all attachments" });
+    }
     const attachments = await findAttachments();
     return res.status(200).json(attachments);
   }
@@ -83,12 +90,17 @@ async function getAttachments(req: Request, res: Response) {
     return res.status(404).json({ message: "Ticket not found" });
   }
 
-  if (!canViewTicket(ticket, viewer)) {
-    return res.status(403).json({ message: "Insufficient permissions" });
-  }
-
   const attachments = await findAttachments({ ticketId: ticket.id });
-  res.status(200).json(attachments);
+
+  const base64Attachments = await Promise.all(
+    attachments.map(async (attachment) => {
+      const filePath = attachment.filePath;
+      const base64 = await getBase64(filePath);
+      return { ...attachment, base64 };
+    })
+  );
+
+  res.status(200).json(base64Attachments);
 }
 
 async function addAttachment(req: Request, res: Response) {
@@ -130,8 +142,9 @@ async function addAttachment(req: Request, res: Response) {
     ticketId: ticket.id,
     userId: viewer.id,
     fileName: file.originalname,
-    filePath: `${env.baseUrl}/${relativePath}`,
+    filePath: `${relativePath}`,
     fileSize: file.size,
+    mimeType: file.mimetype
   });
 
   res.status(201).json(attachment);

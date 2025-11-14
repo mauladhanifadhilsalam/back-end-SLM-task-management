@@ -1,17 +1,6 @@
 import prisma from "../db/prisma";
 import { Prisma } from "../generated/prisma";
 
-const attachmentInclude = {
-  user: {
-    select: {
-      id: true,
-      fullName: true,
-      email: true,
-      role: true,
-    },
-  },
-} satisfies Prisma.AttachmentInclude;
-
 type AttachmentFilters = {
   ticketId?: number;
   userId?: number;
@@ -23,6 +12,7 @@ type NewAttachmentInput = {
   fileName: string;
   filePath: string;
   fileSize: number;
+  mimeType: string;
 };
 
 async function findAttachments(filters: AttachmentFilters = {}) {
@@ -33,7 +23,6 @@ async function findAttachments(filters: AttachmentFilters = {}) {
 
   return prisma.attachment.findMany({
     where,
-    include: attachmentInclude,
     orderBy: { createdAt: "desc" },
   });
 }
@@ -41,21 +30,18 @@ async function findAttachments(filters: AttachmentFilters = {}) {
 async function findAttachment(where: Prisma.AttachmentWhereUniqueInput) {
   return prisma.attachment.findUnique({
     where,
-    include: attachmentInclude,
   });
 }
 
 async function createAttachment(data: NewAttachmentInput) {
   return prisma.attachment.create({
     data,
-    include: attachmentInclude,
   });
 }
 
 async function deleteAttachment(id: number) {
   return prisma.attachment.delete({
     where: { id },
-    include: attachmentInclude,
   });
 }
 
