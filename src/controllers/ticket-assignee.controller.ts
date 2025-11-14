@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { z } from "zod";
 import {
   findTicketAssignees,
   createTicketAssignee,
@@ -13,15 +12,10 @@ import {
   canViewTicket,
   canModifyTicket,
 } from "../utils/ticketPermissions";
-
-const ticketAssigneeQuerySchema = z.object({
-  ticketId: z.coerce.number().int().positive(),
-});
-
-const createTicketAssigneeSchema = z.object({
-  ticketId: z.number().int().positive(),
-  userId: z.number().int().positive(),
-});
+import {
+  ticketAssigneeQuerySchema,
+  createTicketAssigneeSchema
+} from "../schemas/ticket-assignee.schema";
 
 function parseIdParam(value: string) {
   const id = Number(value);

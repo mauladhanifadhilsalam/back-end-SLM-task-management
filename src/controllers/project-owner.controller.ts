@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { z } from "zod";
 import {
   findProjectOwners,
   findProjectOwner,
@@ -7,14 +6,7 @@ import {
   editProjectOwner,
   deleteProjectOwner,
 } from "../services/project-owner.service";
-
-const projectOwnerSchema = z.object({
-  name: z.string(),
-  company: z.string(),
-  email: z.email(),
-  phone: z.e164(),
-  address: z.string(),
-});
+import { projectOwnerSchema } from "../schemas/project-owner.schema";
 
 async function getAllProjectOwners(_req: Request, res: Response) {
   try {

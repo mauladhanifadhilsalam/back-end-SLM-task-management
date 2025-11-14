@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { z } from "zod";
 import { hashPassword, verifyPassword } from "../utils/auth";
 import {
   findUsers,
@@ -9,36 +8,10 @@ import {
   deleteUser,
   editPassword,
 } from "../services/user.service";
-
-const passwordSchema = z
-  .string()
-  .min(8, { message: "Password must be at least 8 characters long." })
-  .refine((val) => /[a-z]/.test(val), {
-    message: "Password must contain at least one lowercase letter.",
-  })
-  .refine((val) => /[A-Z]/.test(val), {
-    message: "Password must contain at least one uppercase letter.",
-  })
-  .refine((val) => /\d/.test(val), {
-    message: "Password must contain at least one number.",
-  })
-  .refine((val) => /[^A-Za-z0-9]/.test(val), {
-    message: "Password must contain at least one special character.",
-  });
-
-const userSchema = z.object({
-  email: z.email(),
-  fullName: z.string(),
-  role: z.enum(["PROJECT_MANAGER", "DEVELOPER"]),
-  password: passwordSchema,
-  isActive: z.boolean().optional(),
-});
-
-const changePasswordSchema = z.object({
-  email: z.email(),
-  password: z.string(),
-  newPassword: passwordSchema
-});
+import {
+  userSchema,
+  changePasswordSchema,
+} from "../schemas/user.schema";
 
 async function getAllUsers(_req: Request, res: Response) {
   try {
