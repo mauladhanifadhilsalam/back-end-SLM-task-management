@@ -10,12 +10,12 @@ import {
 import { findProject } from "../services/project.service";
 import { findUser } from "../services/user.service";
 import {
-  getViewer,
+  requireViewer,
   isAdmin,
   canViewTicket,
   canModifyTicketState,
   canModifyTicket,
-} from "../utils/ticketPermissions";
+} from "../utils/permissions";
 import {
   ticketQuerySchema,
   createTicketSchema,
@@ -32,9 +32,8 @@ function parseIdParam(value: string) {
 
 async function getAllTickets(req: Request, res: Response) {
   try {
-    const viewer = getViewer(req);
-    if (!viewer) {
-      return res.status(401).json({ message: "Authentication required" });
+    if (!requireViewer(req, res)) {
+      return;
     }
 
     const parsed = ticketQuerySchema.safeParse(req.query);
@@ -51,9 +50,9 @@ async function getAllTickets(req: Request, res: Response) {
 
 async function getTicketById(req: Request, res: Response) {
   try {
-    const viewer = getViewer(req);
+    const viewer = requireViewer(req, res);
     if (!viewer) {
-      return res.status(401).json({ message: "Authentication required" });
+      return;
     }
 
     const id = parseIdParam(req.params.id);
@@ -77,9 +76,9 @@ async function getTicketById(req: Request, res: Response) {
 }
 
 async function insertTicket(req: Request, res: Response) {
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
   if (!viewer) {
-    return res.status(401).json({ message: "Authentication required" });
+    return;
   }
 
   const parsed = createTicketSchema.safeParse(req.body);
@@ -141,9 +140,9 @@ async function updateTicket(req: Request, res: Response) {
     return res.status(400).json({ message: "Invalid ticket id" });
   }
 
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
   if (!viewer) {
-    return res.status(401).json({ message: "Authentication required" });
+    return;
   }
 
   const existing = await findTicket({ id });
@@ -255,9 +254,9 @@ async function deleteTicketById(req: Request, res: Response) {
     return res.status(400).json({ message: "Invalid ticket id" });
   }
 
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
   if (!viewer) {
-    return res.status(401).json({ message: "Authentication required" });
+    return;
   }
 
   const ticket = await findTicket({ id });

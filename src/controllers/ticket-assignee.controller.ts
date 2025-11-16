@@ -8,10 +8,10 @@ import {
 import { findTicket } from "../services/ticket.service";
 import { findUser } from "../services/user.service";
 import {
-  getViewer,
+  requireViewer,
   canViewTicket,
   canModifyTicket,
-} from "../utils/ticketPermissions";
+} from "../utils/permissions";
 import {
   ticketAssigneeQuerySchema,
   createTicketAssigneeSchema
@@ -30,9 +30,9 @@ function parseIdParam(value: string) {
 }
 
 async function getTicketAssignees(req: Request, res: Response) {
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
   if (!viewer) {
-    return res.status(401).json({ message: "Authentication required" });
+    return;
   }
 
   const parsed = ticketAssigneeQuerySchema.safeParse(req.query);
@@ -54,9 +54,9 @@ async function getTicketAssignees(req: Request, res: Response) {
 }
 
 async function addTicketAssignee(req: Request, res: Response) {
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
   if (!viewer) {
-    return res.status(401).json({ message: "Authentication required" });
+    return;
   }
 
   const parsed = createTicketAssigneeSchema.safeParse(req.body);
@@ -103,9 +103,9 @@ async function addTicketAssignee(req: Request, res: Response) {
 }
 
 async function removeTicketAssignee(req: Request, res: Response) {
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
   if (!viewer) {
-    return res.status(401).json({ message: "Authentication required" });
+    return;
   }
 
   const id = parseIdParam(req.params.id);

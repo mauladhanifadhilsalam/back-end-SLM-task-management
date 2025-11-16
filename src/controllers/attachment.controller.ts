@@ -9,10 +9,10 @@ import {
 } from "../services/attachment.service";
 import { findTicket } from "../services/ticket.service";
 import {
-  getViewer,
+  requireViewer,
   canModifyTicket,
   isAdmin,
-} from "../utils/ticketPermissions";
+} from "../utils/permissions";
 import {
   attachmentQuerySchema,
   createAttachmentSchema,
@@ -67,10 +67,13 @@ async function getAttachments(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
 
   if (!parsed.data.ticketId) {
-    if (!isAdmin(viewer!)) {
+    if (!isAdmin(viewer)) {
       return res
         .status(403)
         .json({ message: "You are not allowed to access all attachments" });
@@ -107,10 +110,10 @@ async function getAttachments(req: Request, res: Response) {
 
 async function addAttachment(req: Request, res: Response) {
   const file = req.file as Express.Multer.File | undefined;
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
   if (!viewer) {
     await discardUploadedFile(file);
-    return res.status(401).json({ message: "Authentication required" });
+    return;
   }
 
   const parsed = createAttachmentSchema.safeParse(req.body);
@@ -153,9 +156,9 @@ async function addAttachment(req: Request, res: Response) {
 }
 
 async function deleteAttachmentById(req: Request, res: Response) {
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
   if (!viewer) {
-    return res.status(401).json({ message: "Authentication required" });
+    return;
   }
 
   const id = parseIdParam(req.params.id);
