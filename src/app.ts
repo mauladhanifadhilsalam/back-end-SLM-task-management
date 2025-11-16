@@ -1,5 +1,6 @@
 // Core framework and type imports
 import express, { Request, Response } from "express";
+import path from "path";
 import { RoleType } from "./generated/prisma";
 
 // Route handlers for different parts of the application
@@ -11,6 +12,7 @@ import projectPhaseRouter from "./routes/project-phase.route";
 import ticketRouter from "./routes/ticket.route";
 import commentRouter from "./routes/comment.route";
 import ticketAssigneeRouter from "./routes/ticket-assignee.route";
+import attachmentRouter from "./routes/attachment.route";
 
 // Middleware for authentication and role-based access control
 import requireAuth from "./middleware/requireAuth";
@@ -50,6 +52,7 @@ app.use("/project-phases", requireRole(RoleType.ADMIN), projectPhaseRouter);
 app.use("/tickets", ticketRouter);
 app.use("/comments", commentRouter);
 app.use("/ticket-assignees", ticketAssigneeRouter);
+app.use("/attachments", attachmentRouter);
 
 // endpoint without requireRole can be accessed by any authenticated user
 app.get("/", (_req: Request, res: Response) => {

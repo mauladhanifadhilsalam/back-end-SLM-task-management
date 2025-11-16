@@ -8,6 +8,7 @@ const env: {
   emailPort: number;
   emailUser: string;
   emailPass: string;
+  uploadDir: string;
 } = {
   jwtSecret: process.env.JWT_SECRET || "secret",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || 3600,
@@ -15,6 +16,7 @@ const env: {
   emailPort: parseInt(process.env.EMAIL_PORT || "587"),
   emailUser: process.env.EMAIL_USER || "user@gmail.com",
   emailPass: process.env.EMAIL_PASS || "abcdefghijklmnop",
+  uploadDir: process.env.UPLOAD_DIR || "uploads/",
 };
 
 export default env;
