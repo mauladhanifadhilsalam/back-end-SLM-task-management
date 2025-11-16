@@ -6,10 +6,9 @@ type CommentFilters = {
   ticketId?: number;
 };
 
-type NewCommentInput = {
+type NewCommentInput = Pick<Prisma.CommentCreateInput, "message"> & {
   ticketId: number;
   userId: number;
-  message: string;
 };
 
 const commentInclude = {
@@ -65,10 +64,4 @@ async function deleteComment(id: number) {
   });
 }
 
-export {
-  findComments,
-  findComment,
-  createComment,
-  editComment,
-  deleteComment,
-};
+export { findComments, findComment, createComment, editComment, deleteComment };
