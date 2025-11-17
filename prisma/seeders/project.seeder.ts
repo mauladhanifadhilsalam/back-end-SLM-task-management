@@ -5,7 +5,7 @@ import { findProjectOwner } from "../../src/services/project-owner.service";
 export default async function seedProject() {
   const projects = [
     {
-      ownerEmail: "scott@gmail.com",
+      ownerEmail: "scott@example.com",
       name: "Project Obsidian — Identity Federation & Secure Access",
       categories: ["Security", "Infrastructure", "Platform"],
       startDate: "2025-01-06",
@@ -25,7 +25,7 @@ export default async function seedProject() {
       ],
     },
     {
-      ownerEmail: "grammont@gmail.com",
+      ownerEmail: "grammont@example.com",
       name: "Project Velvet — Client Experience & Commerce Layer",
       categories: ["Web", "Mobile", "Commerce"],
       startDate: "2025-02-03",
@@ -45,7 +45,7 @@ export default async function seedProject() {
       ],
     },
     {
-      ownerEmail: "koji@gmail.com",
+      ownerEmail: "koji@example.com",
       name: "Project Kintsugi — Sensor Grid & Ops Intelligence",
       categories: ["IoT", "Data", "Analytics"],
       startDate: "2024-11-11",
