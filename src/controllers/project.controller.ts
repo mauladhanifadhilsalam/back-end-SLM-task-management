@@ -15,6 +15,11 @@ import {
 import { notifyProjectAssignments } from "../services/notification.triggers";
 import { requireViewer } from "../utils/permissions";
 import { findUserById } from "../services/user.service";
+import { ActivityTargetType } from "../generated/prisma";
+import {
+  recordActivity,
+  toActivityDetails,
+} from "../services/activity-log.service";
 
 async function getAllProjects(_req: Request, res: Response) {
   try {
@@ -98,10 +103,27 @@ async function insertProject(req: Request, res: Response) {
     ? { id: actor.id, fullName: actor.fullName }
     : undefined;
   await notifyProjectAssignments(project, notificationActor);
+  await recordActivity({
+    userId: viewer.id,
+    action: "PROJECT_CREATED",
+    targetType: ActivityTargetType.PROJECT,
+    targetId: project.id,
+    details: toActivityDetails({
+      name: project.name,
+      ownerId: project.ownerId,
+      startDate,
+      endDate,
+    }),
+  });
   res.status(201).json(project);
 }
 
 async function updateProject(req: Request, res: Response) {
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
+
   const { id } = req.params;
   const projectId = Number(id);
 
@@ -138,16 +160,42 @@ async function updateProject(req: Request, res: Response) {
     endDate,
   });
 
+  await recordActivity({
+    userId: viewer.id,
+    action: "PROJECT_UPDATED",
+    targetType: ActivityTargetType.PROJECT,
+    targetId: updated.id,
+    details: toActivityDetails({
+      projectId: updated.id,
+      changedFields: Object.keys(parsed.data),
+    }),
+  });
+
   res.status(200).json(updated);
 }
 
 async function deleteProjectById(req: Request, res: Response) {
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
+
   const { id } = req.params;
 
   const project = await findProject({ id: Number(id) });
   if (!project) return res.status(404).json({ message: "Project not found" });
 
   await deleteProject(project.id);
+  await recordActivity({
+    userId: viewer.id,
+    action: "PROJECT_DELETED",
+    targetType: ActivityTargetType.PROJECT,
+    targetId: project.id,
+    details: toActivityDetails({
+      name: project.name,
+      ownerId: project.ownerId,
+    }),
+  });
   res.status(200).send({ message: "Project deleted successfully" });
 }
 

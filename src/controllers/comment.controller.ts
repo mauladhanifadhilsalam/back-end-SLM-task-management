@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { RoleType } from "../generated/prisma";
+import { RoleType, ActivityTargetType } from "../generated/prisma";
 import {
   findComments,
   findComment,
@@ -19,6 +19,10 @@ import {
   notifyTicketRequesterComment,
   CommentNotificationPayload,
 } from "../services/notification.triggers";
+import {
+  recordActivity,
+  toActivityDetails,
+} from "../services/activity-log.service";
 
 const messageSchema = z.object({
   message: z.string().trim().min(1),
@@ -147,6 +151,15 @@ async function insertComment(req: Request, res: Response) {
   });
 
   await notifyTicketRequesterComment(created as CommentNotificationPayload);
+  await recordActivity({
+    userId: viewer.id,
+    action: "COMMENT_CREATED",
+    targetType: ActivityTargetType.COMMENT,
+    targetId: created.id,
+    details: toActivityDetails({
+      ticketId: created.ticketId,
+    }),
+  });
   res.status(201).json(created);
 }
 
@@ -178,6 +191,15 @@ async function updateComment(req: Request, res: Response) {
   }
 
   const updated = await editComment(commentId, { message: parsed.data.message });
+  await recordActivity({
+    userId: viewer.id,
+    action: "COMMENT_UPDATED",
+    targetType: ActivityTargetType.COMMENT,
+    targetId: updated.id,
+    details: toActivityDetails({
+      ticketId: updated.ticketId,
+    }),
+  });
   res.status(200).json(updated);
 }
 
@@ -203,7 +225,16 @@ async function deleteCommentById(req: Request, res: Response) {
       .json({ message: "Only admins or eligible authors can delete this comment" });
   }
 
-  await deleteComment(commentId);
+  const deleted = await deleteComment(commentId);
+  await recordActivity({
+    userId: viewer.id,
+    action: "COMMENT_DELETED",
+    targetType: ActivityTargetType.COMMENT,
+    targetId: deleted.id,
+    details: toActivityDetails({
+      ticketId: deleted.ticketId,
+    }),
+  });
   res.status(200).json({ message: "Comment deleted successfully" });
 }
 
