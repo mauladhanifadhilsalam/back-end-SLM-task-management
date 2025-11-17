@@ -6,7 +6,7 @@ import {
   findTicketAssignee,
 } from "../services/ticket-assignee.service";
 import { findTicket } from "../services/ticket.service";
-import { findUser } from "../services/user.service";
+import { findUser, findUserById } from "../services/user.service";
 import {
   requireViewer,
   canViewTicket,
@@ -56,6 +56,10 @@ async function addTicketAssignee(req: Request, res: Response) {
   if (!viewer) {
     return;
   }
+  const actorProfile = await findUserById(viewer.id);
+  const notificationActor = actorProfile
+    ? { id: actorProfile.id, fullName: actorProfile.fullName }
+    : undefined;
 
   const parsed = createTicketAssigneeSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -89,7 +93,7 @@ async function addTicketAssignee(req: Request, res: Response) {
 
   const updatedTicket = await findTicket({ id: ticket.id });
   if (updatedTicket) {
-    await notifyTicketAssignees(updatedTicket, [userId]);
+    await notifyTicketAssignees(updatedTicket, [userId], notificationActor);
   }
 
   res.status(201).json(created);

@@ -18,6 +18,8 @@ type DispatchNotificationInput = {
   subject: string;
   text?: string;
   state?: NotificationState;
+  from?: string;
+  replyTo?: string;
 };
 
 function sendEmailAsync(
@@ -25,13 +27,16 @@ function sendEmailAsync(
   recipientEmail: string,
   subject: string,
   text: string,
+  from?: string,
+  replyTo?: string,
 ) {
   transporter
     .sendMail({
-      from: `SLM Project Management Notifications <${env.emailUser}>`,
+      from: from ?? `SLM Project Management <${env.emailUser}>`,
       to: recipientEmail,
       subject,
       text,
+      ...(replyTo ? { replyTo } : {}),
     })
     .then(() =>
       editNotification(notificationId, {
@@ -58,6 +63,8 @@ async function dispatchNotification({
   subject,
   text,
   state,
+  from,
+  replyTo,
 }: DispatchNotificationInput) {
   const notification = await createNotification({
     recipientId,
@@ -77,7 +84,14 @@ async function dispatchNotification({
     return notification;
   }
 
-  sendEmailAsync(notification.id, recipientEmail, subject, text ?? message);
+  sendEmailAsync(
+    notification.id,
+    recipientEmail,
+    subject,
+    text ?? message,
+    from,
+    replyTo,
+  );
 
   return notification;
 }

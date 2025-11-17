@@ -8,7 +8,7 @@ import {
   findAssignableUsers,
 } from "../services/ticket.service";
 import { findProject } from "../services/project.service";
-import { findUser } from "../services/user.service";
+import { findUser, findUserById } from "../services/user.service";
 import {
   requireViewer,
   isAdmin,
@@ -84,6 +84,11 @@ async function insertTicket(req: Request, res: Response) {
   if (!viewer) {
     return;
   }
+  const viewerProfile = await findUserById(viewer.id);
+  const notificationActor = viewerProfile
+    ? { id: viewerProfile.id, fullName: viewerProfile.fullName }
+    : undefined;
+  const actor = await findUserById(viewer.id);
 
   const parsed = createTicketSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -135,7 +140,7 @@ async function insertTicket(req: Request, res: Response) {
     ...rest,
   });
 
-  await notifyTicketAssignees(ticket, uniqueAssigneeIds ?? []);
+  await notifyTicketAssignees(ticket, uniqueAssigneeIds ?? [], notificationActor);
   res.status(201).json(ticket);
 }
 
@@ -149,6 +154,10 @@ async function updateTicket(req: Request, res: Response) {
   if (!viewer) {
     return;
   }
+  const viewerProfile = await findUserById(viewer.id);
+  const notificationActor = viewerProfile
+    ? { id: viewerProfile.id, fullName: viewerProfile.fullName }
+    : undefined;
 
   const existing = await findTicket({ id });
   if (!existing) {
@@ -257,10 +266,10 @@ async function updateTicket(req: Request, res: Response) {
   });
 
   if (addedAssigneeIds.length) {
-    await notifyTicketAssignees(updated, addedAssigneeIds);
+    await notifyTicketAssignees(updated, addedAssigneeIds, notificationActor);
   }
 
-  await notifyTicketCompletion(updated, existing.status);
+  await notifyTicketCompletion(updated, existing.status, notificationActor);
   res.status(200).json(updated);
 }
 

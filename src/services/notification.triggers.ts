@@ -24,8 +24,13 @@ type ProjectWithAssignments = {
 type CommentWithTicket = {
   id: number;
   message: string;
-  user: { id: number; fullName: string };
+  user: { id: number; fullName: string; email: string | null };
   ticket: TicketWithRelations;
+};
+
+type NotificationActor = {
+  id: number;
+  fullName: string;
 };
 
 const completionStatuses = new Set<TicketStatus>([
@@ -41,10 +46,29 @@ function formatRole(role?: string) {
     .join(" ");
 }
 
-async function notifyProjectAssignments(project: ProjectWithAssignments) {
+function formatActorName(actor?: NotificationActor | null) {
+  return actor?.fullName ?? "Someone";
+}
+
+function buildProjectSubject(
+  projectName: string | null | undefined,
+  detail: string,
+) {
+  const normalized = projectName?.trim();
+  return normalized && normalized.length
+    ? `[${normalized}] ${detail}`
+    : detail;
+}
+
+async function notifyProjectAssignments(
+  project: ProjectWithAssignments,
+  actor?: NotificationActor | null,
+) {
   if (!project.assignments?.length) {
     return;
   }
+
+  const actorName = formatActorName(actor);
 
   await Promise.all(
     project.assignments.map(async (assignment) => {
@@ -56,8 +80,9 @@ async function notifyProjectAssignments(project: ProjectWithAssignments) {
         recipientId: assignment.user.id,
         targetType: NotificationTargetType.PROJECT,
         targetId: project.id,
-        subject: `Assigned to project "${project.name}"`,
-        message: `You have been assigned to "${project.name}" as ${formatRole(
+        subject:
+          `You are assigned to project "${project.name}"`,
+        message: `${actorName} assigned you to "${project.name}" as ${formatRole(
           assignment.roleInProject,
         )}.`,
       });
@@ -68,6 +93,7 @@ async function notifyProjectAssignments(project: ProjectWithAssignments) {
 async function notifyTicketAssignees(
   ticket: TicketWithRelations,
   assigneeIds: number[],
+  actor?: NotificationActor | null,
 ) {
   const uniqueAssigneeIds = Array.from(new Set(assigneeIds)).filter(
     (id) => Number.isInteger(id) && id > 0,
@@ -75,6 +101,8 @@ async function notifyTicketAssignees(
   if (!uniqueAssigneeIds.length) {
     return;
   }
+
+  const actorName = formatActorName(actor);
 
   await Promise.all(
     uniqueAssigneeIds.map(async (userId) => {
@@ -89,8 +117,11 @@ async function notifyTicketAssignees(
         recipientId: userId,
         targetType: NotificationTargetType.TICKET,
         targetId: ticket.id,
-        subject: `${capitalizeWord(ticket.type)} #${ticket.id} assigned to you`,
-        message: `You have been assigned to "${ticket.title}".`,
+        subject: buildProjectSubject(
+          ticket.project?.name,
+          `${capitalizeWord(ticket.type)} #${ticket.id} assigned to you`,
+        ),
+        message: `${actorName} assigned you to ${ticket.type.toLowerCase()} "${ticket.title}".`,
       });
     }),
   );
@@ -99,6 +130,7 @@ async function notifyTicketAssignees(
 async function notifyTicketCompletion(
   ticket: TicketWithRelations,
   previousStatus: TicketStatus,
+  actor?: NotificationActor | null,
 ) {
   if (!completionStatuses.has(ticket.status)) {
     return;
@@ -113,12 +145,17 @@ async function notifyTicketCompletion(
     return;
   }
 
+  const actorName = formatActorName(actor);
+
   void dispatchNotification({
     recipientId: requester.id,
     targetType: NotificationTargetType.TICKET,
     targetId: ticket.id,
-    subject: `${capitalizeWord(ticket.type)} "${ticket.title}" is ${ticket.status.toLowerCase()}`,
-    message: `Your requested ${capitalizeWord(ticket.type)} "${ticket.title}" was marked as ${ticket.status.toLowerCase()}.`,
+    subject: buildProjectSubject(
+      ticket.project?.name,
+      `${capitalizeWord(ticket.type)} #${ticket.id} is ${ticket.status.toLowerCase()}`,
+    ),
+    message: `${actorName} marked your requested ${ticket.type.toLowerCase()} "${ticket.title}" as ${ticket.status.toLowerCase()}.`,
   });
 }
 
@@ -137,8 +174,15 @@ async function notifyTicketRequesterComment(comment: CommentWithTicket) {
     recipientId: requester.id,
     targetType: NotificationTargetType.TICKET,
     targetId: ticket.id,
-    subject: `New comment on "${ticket.title}"`,
-    message: `${comment.user.fullName} commented on "${ticket.title}": ${comment.message}`,
+    subject: buildProjectSubject(
+      ticket.project?.name,
+      `${capitalizeWord(ticket.type)} #${ticket.id}`,
+    ),
+    message: comment.message,
+    from: comment.user.email
+      ? `${comment.user.fullName} <${comment.user.email}>`
+      : undefined,
+    replyTo: comment.user.email ?? undefined,
   });
 }
 
@@ -148,4 +192,7 @@ export {
   notifyTicketCompletion,
   notifyTicketRequesterComment,
 };
-export type { CommentWithTicket as CommentNotificationPayload };
+export type {
+  CommentWithTicket as CommentNotificationPayload,
+  NotificationActor,
+};

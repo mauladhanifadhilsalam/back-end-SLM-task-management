@@ -13,6 +13,8 @@ import {
   updateProjectSchema,
 } from "../schemas/project.schema";
 import { notifyProjectAssignments } from "../services/notification.triggers";
+import { requireViewer } from "../utils/permissions";
+import { findUserById } from "../services/user.service";
 
 async function getAllProjects(_req: Request, res: Response) {
   try {
@@ -35,6 +37,11 @@ async function getProjectById(req: Request, res: Response) {
 }
 
 async function insertProject(req: Request, res: Response) {
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
+
   const parsed = createProjectSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.format());
 
@@ -86,7 +93,11 @@ async function insertProject(req: Request, res: Response) {
     ...rest,
   });
 
-  await notifyProjectAssignments(project);
+  const actor = await findUserById(viewer.id);
+  const notificationActor = actor
+    ? { id: actor.id, fullName: actor.fullName }
+    : undefined;
+  await notifyProjectAssignments(project, notificationActor);
   res.status(201).json(project);
 }
 
