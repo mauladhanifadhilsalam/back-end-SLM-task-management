@@ -27,7 +27,7 @@ async function findUser(where: Prisma.UserWhereUniqueInput) {
   });
 }
 
-async function findUserById(id: number) {
+async function findAnyUser(id: number) {
   return await prisma.user.findUnique({
     where: { id },
     select: {
@@ -75,4 +75,4 @@ async function editPassword(id: number, passwordHash: string) {
   });
 }
 
-export { findUsers, findUser, createUser, editUser, deleteUser, editPassword, findUserById };
+export { findUsers, findUser, createUser, editUser, deleteUser, editPassword, findAnyUser };

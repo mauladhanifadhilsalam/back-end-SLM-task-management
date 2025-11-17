@@ -6,7 +6,7 @@ import {
   findTicketAssignee,
 } from "../services/ticket-assignee.service";
 import { findTicket } from "../services/ticket.service";
-import { findUser, findUserById } from "../services/user.service";
+import { findUser, findAnyUser } from "../services/user.service";
 import {
   requireViewer,
   canViewTicket,
@@ -56,7 +56,7 @@ async function addTicketAssignee(req: Request, res: Response) {
   if (!viewer) {
     return;
   }
-  const actorProfile = await findUserById(viewer.id);
+  const actorProfile = await findAnyUser(viewer.id);
   const notificationActor = actorProfile
     ? { id: actorProfile.id, fullName: actorProfile.fullName }
     : undefined;
