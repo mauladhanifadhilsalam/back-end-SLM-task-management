@@ -39,6 +39,7 @@ const projectInclude = {
         select: {
           id: true,
           fullName: true,
+          email: true,
         }
       }
     }

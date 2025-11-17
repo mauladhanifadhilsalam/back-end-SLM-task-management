@@ -12,6 +12,7 @@ import {
   createProjectSchema,
   updateProjectSchema,
 } from "../schemas/project.schema";
+import { notifyProjectAssignments } from "../services/notification.triggers";
 
 async function getAllProjects(_req: Request, res: Response) {
   try {
@@ -85,6 +86,7 @@ async function insertProject(req: Request, res: Response) {
     ...rest,
   });
 
+  await notifyProjectAssignments(project);
   res.status(201).json(project);
 }
 

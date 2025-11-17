@@ -16,9 +16,7 @@ import {
   ticketAssigneeQuerySchema,
   createTicketAssigneeSchema
 } from "../schemas/ticket-assignee.schema";
-import { transporter } from "../utils/transporter";
-import { SendMailOptions } from "nodemailer";
-import env from "../utils/env";
+import { notifyTicketAssignees } from "../services/notification.triggers";
 
 function parseIdParam(value: string) {
   const id = Number(value);
@@ -89,15 +87,10 @@ async function addTicketAssignee(req: Request, res: Response) {
 
   const created = await createTicketAssignee({ ticketId: ticket.id, userId });
 
-  const mailOptions: SendMailOptions = {
-    from: `${ticket.requester.fullName} <${env.emailUser}>`,
-    replyTo: ticket.requester.email,
-    to: assignee.email,
-    subject: `${ticket.title} #${ticket.id} `,
-    text: `You have been assigned to ${ticket.type.toLowerCase()} #${ticket.id}`,
-  };
-
-  await transporter.sendMail(mailOptions);
+  const updatedTicket = await findTicket({ id: ticket.id });
+  if (updatedTicket) {
+    await notifyTicketAssignees(updatedTicket, [userId]);
+  }
 
   res.status(201).json(created);
 }

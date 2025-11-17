@@ -17,6 +17,10 @@ import {
   canModifyTicket,
 } from "../utils/permissions";
 import {
+  notifyTicketAssignees,
+  notifyTicketCompletion,
+} from "../services/notification.triggers";
+import {
   ticketQuerySchema,
   createTicketSchema,
   updateTicketSchema
@@ -131,6 +135,7 @@ async function insertTicket(req: Request, res: Response) {
     ...rest,
   });
 
+  await notifyTicketAssignees(ticket, uniqueAssigneeIds ?? []);
   res.status(201).json(ticket);
 }
 
@@ -208,6 +213,12 @@ async function updateTicket(req: Request, res: Response) {
   );
   const nextAssigneeIds =
     uniqueAssigneeIds !== undefined ? uniqueAssigneeIds : existingAssigneeIds;
+  const addedAssigneeIds =
+    uniqueAssigneeIds !== undefined
+      ? uniqueAssigneeIds.filter(
+          (assigneeId) => !existingAssigneeIds.includes(assigneeId),
+        )
+      : [];
 
   const nextType = parsed.data.type ?? existing.type;
 
@@ -245,6 +256,11 @@ async function updateTicket(req: Request, res: Response) {
     ...rest,
   });
 
+  if (addedAssigneeIds.length) {
+    await notifyTicketAssignees(updated, addedAssigneeIds);
+  }
+
+  await notifyTicketCompletion(updated, existing.status);
   res.status(200).json(updated);
 }
 

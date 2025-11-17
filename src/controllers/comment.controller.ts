@@ -15,6 +15,10 @@ import {
   requireViewer,
   isAdmin,
 } from "../utils/permissions";
+import {
+  notifyTicketRequesterComment,
+  CommentNotificationPayload,
+} from "../services/notification.triggers";
 
 const messageSchema = z.object({
   message: z.string().trim().min(1),
@@ -142,6 +146,7 @@ async function insertComment(req: Request, res: Response) {
     message: parsed.data.message,
   });
 
+  await notifyTicketRequesterComment(created as CommentNotificationPayload);
   res.status(201).json(created);
 }
 
