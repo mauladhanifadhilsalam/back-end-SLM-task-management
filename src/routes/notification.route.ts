@@ -6,6 +6,7 @@ import {
   updateNotification,
   deleteNotificationById,
   updateNotificationState,
+  resendNotification,
 } from "../controllers/notification.controller";
 import requireRole from "../middleware/requireRole";
 import { RoleType } from "../generated/prisma";
@@ -19,6 +20,7 @@ router.patch("/:id/state", updateNotificationState);
 router.use(requireRole(RoleType.ADMIN));
 router.post("/", insertNotification);
 router.patch("/:id", updateNotification);
+router.post("/:id/resend", resendNotification);
 router.delete("/:id", deleteNotificationById);
 
 export default router;
