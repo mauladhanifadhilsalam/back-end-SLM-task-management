@@ -1,5 +1,5 @@
 import prisma from "../db/prisma";
-import { Prisma, RoleType } from "../generated/prisma";
+import { Prisma, RoleType } from "@prisma/client";
 
 type NewUserInput = Pick<
   Prisma.UserCreateInput,

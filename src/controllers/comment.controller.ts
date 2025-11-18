@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { RoleType } from "../generated/prisma";
+import { RoleType } from "@prisma/client";
 import {
   findComments,
   findComment,

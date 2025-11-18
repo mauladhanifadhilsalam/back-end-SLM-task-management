@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { RoleType } from "../generated/prisma";
+import { RoleType } from "@prisma/client";
 
 type RequireRole = (
   roles: RoleType | RoleType[],

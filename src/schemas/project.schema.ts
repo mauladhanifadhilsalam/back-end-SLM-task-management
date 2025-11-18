@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ProjectStatus, ProjectRoleType } from "../generated/prisma";
+import { ProjectStatus, ProjectRoleType } from "@prisma/client";
 
 const phaseInputSchema = z.object({
   name: z.string(),

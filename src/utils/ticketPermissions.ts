@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { RoleType, TicketType } from "../generated/prisma";
+import { RoleType, TicketType } from "@prisma/client";
 import type { findTicket } from "../services/ticket.service";
 
 type Viewer = { id: number; role: RoleType };

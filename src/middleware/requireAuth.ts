@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import env from "../utils/env";
-import { RoleType } from "../generated/prisma";
+import { RoleType } from "@prisma/client";
 
 declare global {
   namespace Express {
