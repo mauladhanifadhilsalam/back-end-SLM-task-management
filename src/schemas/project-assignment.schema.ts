@@ -2,7 +2,7 @@ import { z } from "zod";
 import { ProjectRoleType } from "../generated/prisma";
 
 const projectAssignmentQuerySchema = z.object({
-  projectId: z.coerce.number().int().positive(),
+  projectId: z.coerce.number().int().positive().optional(),
 });
 
 const createProjectAssignmentSchema = z.object({

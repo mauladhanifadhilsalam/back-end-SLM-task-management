@@ -10,7 +10,7 @@ import {
   projectAssignmentQuerySchema,
   createProjectAssignmentSchema,
 } from "../schemas/project-assignment.schema";
-import { requireViewer } from "../utils/permissions";
+import { requireViewer, isAdmin } from "../utils/permissions";
 import { notifyProjectAssignments } from "../services/notification.triggers";
 import { ActivityTargetType } from "../generated/prisma";
 import {
@@ -39,7 +39,17 @@ async function getProjectAssignments(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
-  const project = await findProject({ id: parsed.data.projectId });
+  const projectId = parsed.data.projectId;
+  if (projectId === undefined) {
+    if (!isAdmin(viewer)) {
+      return res.status(400).json({ message: "projectId is required" });
+    }
+
+    const assignments = await findProjectAssignments();
+    return res.status(200).json(assignments);
+  }
+
+  const project = await findProject({ id: projectId });
   if (!project) {
     return res.status(404).json({ message: "Project not found" });
   }
