@@ -1,6 +1,7 @@
 import prisma from "../src/db/prisma";
 import seedProjectOwner from "./seeders/project-owner.seeder";
 import seedProject from "./seeders/project.seeder";
+import seedProjectAssignment from "./seeders/project-assignment.seeder";
 import seedTicket from "./seeders/ticket.seeder";
 import seedComment from "./seeders/comment.seeder";
 import seedNotification from "./seeders/notification.seeder";
@@ -51,6 +52,7 @@ async function main() {
   await seedUser();
   await seedProjectOwner();
   await seedProject();
+  await seedProjectAssignment();
   await seedTicket();
   await seedComment();
   await seedNotification();
