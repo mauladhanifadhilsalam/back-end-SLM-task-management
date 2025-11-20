@@ -16,25 +16,25 @@ const commentSeeds: CommentSeed[] = [
   },
   {
     ticketTitle: "Stabilize SSO callback failures",
-    authorEmail: "skywalker@gmail.com",
+    authorEmail: "skywalker@example.com",
     message:
       "Thanks for the logs. Please add metrics for the new retry path before promoting to prod.",
   },
   {
     ticketTitle: "Finalize loyalty SDK contract tests",
-    authorEmail: "legolas@gmail.com",
+    authorEmail: "legolas@example.com",
     message:
       "Drafted baseline contract specs. Will expand the regression cases after QA feedback tomorrow.",
   },
   {
     ticketTitle: "Draft customer launch communications",
-    authorEmail: "frodo@gmail.com",
+    authorEmail: "frodo@example.com",
     message:
       "Marketing wants the talking points by Friday. Uploading the outline for review later today.",
   },
   {
     ticketTitle: "Draft customer launch communications",
-    authorEmail: "samwise@gmail.com",
+    authorEmail: "samwise@example.com",
     message:
       "I'll take the FAQ appendix and push a commit tonight so we keep the schedule.",
   },
@@ -46,7 +46,7 @@ const commentSeeds: CommentSeed[] = [
   },
   {
     ticketTitle: "Hardening rollout for trusted device enrollment",
-    authorEmail: "aragorn@gmail.com",
+    authorEmail: "aragorn@example.com",
     message:
       "Approved to disable the legacy path once QA signs off. I'll monitor the rollout dashboard.",
   },

@@ -1,8 +1,15 @@
 import { Request } from "express";
 import { RoleType, TicketType } from "@prisma/client";
-import type { findTicket } from "../services/ticket.service";
+import type { findTicket } from "../../services/ticket.service";
+import {
+  Viewer,
+  PermissionRule,
+  isAdmin,
+  isDeveloper,
+  isProjectManager,
+  runRules,
+} from "./core";
 
-type Viewer = { id: number; role: RoleType };
 type TicketWithRelations = NonNullable<
   Awaited<ReturnType<typeof findTicket>>
 >;
@@ -18,38 +25,6 @@ type TicketStateOverrides = {
   requesterId?: number;
   assigneeIds?: number[];
 };
-
-type TicketRuleContext = {
-  viewer: Viewer;
-  state: TicketState;
-};
-
-type TicketRule = (ctx: TicketRuleContext) => boolean;
-
-function getViewer(req: Request): Viewer | null {
-  if (!req.user) {
-    return null;
-  }
-
-  const id = Number(req.user.sub);
-  if (!Number.isInteger(id) || id <= 0) {
-    return null;
-  }
-
-  return { id, role: req.user.role };
-}
-
-function isAdmin(viewer: Viewer) {
-  return viewer.role === RoleType.ADMIN;
-}
-
-function isDeveloper(viewer: Viewer) {
-  return viewer.role === RoleType.DEVELOPER;
-}
-
-function isProjectManager(viewer: Viewer) {
-  return viewer.role === RoleType.PROJECT_MANAGER;
-}
 
 function dedupeIds(ids: number[] = []) {
   return Array.from(new Set(ids)).filter(
@@ -85,33 +60,39 @@ function buildState(
   };
 }
 
-const viewerIsAdmin: TicketRule = ({ viewer }) => isAdmin(viewer);
+const viewerIsAdmin: PermissionRule<TicketState> = ({ viewer }) =>
+  isAdmin(viewer);
 
-const viewerIsRequester: TicketRule = ({ viewer, state }) =>
+const viewerIsRequester: PermissionRule<TicketState> = ({ viewer, state }) =>
   state.requesterId === viewer.id;
 
-const viewerIsAssignee: TicketRule = ({ viewer, state }) =>
+const viewerIsAssignee: PermissionRule<TicketState> = ({ viewer, state }) =>
   state.assigneeIds.includes(viewer.id);
 
-const viewerIsProjectManagerRule: TicketRule = ({ viewer }) =>
-  isProjectManager(viewer);
+const viewerIsProjectManagerRule: PermissionRule<TicketState> = ({
+  viewer,
+}) => isProjectManager(viewer);
 
-const viewerIsParticipant: TicketRule = (ctx) =>
+const viewerIsParticipant: PermissionRule<TicketState> = (ctx) =>
   viewerIsRequester(ctx) || viewerIsAssignee(ctx);
 
-const developerSeesTasks: TicketRule = ({ viewer, state }) =>
-  isDeveloper(viewer) && state.type === TicketType.TASK;
+const developerSeesTasks: PermissionRule<TicketState> = ({
+  viewer,
+  state,
+}) => isDeveloper(viewer) && state.type === TicketType.TASK;
 
-const developerEditsTasks: TicketRule = developerSeesTasks;
+const developerEditsTasks = developerSeesTasks;
 
-const developerEditsIssuesWhenInvolved: TicketRule = (ctx) =>
+const developerEditsIssuesWhenInvolved: PermissionRule<TicketState> = (
+  ctx,
+) =>
   isDeveloper(ctx.viewer) &&
   ctx.state.type === TicketType.ISSUE &&
   viewerIsParticipant(ctx);
 
-const viewRules: TicketRule[] = [() => true];
+const viewRules: PermissionRule<TicketState>[] = [() => true];
 
-const modifyRules: TicketRule[] = [
+const modifyRules: PermissionRule<TicketState>[] = [
   viewerIsAdmin,
   viewerIsProjectManagerRule,
   viewerIsRequester,
@@ -120,26 +101,22 @@ const modifyRules: TicketRule[] = [
   developerEditsIssuesWhenInvolved,
 ];
 
-function runRules(
-  rules: TicketRule[],
+function evaluateTicketRules(
+  rules: PermissionRule<TicketState>[],
   viewer: Viewer,
   ticket?: TicketWithRelations,
   overrides?: TicketStateOverrides,
 ) {
-  if (!rules.length) {
-    return false;
-  }
-
   const state = buildState(ticket, overrides);
-  return rules.some((rule) => rule({ viewer, state }));
+  return runRules(rules, viewer, state);
 }
 
 function canViewTicket(ticket: TicketWithRelations, viewer: Viewer) {
-  return runRules(viewRules, viewer, ticket);
+  return evaluateTicketRules(viewRules, viewer, ticket);
 }
 
 function canModifyTicket(ticket: TicketWithRelations, viewer: Viewer) {
-  return runRules(modifyRules, viewer, ticket);
+  return evaluateTicketRules(modifyRules, viewer, ticket);
 }
 
 function canModifyTicketState(
@@ -148,7 +125,7 @@ function canModifyTicketState(
   assigneeIds: number[],
   viewer: Viewer,
 ) {
-  return runRules(modifyRules, viewer, undefined, {
+  return evaluateTicketRules(modifyRules, viewer, undefined, {
     type,
     requesterId,
     assigneeIds,
@@ -156,11 +133,7 @@ function canModifyTicketState(
 }
 
 export {
-  Viewer,
   TicketWithRelations,
-  getViewer,
-  isAdmin,
-  isDeveloper,
   canViewTicket,
   canModifyTicket,
   canModifyTicketState,

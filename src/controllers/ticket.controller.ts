@@ -8,19 +8,28 @@ import {
   findAssignableUsers,
 } from "../services/ticket.service";
 import { findProject } from "../services/project.service";
-import { findUser } from "../services/user.service";
+import { findUser, findAnyUser } from "../services/user.service";
 import {
-  getViewer,
+  requireViewer,
   isAdmin,
   canViewTicket,
   canModifyTicketState,
   canModifyTicket,
-} from "../utils/ticketPermissions";
+} from "../utils/permissions";
+import {
+  notifyTicketAssignees,
+  notifyTicketCompletion,
+} from "../services/notification.triggers";
 import {
   ticketQuerySchema,
   createTicketSchema,
   updateTicketSchema
 } from "../schemas/ticket.schema";
+import { ActivityTargetType } from "@prisma/client";
+import {
+  recordActivity,
+  toActivityDetails,
+} from "../services/activity-log.service";
 
 function parseIdParam(value: string) {
   const parsed = Number(value);
@@ -32,9 +41,8 @@ function parseIdParam(value: string) {
 
 async function getAllTickets(req: Request, res: Response) {
   try {
-    const viewer = getViewer(req);
-    if (!viewer) {
-      return res.status(401).json({ message: "Authentication required" });
+    if (!requireViewer(req, res)) {
+      return;
     }
 
     const parsed = ticketQuerySchema.safeParse(req.query);
@@ -51,9 +59,9 @@ async function getAllTickets(req: Request, res: Response) {
 
 async function getTicketById(req: Request, res: Response) {
   try {
-    const viewer = getViewer(req);
+    const viewer = requireViewer(req, res);
     if (!viewer) {
-      return res.status(401).json({ message: "Authentication required" });
+      return;
     }
 
     const id = parseIdParam(req.params.id);
@@ -77,10 +85,15 @@ async function getTicketById(req: Request, res: Response) {
 }
 
 async function insertTicket(req: Request, res: Response) {
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
   if (!viewer) {
-    return res.status(401).json({ message: "Authentication required" });
+    return;
   }
+  const viewerProfile = await findAnyUser(viewer.id);
+  const notificationActor = viewerProfile
+    ? { id: viewerProfile.id, fullName: viewerProfile.fullName }
+    : undefined;
+  const actor = await findAnyUser(viewer.id);
 
   const parsed = createTicketSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -132,6 +145,20 @@ async function insertTicket(req: Request, res: Response) {
     ...rest,
   });
 
+  await notifyTicketAssignees(ticket, uniqueAssigneeIds ?? [], notificationActor);
+  await recordActivity({
+    userId: viewer.id,
+    action: "TICKET_CREATED",
+    targetType: ActivityTargetType.TICKET,
+    targetId: ticket.id,
+    details: toActivityDetails({
+      projectId: ticket.projectId,
+      priority: ticket.priority,
+      type: ticket.type,
+      requesterId: ticket.requester.id,
+      assigneeIds: ticket.assignees.map((assignee) => assignee.user.id),
+    }),
+  });
   res.status(201).json(ticket);
 }
 
@@ -141,10 +168,14 @@ async function updateTicket(req: Request, res: Response) {
     return res.status(400).json({ message: "Invalid ticket id" });
   }
 
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
   if (!viewer) {
-    return res.status(401).json({ message: "Authentication required" });
+    return;
   }
+  const viewerProfile = await findAnyUser(viewer.id);
+  const notificationActor = viewerProfile
+    ? { id: viewerProfile.id, fullName: viewerProfile.fullName }
+    : undefined;
 
   const existing = await findTicket({ id });
   if (!existing) {
@@ -209,6 +240,12 @@ async function updateTicket(req: Request, res: Response) {
   );
   const nextAssigneeIds =
     uniqueAssigneeIds !== undefined ? uniqueAssigneeIds : existingAssigneeIds;
+  const addedAssigneeIds =
+    uniqueAssigneeIds !== undefined
+      ? uniqueAssigneeIds.filter(
+          (assigneeId) => !existingAssigneeIds.includes(assigneeId),
+        )
+      : [];
 
   const nextType = parsed.data.type ?? existing.type;
 
@@ -246,6 +283,22 @@ async function updateTicket(req: Request, res: Response) {
     ...rest,
   });
 
+  if (addedAssigneeIds.length) {
+    await notifyTicketAssignees(updated, addedAssigneeIds, notificationActor);
+  }
+
+  await notifyTicketCompletion(updated, existing.status, notificationActor);
+  await recordActivity({
+    userId: viewer.id,
+    action: "TICKET_UPDATED",
+    targetType: ActivityTargetType.TICKET,
+    targetId: updated.id,
+    details: toActivityDetails({
+      changedFields: Object.keys(parsed.data),
+      previousStatus: existing.status,
+      nextStatus: updated.status,
+    }),
+  });
   res.status(200).json(updated);
 }
 
@@ -255,9 +308,9 @@ async function deleteTicketById(req: Request, res: Response) {
     return res.status(400).json({ message: "Invalid ticket id" });
   }
 
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
   if (!viewer) {
-    return res.status(401).json({ message: "Authentication required" });
+    return;
   }
 
   const ticket = await findTicket({ id });
@@ -269,7 +322,18 @@ async function deleteTicketById(req: Request, res: Response) {
     return res.status(403).json({ message: "Insufficient permissions" });
   }
 
-  await deleteTicket(id);
+  const deleted = await deleteTicket(id);
+  await recordActivity({
+    userId: viewer.id,
+    action: "TICKET_DELETED",
+    targetType: ActivityTargetType.TICKET,
+    targetId: deleted.id,
+    details: toActivityDetails({
+      projectId: deleted.projectId,
+      type: deleted.type,
+      requesterId: deleted.requesterId,
+    }),
+  });
   res.status(200).json({ message: "Ticket deleted successfully" });
 }
 

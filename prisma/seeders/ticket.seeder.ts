@@ -2,7 +2,7 @@ import {
   TicketPriority,
   TicketStatus,
   TicketType,
-} from "../../src/generated/prisma";
+} from "@prisma/client";
 import prisma from "../../src/db/prisma";
 import { createTicket } from "../../src/services/ticket.service";
 
@@ -21,8 +21,8 @@ type TicketSeed = {
 
 const ticketSeeds: TicketSeed[] = [
   {
-    projectOwnerEmail: "scott@gmail.com",
-    requesterEmail: "skywalker@gmail.com",
+    projectOwnerEmail: "scott@example.com",
+    requesterEmail: "skywalker@example.com",
     assigneeEmails: ["gandalf@yahoo.com"],
     type: TicketType.ISSUE,
     title: "Stabilize SSO callback failures",
@@ -34,9 +34,9 @@ const ticketSeeds: TicketSeed[] = [
     dueDate: "2025-02-05",
   },
   {
-    projectOwnerEmail: "grammont@gmail.com",
-    requesterEmail: "skywalker@gmail.com",
-    assigneeEmails: ["skywalker@gmail.com", "gandalf@yahoo.com"],
+    projectOwnerEmail: "grammont@example.com",
+    requesterEmail: "skywalker@example.com",
+    assigneeEmails: ["skywalker@example.com", "gandalf@yahoo.com"],
     type: TicketType.TASK,
     title: "Finalize loyalty SDK contract tests",
     description:
@@ -47,9 +47,9 @@ const ticketSeeds: TicketSeed[] = [
     dueDate: "2025-02-24",
   },
   {
-    projectOwnerEmail: "koji@gmail.com",
-    requesterEmail: "skywalker@gmail.com",
-    assigneeEmails: ["legolas@gmail.com"],
+    projectOwnerEmail: "koji@example.com",
+    requesterEmail: "skywalker@example.com",
+    assigneeEmails: ["legolas@example.com"],
     type: TicketType.ISSUE,
     title: "Rotate TLS certificates across sensor gateway",
     description:
@@ -60,9 +60,9 @@ const ticketSeeds: TicketSeed[] = [
     dueDate: "2025-03-12",
   },
   {
-    projectOwnerEmail: "grammont@gmail.com",
-    requesterEmail: "skywalker@gmail.com",
-    assigneeEmails: ["frodo@gmail.com", "samwise@gmail.com"],
+    projectOwnerEmail: "grammont@example.com",
+    requesterEmail: "skywalker@example.com",
+    assigneeEmails: ["frodo@example.com", "samwise@example.com"],
     type: TicketType.TASK,
     title: "Draft customer launch communications",
     description:
@@ -73,9 +73,9 @@ const ticketSeeds: TicketSeed[] = [
     dueDate: "2025-03-15",
   },
   {
-    projectOwnerEmail: "scott@gmail.com",
-    requesterEmail: "skywalker@gmail.com",
-    assigneeEmails: ["aragorn@gmail.com", "legolas@gmail.com", "gandalf@yahoo.com"],
+    projectOwnerEmail: "scott@example.com",
+    requesterEmail: "skywalker@example.com",
+    assigneeEmails: ["aragorn@example.com", "legolas@example.com", "gandalf@yahoo.com"],
     type: TicketType.ISSUE,
     title: "Patch audit logging gaps in IAM agents",
     description:
@@ -86,9 +86,9 @@ const ticketSeeds: TicketSeed[] = [
     dueDate: "2025-03-26",
   },
   {
-    projectOwnerEmail: "grammont@gmail.com",
-    requesterEmail: "skywalker@gmail.com",
-    assigneeEmails: ["legolas@gmail.com", "aragorn@gmail.com", "bard@gmail.com"],
+    projectOwnerEmail: "grammont@example.com",
+    requesterEmail: "skywalker@example.com",
+    assigneeEmails: ["legolas@example.com", "aragorn@example.com", "bard@example.com"],
     type: TicketType.TASK,
     title: "Optimize storefront render pipeline",
     description:
@@ -99,9 +99,9 @@ const ticketSeeds: TicketSeed[] = [
     dueDate: "2025-03-28",
   },
   {
-    projectOwnerEmail: "koji@gmail.com",
-    requesterEmail: "skywalker@gmail.com",
-    assigneeEmails: ["bard@gmail.com", "frodo@gmail.com"],
+    projectOwnerEmail: "koji@example.com",
+    requesterEmail: "skywalker@example.com",
+    assigneeEmails: ["bard@example.com", "frodo@example.com"],
     type: TicketType.TASK,
     title: "Calibrate telemetry watchdog thresholds",
     description:
@@ -112,9 +112,9 @@ const ticketSeeds: TicketSeed[] = [
     dueDate: "2025-03-20",
   },
   {
-    projectOwnerEmail: "scott@gmail.com",
-    requesterEmail: "skywalker@gmail.com",
-    assigneeEmails: ["gandalf@yahoo.com", "legolas@gmail.com", "samwise@gmail.com"],
+    projectOwnerEmail: "scott@example.com",
+    requesterEmail: "skywalker@example.com",
+    assigneeEmails: ["gandalf@yahoo.com", "legolas@example.com", "samwise@example.com"],
     type: TicketType.ISSUE,
     title: "Hardening rollout for trusted device enrollment",
     description:
@@ -125,9 +125,9 @@ const ticketSeeds: TicketSeed[] = [
     dueDate: "2025-03-22",
   },
   {
-    projectOwnerEmail: "grammont@gmail.com",
-    requesterEmail: "skywalker@gmail.com",
-    assigneeEmails: ["frodo@gmail.com", "samwise@gmail.com", "aragorn@gmail.com"],
+    projectOwnerEmail: "grammont@example.com",
+    requesterEmail: "skywalker@example.com",
+    assigneeEmails: ["frodo@example.com", "samwise@example.com", "aragorn@example.com"],
     type: TicketType.TASK,
     title: "Author loyalty rewards migration playbook",
     description:

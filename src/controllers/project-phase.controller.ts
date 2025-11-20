@@ -11,6 +11,12 @@ import {
   createProjectPhaseSchema,
   updateProjectPhaseSchema,
 } from "../schemas/project-phase.schema";
+import { requireViewer } from "../utils/permissions";
+import { ActivityTargetType } from "@prisma/client";
+import {
+  recordActivity,
+  toActivityDetails,
+} from "../services/activity-log.service";
 
 async function getAllProjectPhases(req: Request, res: Response) {
   try {
@@ -50,6 +56,11 @@ async function getProjectPhaseById(req: Request, res: Response) {
 }
 
 async function insertProjectPhase(req: Request, res: Response) {
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
+
   const parsed = createProjectPhaseSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.format());
 
@@ -65,10 +76,23 @@ async function insertProjectPhase(req: Request, res: Response) {
     projectId,
   });
 
+  await recordActivity({
+    userId: viewer.id,
+    action: "PROJECT_PHASE_CREATED",
+    targetType: ActivityTargetType.PROJECT_PHASE,
+    targetId: created.id,
+    details: toActivityDetails({ projectId, name }),
+  });
+
   res.status(201).json(created);
 }
 
 async function updateProjectPhase(req: Request, res: Response) {
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
+
   const { id } = req.params;
   const phaseId = Number(id);
 
@@ -102,10 +126,25 @@ async function updateProjectPhase(req: Request, res: Response) {
     projectId,
   });
 
+  await recordActivity({
+    userId: viewer.id,
+    action: "PROJECT_PHASE_UPDATED",
+    targetType: ActivityTargetType.PROJECT_PHASE,
+    targetId: updated.id,
+    details: toActivityDetails({
+      changedFields: Object.keys(parsed.data),
+    }),
+  });
+
   res.status(200).json(updated);
 }
 
 async function deleteProjectPhaseById(req: Request, res: Response) {
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
+
   const { id } = req.params;
 
   const phase = await findProjectPhase({ id: Number(id) });
@@ -113,6 +152,13 @@ async function deleteProjectPhaseById(req: Request, res: Response) {
     return res.status(404).json({ message: "Project phase not found" });
 
   await deleteProjectPhase(phase.id);
+  await recordActivity({
+    userId: viewer.id,
+    action: "PROJECT_PHASE_DELETED",
+    targetType: ActivityTargetType.PROJECT_PHASE,
+    targetId: phase.id,
+    details: toActivityDetails({ projectId: phase.projectId }),
+  });
   res.status(200).json({ message: "Project phase deleted successfully" });
 }
 

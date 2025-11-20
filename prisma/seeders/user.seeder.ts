@@ -6,14 +6,14 @@ export default async function seedUser() {
 
   await createUser({
     fullName: "Sauron",
-    email: "sauron@gmail.com",
+    email: "sauron@example.com",
     role: "ADMIN",
     passwordHash,
   });
 
   await createUser({
     fullName: "Anakin Skywalker",
-    email: "skywalker@gmail.com",
+    email: "skywalker@example.com",
     role: "PROJECT_MANAGER",
     passwordHash,
   });
@@ -27,35 +27,35 @@ export default async function seedUser() {
 
   await createUser({
     fullName: "Frodo Baggins",
-    email: "frodo@gmail.com",
+    email: "frodo@example.com",
     role: "DEVELOPER",
     passwordHash,
   });
 
   await createUser({
     fullName: "Samwise Gamgee",
-    email: "samwise@gmail.com",
+    email: "samwise@example.com",
     role: "DEVELOPER",
     passwordHash,
   });
 
   await createUser({
     fullName: "Legolas Greenleaf",
-    email: "legolas@gmail.com",
+    email: "legolas@example.com",
     role: "DEVELOPER",
     passwordHash,
   });
 
   await createUser({
     fullName: "Aragorn Elessar",
-    email: "aragorn@gmail.com",
+    email: "aragorn@example.com",
     role: "DEVELOPER",
     passwordHash,
   });
 
   await createUser({
     fullName: "Bard Bowman",
-    email: "bard@gmail.com",
+    email: "bard@example.com",
     role: "DEVELOPER",
     passwordHash,
   });

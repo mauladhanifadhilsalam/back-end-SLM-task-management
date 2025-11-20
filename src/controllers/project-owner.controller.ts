@@ -7,6 +7,12 @@ import {
   deleteProjectOwner,
 } from "../services/project-owner.service";
 import { projectOwnerSchema } from "../schemas/project-owner.schema";
+import { requireViewer } from "../utils/permissions";
+import { ActivityTargetType } from "@prisma/client";
+import {
+  recordActivity,
+  toActivityDetails,
+} from "../services/activity-log.service";
 
 async function getAllProjectOwners(_req: Request, res: Response) {
   try {
@@ -30,6 +36,11 @@ async function getProjectOwnerById(req: Request, res: Response) {
 }
 
 async function insertProjectOwner(req: Request, res: Response) {
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
+
   const parsed = projectOwnerSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.format());
   const { name, company, email, phone, address } = parsed.data;
@@ -48,10 +59,23 @@ async function insertProjectOwner(req: Request, res: Response) {
     address,
   });
 
+  await recordActivity({
+    userId: viewer.id,
+    action: "PROJECT_OWNER_CREATED",
+    targetType: ActivityTargetType.PROJECT_OWNER,
+    targetId: owner.id,
+    details: toActivityDetails({ name, email }),
+  });
+
   res.status(201).json(owner);
 }
 
 async function updateProjectOwner(req: Request, res: Response) {
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
+
   const { id } = req.params;
   const owner = await findProjectOwner({ id: Number(id) });
   if (!owner)
@@ -77,16 +101,38 @@ async function updateProjectOwner(req: Request, res: Response) {
     address,
   });
 
+  await recordActivity({
+    userId: viewer.id,
+    action: "PROJECT_OWNER_UPDATED",
+    targetType: ActivityTargetType.PROJECT_OWNER,
+    targetId: newProjectOwner.id,
+    details: toActivityDetails({
+      changedFields: Object.keys(parsed.data),
+    }),
+  });
+
   res.status(200).json(newProjectOwner);
 }
 
 async function deleteProjectOwnerById(req: Request, res: Response) {
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
+
   const { id } = req.params;
   const owner = await findProjectOwner({ id: Number(id) });
   if (!owner)
     return res.status(404).json({ message: "Project owner not found" });
 
   await deleteProjectOwner(Number(id));
+  await recordActivity({
+    userId: viewer.id,
+    action: "PROJECT_OWNER_DELETED",
+    targetType: ActivityTargetType.PROJECT_OWNER,
+    targetId: owner.id,
+    details: toActivityDetails({ name: owner.name }),
+  });
   res.status(200).send({ message: "Project owner deleted successfully" });
 }
 
