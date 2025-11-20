@@ -17,6 +17,11 @@ import {
   createTicketAssigneeSchema
 } from "../schemas/ticket-assignee.schema";
 import { notifyTicketAssignees } from "../services/notification.triggers";
+import { ActivityTargetType } from "../generated/prisma";
+import {
+  recordActivity,
+  toActivityDetails,
+} from "../services/activity-log.service";
 
 function parseIdParam(value: string) {
   const id = Number(value);
@@ -96,6 +101,17 @@ async function addTicketAssignee(req: Request, res: Response) {
     await notifyTicketAssignees(updatedTicket, [userId], notificationActor);
   }
 
+  await recordActivity({
+    userId: viewer.id,
+    action: "TICKET_ASSIGNEE_ADDED",
+    targetType: ActivityTargetType.TICKET,
+    targetId: ticket.id,
+    details: toActivityDetails({
+      assignmentId: created.id,
+      assigneeId: userId,
+    }),
+  });
+
   res.status(201).json(created);
 }
 
@@ -127,6 +143,16 @@ async function removeTicketAssignee(req: Request, res: Response) {
   }
 
   await deleteTicketAssignee(id);
+  await recordActivity({
+    userId: viewer.id,
+    action: "TICKET_ASSIGNEE_REMOVED",
+    targetType: ActivityTargetType.TICKET,
+    targetId: ticket.id,
+    details: toActivityDetails({
+      assignmentId: id,
+      assigneeId: assignment.userId,
+    }),
+  });
   res.status(200).json({ message: "Assignee removed successfully" });
 }
 

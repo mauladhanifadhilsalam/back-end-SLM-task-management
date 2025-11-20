@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { RoleType } from "../generated/prisma";
+import { RoleType, ActivityTargetType } from "../generated/prisma";
 import {
   findComments,
   findComment,
@@ -19,22 +19,15 @@ import {
   notifyTicketRequesterComment,
   CommentNotificationPayload,
 } from "../services/notification.triggers";
-
-const messageSchema = z.object({
-  message: z.string().trim().min(1),
-});
-
-const createCommentSchema = z
-  .object({
-    ticketId: z.number().int().positive(),
-  })
-  .merge(messageSchema);
-
-const updateCommentSchema = messageSchema;
-
-const commentFilterSchema = z.object({
-  ticketId: z.coerce.number().int().positive().optional(),
-});
+import {
+  recordActivity,
+  toActivityDetails,
+} from "../services/activity-log.service";
+import {
+  commentFilterSchema,
+  createCommentSchema,
+  updateCommentSchema,
+} from "../schemas/comment.schema";
 
 function parseIdParam(raw?: string) {
   const id = Number(raw);
@@ -147,6 +140,15 @@ async function insertComment(req: Request, res: Response) {
   });
 
   await notifyTicketRequesterComment(created as CommentNotificationPayload);
+  await recordActivity({
+    userId: viewer.id,
+    action: "COMMENT_CREATED",
+    targetType: ActivityTargetType.COMMENT,
+    targetId: created.id,
+    details: toActivityDetails({
+      ticketId: created.ticketId,
+    }),
+  });
   res.status(201).json(created);
 }
 
@@ -174,10 +176,23 @@ async function updateComment(req: Request, res: Response) {
   if (!isAdmin(viewer) && !canManageOwnComment(viewer, existing.userId)) {
     return res
       .status(403)
-      .json({ message: "Only admins or eligible authors can modify this comment" });
+      .json({
+        message: "Only admins or eligible authors can modify this comment",
+      });
   }
 
-  const updated = await editComment(commentId, { message: parsed.data.message });
+  const updated = await editComment(commentId, {
+    message: parsed.data.message,
+  });
+  await recordActivity({
+    userId: viewer.id,
+    action: "COMMENT_UPDATED",
+    targetType: ActivityTargetType.COMMENT,
+    targetId: updated.id,
+    details: toActivityDetails({
+      ticketId: updated.ticketId,
+    }),
+  });
   res.status(200).json(updated);
 }
 
@@ -200,10 +215,21 @@ async function deleteCommentById(req: Request, res: Response) {
   if (!isAdmin(viewer) && !canManageOwnComment(viewer, existing.userId)) {
     return res
       .status(403)
-      .json({ message: "Only admins or eligible authors can delete this comment" });
+      .json({
+        message: "Only admins or eligible authors can delete this comment",
+      });
   }
 
-  await deleteComment(commentId);
+  const deleted = await deleteComment(commentId);
+  await recordActivity({
+    userId: viewer.id,
+    action: "COMMENT_DELETED",
+    targetType: ActivityTargetType.COMMENT,
+    targetId: deleted.id,
+    details: toActivityDetails({
+      ticketId: deleted.ticketId,
+    }),
+  });
   res.status(200).json({ message: "Comment deleted successfully" });
 }
 

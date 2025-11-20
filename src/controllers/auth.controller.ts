@@ -3,6 +3,11 @@ import { verifyPassword, signJwt } from "../utils/auth";
 import { findUserByEmail, findUserById } from "../services/auth.service";
 import env from "../utils/env";
 import { loginSchema } from "../schemas/auth.schema";
+import { ActivityTargetType } from "../generated/prisma";
+import {
+  recordActivity,
+  toActivityDetails,
+} from "../services/activity-log.service";
 
 async function login(req: Request, res: Response) {
   const parsed = loginSchema.safeParse(req.body);
@@ -16,6 +21,13 @@ async function login(req: Request, res: Response) {
   if (!ok) return res.status(401).json({ message: "Invalid credentials" });
 
   const token = signJwt({ sub: user.id, role: user.role });
+  await recordActivity({
+    userId: user.id,
+    action: "AUTH_LOGIN",
+    targetType: ActivityTargetType.USER,
+    targetId: user.id,
+    details: toActivityDetails({ email }),
+  });
   res.json({
     token,
     token_type: "Bearer",
