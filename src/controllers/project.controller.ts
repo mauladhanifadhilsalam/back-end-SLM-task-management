@@ -14,12 +14,12 @@ import {
 } from "../schemas/project.schema";
 import { notifyProjectAssignments } from "../services/notification.triggers";
 import { requireViewer } from "../utils/permissions";
-import { findUserById } from "../services/user.service";
 import { ActivityTargetType } from "../generated/prisma";
 import {
   recordActivity,
   toActivityDetails,
 } from "../services/activity-log.service";
+import { findAnyUser } from "../services/user.service";
 
 async function getAllProjects(_req: Request, res: Response) {
   try {
@@ -98,7 +98,7 @@ async function insertProject(req: Request, res: Response) {
     ...rest,
   });
 
-  const actor = await findUserById(viewer.id);
+  const actor = await findAnyUser(viewer.id);
   const notificationActor = actor
     ? { id: actor.id, fullName: actor.fullName }
     : undefined;

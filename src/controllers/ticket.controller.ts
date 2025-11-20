@@ -8,7 +8,7 @@ import {
   findAssignableUsers,
 } from "../services/ticket.service";
 import { findProject } from "../services/project.service";
-import { findUser, findUserById } from "../services/user.service";
+import { findUser, findAnyUser } from "../services/user.service";
 import {
   requireViewer,
   isAdmin,
@@ -89,10 +89,11 @@ async function insertTicket(req: Request, res: Response) {
   if (!viewer) {
     return;
   }
-  const viewerProfile = await findUserById(viewer.id);
+  const viewerProfile = await findAnyUser(viewer.id);
   const notificationActor = viewerProfile
     ? { id: viewerProfile.id, fullName: viewerProfile.fullName }
     : undefined;
+  const actor = await findAnyUser(viewer.id);
 
   const parsed = createTicketSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -171,7 +172,7 @@ async function updateTicket(req: Request, res: Response) {
   if (!viewer) {
     return;
   }
-  const viewerProfile = await findUserById(viewer.id);
+  const viewerProfile = await findAnyUser(viewer.id);
   const notificationActor = viewerProfile
     ? { id: viewerProfile.id, fullName: viewerProfile.fullName }
     : undefined;

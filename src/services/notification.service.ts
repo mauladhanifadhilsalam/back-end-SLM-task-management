@@ -18,6 +18,10 @@ type CreateNotificationInput = {
   targetType: NotificationTargetType;
   targetId?: number | null;
   message: string;
+  subject?: string | null;
+  emailText?: string | null;
+  emailFrom?: string | null;
+  emailReplyTo?: string | null;
   state?: NotificationState;
   readAt?: Date | null;
   status?: NotifyStatusType | null;
@@ -102,6 +106,12 @@ async function createNotification(data: CreateNotificationInput) {
       targetType: data.targetType,
       ...(data.targetId !== undefined ? { targetId: data.targetId } : {}),
       message: data.message,
+      ...(data.subject !== undefined ? { subject: data.subject } : {}),
+      ...(data.emailText !== undefined ? { emailText: data.emailText } : {}),
+      ...(data.emailFrom !== undefined ? { emailFrom: data.emailFrom } : {}),
+      ...(data.emailReplyTo !== undefined
+        ? { emailReplyTo: data.emailReplyTo }
+        : {}),
       ...(data.status !== undefined ? { status: data.status } : {}),
       ...(data.sentAt !== undefined ? { sentAt: data.sentAt } : {}),
       ...(data.emailError !== undefined ? { emailError: data.emailError } : {}),
@@ -119,6 +129,10 @@ async function editNotification(id: number, data: UpdateNotificationInput) {
     targetType,
     targetId,
     message,
+    subject,
+    emailText,
+    emailFrom,
+    emailReplyTo,
     status,
     sentAt,
     emailError,
@@ -131,6 +145,10 @@ async function editNotification(id: number, data: UpdateNotificationInput) {
       targetType,
       targetId,
       message,
+      subject,
+      emailText,
+      emailFrom,
+      emailReplyTo,
       status,
       sentAt,
       emailError,

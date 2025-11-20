@@ -255,6 +255,10 @@ model Notification {
 
   // What to show in UI / email
   message       String
+  subject       String?
+  emailText     String?
+  emailFrom     String?
+  emailReplyTo  String?
 
   // In-app inbox state
   state         NotificationState       @default(UNREAD)
