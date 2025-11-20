@@ -11,6 +11,7 @@ import projectPhaseRouter from "./routes/project-phase.route";
 import ticketRouter from "./routes/ticket.route";
 import commentRouter from "./routes/comment.route";
 import ticketAssigneeRouter from "./routes/ticket-assignee.route";
+import projectAssignmentRouter from "./routes/project-assignment.route";
 import attachmentRouter from "./routes/attachment.route";
 import notificationRouter from "./routes/notification.route";
 import activityLogRouter from "./routes/activity-log.route";
@@ -50,6 +51,7 @@ app.use(
   projectRouter,
 );
 app.use("/project-phases", requireRole(RoleType.ADMIN), projectPhaseRouter);
+app.use("/project-assignments", requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]), projectAssignmentRouter);
 app.use("/tickets", ticketRouter);
 app.use("/comments", commentRouter);
 app.use("/ticket-assignees", ticketAssigneeRouter);

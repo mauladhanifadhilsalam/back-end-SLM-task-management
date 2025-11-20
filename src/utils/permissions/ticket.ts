@@ -18,12 +18,14 @@ type TicketState = {
   type: TicketType | null;
   requesterId: number | null;
   assigneeIds: number[];
+  projectMemberIds: number[];
 };
 
 type TicketStateOverrides = {
   type?: TicketType;
   requesterId?: number;
   assigneeIds?: number[];
+  projectMemberIds?: number[];
 };
 
 function dedupeIds(ids: number[] = []) {
@@ -41,22 +43,32 @@ function buildState(
         type: ticket.type,
         requesterId: ticket.requesterId,
         assigneeIds: ticket.assignees.map((assignee) => assignee.user.id),
+        projectMemberIds: dedupeIds(
+          ticket.project?.assignments?.map((assignment) => assignment.userId) ??
+            [],
+        ),
       }
     : {
         type: null,
         requesterId: null,
         assigneeIds: [],
+        projectMemberIds: [],
       };
 
   const overrideAssigneeIds =
     overrides && overrides.assigneeIds !== undefined
       ? dedupeIds(overrides.assigneeIds)
       : undefined;
+  const overrideProjectMemberIds =
+    overrides && overrides.projectMemberIds !== undefined
+      ? dedupeIds(overrides.projectMemberIds)
+      : undefined;
 
   return {
     type: overrides?.type ?? base.type,
     requesterId: overrides?.requesterId ?? base.requesterId,
     assigneeIds: overrideAssigneeIds ?? base.assigneeIds,
+    projectMemberIds: overrideProjectMemberIds ?? base.projectMemberIds,
   };
 }
 
@@ -73,13 +85,21 @@ const viewerIsProjectManagerRule: PermissionRule<TicketState> = ({
   viewer,
 }) => isProjectManager(viewer);
 
+const viewerIsProjectMember: PermissionRule<TicketState> = ({
+  viewer,
+  state,
+}) => state.projectMemberIds.includes(viewer.id);
+
 const viewerIsParticipant: PermissionRule<TicketState> = (ctx) =>
   viewerIsRequester(ctx) || viewerIsAssignee(ctx);
 
 const developerSeesTasks: PermissionRule<TicketState> = ({
   viewer,
   state,
-}) => isDeveloper(viewer) && state.type === TicketType.TASK;
+}) =>
+  isDeveloper(viewer) &&
+  state.type === TicketType.TASK &&
+  state.projectMemberIds.includes(viewer.id);
 
 const developerEditsTasks = developerSeesTasks;
 
@@ -87,10 +107,17 @@ const developerEditsIssuesWhenInvolved: PermissionRule<TicketState> = (
   ctx,
 ) =>
   isDeveloper(ctx.viewer) &&
+  ctx.state.projectMemberIds.includes(ctx.viewer.id) &&
   ctx.state.type === TicketType.ISSUE &&
   viewerIsParticipant(ctx);
 
-const viewRules: PermissionRule<TicketState>[] = [() => true];
+const viewRules: PermissionRule<TicketState>[] = [
+  viewerIsAdmin,
+  viewerIsProjectManagerRule,
+  viewerIsRequester,
+  viewerIsAssignee,
+  viewerIsProjectMember,
+];
 
 const modifyRules: PermissionRule<TicketState>[] = [
   viewerIsAdmin,
@@ -123,12 +150,14 @@ function canModifyTicketState(
   type: TicketType,
   requesterId: number,
   assigneeIds: number[],
+  projectMemberIds: number[],
   viewer: Viewer,
 ) {
   return evaluateTicketRules(modifyRules, viewer, undefined, {
     type,
     requesterId,
     assigneeIds,
+    projectMemberIds,
   });
 }
 

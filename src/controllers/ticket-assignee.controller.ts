@@ -11,6 +11,7 @@ import {
   requireViewer,
   canViewTicket,
   canModifyTicket,
+  isAdmin,
 } from "../utils/permissions";
 import {
   ticketAssigneeQuerySchema,
@@ -43,7 +44,17 @@ async function getTicketAssignees(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
-  const ticket = await findTicket({ id: parsed.data.ticketId });
+  const ticketId = parsed.data.ticketId;
+  if (!ticketId) {
+    if (!isAdmin(viewer)) {
+      return res.status(400).json({ message: "ticketId is required" });
+    }
+
+    const assignees = await findTicketAssignees();
+    return res.status(200).json(assignees);
+  }
+
+  const ticket = await findTicket({ id: ticketId });
   if (!ticket) {
     return res.status(404).json({ message: "Ticket not found" });
   }
@@ -92,6 +103,13 @@ async function addTicketAssignee(req: Request, res: Response) {
   const assignee = await findUser({ id: userId });
   if (!assignee) {
     return res.status(404).json({ message: "Assignee not found" });
+  }
+  const projectMemberIds =
+    ticket.project?.assignments?.map((assignment) => assignment.userId) ?? [];
+  if (!projectMemberIds.includes(userId)) {
+    return res.status(400).json({
+      message: "Assignee must be assigned to the same project",
+    });
   }
 
   const created = await createTicketAssignee({ ticketId: ticket.id, userId });

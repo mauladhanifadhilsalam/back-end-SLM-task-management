@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const ticketAssigneeQuerySchema = z.object({
-  ticketId: z.coerce.number().int().positive(),
+  ticketId: z.coerce.number().int().positive().optional(),
 });
 
 const createTicketAssigneeSchema = z.object({

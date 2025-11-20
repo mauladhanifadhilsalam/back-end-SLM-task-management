@@ -51,6 +51,11 @@ const ticketInclude = {
       status: true,
       startDate: true,
       endDate: true,
+      assignments: {
+        select: {
+          userId: true,
+        },
+      },
     },
   },
   requester: {
