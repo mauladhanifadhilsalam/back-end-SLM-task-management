@@ -12,12 +12,12 @@ import {
 } from "../schemas/project-assignment.schema";
 import { requireViewer, isAdmin } from "../utils/permissions";
 import { notifyProjectAssignments } from "../services/notification.triggers";
-import { ActivityTargetType } from "../generated/prisma";
+import { ActivityTargetType } from "@prisma/client";
 import {
   recordActivity,
   toActivityDetails,
 } from "../services/activity-log.service";
-import { findUserById } from "../services/user.service";
+import { findAnyUser } from "../services/user.service";
 
 function parseIdParam(value: string) {
   const id = Number(value);
@@ -64,7 +64,7 @@ async function addProjectAssignment(req: Request, res: Response) {
     return;
   }
 
-  const actorProfile = await findUserById(viewer.id);
+  const actorProfile = await findAnyUser(viewer.id);
   const notificationActor = actorProfile
     ? { id: actorProfile.id, fullName: actorProfile.fullName }
     : undefined;

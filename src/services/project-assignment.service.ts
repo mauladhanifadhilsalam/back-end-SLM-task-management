@@ -1,5 +1,5 @@
 import prisma from "../db/prisma";
-import { Prisma, ProjectRoleType } from "../generated/prisma";
+import { Prisma, ProjectRoleType } from "@prisma/client";
 
 type ProjectAssignmentFilters = {
   projectId?: number;
