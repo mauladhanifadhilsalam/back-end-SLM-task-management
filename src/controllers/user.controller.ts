@@ -9,7 +9,7 @@ import {
   editPassword,
 } from "../services/user.service";
 import { userSchema, changePasswordSchema } from "../schemas/user.schema";
-import { ActivityTargetType } from "../generated/prisma";
+import { ActivityTargetType } from "@prisma/client";
 import { requireViewer } from "../utils/permissions";
 import {
   recordActivity,

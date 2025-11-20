@@ -1,5 +1,5 @@
 import prisma from "../../src/db/prisma";
-import { ProjectRoleType } from "../../src/generated/prisma";
+import { ProjectRoleType } from "@prisma/client";
 import { createProjectAssignment } from "../../src/services/project-assignment.service";
 
 type ProjectAssignmentSeed = {

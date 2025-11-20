@@ -3,7 +3,7 @@ import {
   TicketPriority,
   TicketStatus,
   TicketType,
-} from "../generated/prisma";
+} from "@prisma/client";
 
 const nullableDateSchema = z.union([z.literal(null), z.coerce.date()]).optional();
 

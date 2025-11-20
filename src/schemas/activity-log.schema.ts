@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ActivityTargetType } from "../generated/prisma";
+import { ActivityTargetType } from "@prisma/client";
 
 const activityLogQuerySchema = z
   .object({

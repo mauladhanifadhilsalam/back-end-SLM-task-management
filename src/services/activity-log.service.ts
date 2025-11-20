@@ -1,5 +1,5 @@
 import prisma from "../db/prisma";
-import { ActivityTargetType, Prisma } from "../generated/prisma";
+import { ActivityTargetType, Prisma } from "@prisma/client";
 
 type LogActivityInput = {
   userId?: number;

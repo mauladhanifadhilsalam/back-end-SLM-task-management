@@ -3,10 +3,14 @@ import {
   NotificationState,
   NotificationTargetType,
   NotifyStatusType,
-} from "../generated/prisma";
+} from "@prisma/client";
 
 const positiveInt = z.number().int().positive();
 const nullableDateSchema = z.union([z.literal(null), z.coerce.date()]);
+const emailSubjectSchema = z.string().trim().min(1).max(200);
+const emailTextSchema = z.string().trim().min(1).max(2000);
+const emailFromSchema = z.string().trim().min(1).max(255);
+const emailReplyToSchema = z.string().trim().email().max(255);
 
 const notificationFilterSchema = z.object({
   recipientId: z.coerce.number().int().positive().optional(),
@@ -20,12 +24,25 @@ const baseFields = {
   targetType: z.enum(NotificationTargetType),
   targetId: positiveInt.optional(),
   message: z.string().trim().min(1).max(1000),
+  subject: emailSubjectSchema.optional(),
+  emailText: emailTextSchema.optional(),
+  emailFrom: emailFromSchema.optional(),
+  emailReplyTo: emailReplyToSchema.optional(),
   state: z.enum(NotificationState).optional(),
   readAt: nullableDateSchema.optional(),
   status: z.enum(NotifyStatusType).optional(),
   sentAt: nullableDateSchema.optional(),
   emailError: z.string().trim().max(1000).optional(),
 };
+
+const resendNotificationSchema = z
+  .object({
+    subject: emailSubjectSchema.optional(),
+    text: emailTextSchema.optional(),
+    from: emailFromSchema.optional(),
+    replyTo: emailReplyToSchema.optional(),
+  })
+  .partial();
 
 const createNotificationSchema = z
   .object(baseFields)
@@ -73,4 +90,5 @@ export {
   createNotificationSchema,
   updateNotificationSchema,
   updateNotificationStateSchema,
+  resendNotificationSchema,
 };

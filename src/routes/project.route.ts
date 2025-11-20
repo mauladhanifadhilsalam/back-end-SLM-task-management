@@ -7,7 +7,7 @@ import {
   deleteProjectById,
 } from "../controllers/project.controller";
 import requireRole from "../middleware/requireRole";
-import { RoleType } from "../generated/prisma";
+import { RoleType } from "@prisma/client";
 
 const router = Router();
 

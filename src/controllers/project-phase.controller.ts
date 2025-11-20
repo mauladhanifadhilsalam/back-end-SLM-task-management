@@ -12,7 +12,7 @@ import {
   updateProjectPhaseSchema,
 } from "../schemas/project-phase.schema";
 import { requireViewer } from "../utils/permissions";
-import { ActivityTargetType } from "../generated/prisma";
+import { ActivityTargetType } from "@prisma/client";
 import {
   recordActivity,
   toActivityDetails,

@@ -1,4 +1,6 @@
 import nodemailer from "nodemailer";
+import env from "./env";
+import SMTPTransport from "nodemailer/lib/smtp-transport";
 
 export type MailOptions = {
   from: string;
@@ -9,11 +11,13 @@ export type MailOptions = {
 
 export const transporter = nodemailer.createTransport({
   service: "gmail",
+  host: env.emailHost,
+  port: env.emailPort,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: env.emailUser,
+    pass: env.emailPass,
   },
-});
+} as SMTPTransport.Options);
 
 transporter.verify((error, success) => {
   if (error) {

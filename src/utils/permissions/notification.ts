@@ -1,4 +1,4 @@
-import { NotificationState } from "../../generated/prisma";
+import { NotificationState } from "@prisma/client";
 import type { NotificationWithRelations } from "../../services/notification.service";
 import { Viewer, isAdmin } from "./core";
 

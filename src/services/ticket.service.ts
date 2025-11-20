@@ -5,7 +5,7 @@ import {
   TicketPriority,
   TicketStatus,
   TicketType,
-} from "../generated/prisma";
+} from "@prisma/client";
 
 type TicketFilters = {
   projectId?: number;

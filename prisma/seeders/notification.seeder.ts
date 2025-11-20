@@ -2,7 +2,7 @@ import prisma from "../../src/db/prisma";
 import {
   NotificationState,
   NotificationTargetType,
-} from "../../src/generated/prisma";
+} from "@prisma/client";
 import { createNotification } from "../../src/services/notification.service";
 
 type NotificationSeed = {

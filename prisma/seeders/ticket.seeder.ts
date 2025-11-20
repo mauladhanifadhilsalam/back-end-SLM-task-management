@@ -2,7 +2,7 @@ import {
   TicketPriority,
   TicketStatus,
   TicketType,
-} from "../../src/generated/prisma";
+} from "@prisma/client";
 import prisma from "../../src/db/prisma";
 import { createTicket } from "../../src/services/ticket.service";
 

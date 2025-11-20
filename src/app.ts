@@ -1,6 +1,6 @@
 // Core framework and type imports
 import express, { Request, Response } from "express";
-import { RoleType } from "./generated/prisma";
+import { RoleType } from "@prisma/client";
 
 // Route handlers for different parts of the application
 import authRouter from "./routes/auth.route";
