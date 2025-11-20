@@ -2,7 +2,7 @@ import {
   NotificationState,
   NotificationTargetType,
   NotifyStatusType,
-} from "../generated/prisma";
+} from "@prisma/client";
 import env from "../utils/env";
 import { transporter } from "../utils/transporter";
 import {

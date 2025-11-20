@@ -3,7 +3,7 @@ import { verifyPassword, signJwt } from "../utils/auth";
 import { findUserByEmail, findUserById } from "../services/auth.service";
 import env from "../utils/env";
 import { loginSchema } from "../schemas/auth.schema";
-import { ActivityTargetType } from "../generated/prisma";
+import { ActivityTargetType } from "@prisma/client";
 import {
   recordActivity,
   toActivityDetails,

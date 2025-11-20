@@ -17,7 +17,7 @@ import {
   createTicketAssigneeSchema
 } from "../schemas/ticket-assignee.schema";
 import { notifyTicketAssignees } from "../services/notification.triggers";
-import { ActivityTargetType } from "../generated/prisma";
+import { ActivityTargetType } from "@prisma/client";
 import {
   recordActivity,
   toActivityDetails,

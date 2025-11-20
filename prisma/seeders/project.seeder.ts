@@ -1,4 +1,4 @@
-import { ProjectStatus } from "../../src/generated/prisma";
+import { ProjectStatus } from "@prisma/client";
 import { createProject } from "../../src/services/project.service";
 import { findProjectOwner } from "../../src/services/project-owner.service";
 

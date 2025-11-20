@@ -1,4 +1,5 @@
-import { TicketType } from "../../generated/prisma";
+import { Request } from "express";
+import { RoleType, TicketType } from "@prisma/client";
 import type { findTicket } from "../../services/ticket.service";
 import {
   Viewer,

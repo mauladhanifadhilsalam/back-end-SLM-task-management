@@ -4,7 +4,7 @@ import {
   NotificationState,
   NotificationTargetType,
   NotifyStatusType,
-} from "../generated/prisma";
+} from "@prisma/client";
 
 type NotificationFilters = {
   recipientId?: number;

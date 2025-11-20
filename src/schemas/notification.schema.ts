@@ -3,7 +3,7 @@ import {
   NotificationState,
   NotificationTargetType,
   NotifyStatusType,
-} from "../generated/prisma";
+} from "@prisma/client";
 
 const positiveInt = z.number().int().positive();
 const nullableDateSchema = z.union([z.literal(null), z.coerce.date()]);

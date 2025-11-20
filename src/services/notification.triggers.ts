@@ -1,7 +1,7 @@
 import {
   NotificationTargetType,
   TicketStatus,
-} from "../generated/prisma";
+} from "@prisma/client";
 import type { TicketWithRelations } from "../utils/permissions";
 import { dispatchNotification } from "./notification.dispatcher";
 import capitalizeWord from "../utils/capitalizeWord";

@@ -9,7 +9,7 @@ import {
   resendNotification,
 } from "../controllers/notification.controller";
 import requireRole from "../middleware/requireRole";
-import { RoleType } from "../generated/prisma";
+import { RoleType } from "@prisma/client";
 
 const router = Router();
 

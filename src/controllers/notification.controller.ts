@@ -23,7 +23,7 @@ import {
   updateNotificationStateSchema,
   resendNotificationSchema,
 } from "../schemas/notification.schema";
-import { NotifyStatusType } from "../generated/prisma";
+import { NotifyStatusType } from "@prisma/client";
 
 function parseIdParam(raw?: string) {
   const id = Number(raw);

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { RoleType } from "../../generated/prisma";
+import { RoleType } from "@prisma/client";
 
 type Viewer = { id: number; role: RoleType };
 

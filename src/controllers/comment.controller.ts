@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
-import { z } from "zod";
-import { RoleType, ActivityTargetType } from "../generated/prisma";
+import { RoleType, ActivityTargetType } from "@prisma/client";
 import {
   findComments,
   findComment,

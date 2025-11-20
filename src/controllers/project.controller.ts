@@ -14,7 +14,7 @@ import {
 } from "../schemas/project.schema";
 import { notifyProjectAssignments } from "../services/notification.triggers";
 import { requireViewer } from "../utils/permissions";
-import { ActivityTargetType } from "../generated/prisma";
+import { ActivityTargetType } from "@prisma/client";
 import {
   recordActivity,
   toActivityDetails,

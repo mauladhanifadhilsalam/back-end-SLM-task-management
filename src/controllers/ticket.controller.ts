@@ -25,7 +25,7 @@ import {
   createTicketSchema,
   updateTicketSchema
 } from "../schemas/ticket.schema";
-import { ActivityTargetType } from "../generated/prisma";
+import { ActivityTargetType } from "@prisma/client";
 import {
   recordActivity,
   toActivityDetails,
