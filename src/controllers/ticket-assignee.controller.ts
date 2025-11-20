@@ -104,6 +104,13 @@ async function addTicketAssignee(req: Request, res: Response) {
   if (!assignee) {
     return res.status(404).json({ message: "Assignee not found" });
   }
+  const projectMemberIds =
+    ticket.project?.assignments?.map((assignment) => assignment.userId) ?? [];
+  if (!projectMemberIds.includes(userId)) {
+    return res.status(400).json({
+      message: "Assignee must be assigned to the same project",
+    });
+  }
 
   const created = await createTicketAssignee({ ticketId: ticket.id, userId });
 

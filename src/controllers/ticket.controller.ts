@@ -12,6 +12,7 @@ import { findUser, findUserById } from "../services/user.service";
 import {
   requireViewer,
   isAdmin,
+  isProjectManager,
   canViewTicket,
   canModifyTicketState,
   canModifyTicket,
@@ -41,7 +42,8 @@ function parseIdParam(value: string) {
 
 async function getAllTickets(req: Request, res: Response) {
   try {
-    if (!requireViewer(req, res)) {
+    const viewer = requireViewer(req, res);
+    if (!viewer) {
       return;
     }
 
@@ -51,7 +53,10 @@ async function getAllTickets(req: Request, res: Response) {
     }
 
     const tickets = await findTickets(parsed.data);
-    res.status(200).json(tickets);
+    const visibleTickets = tickets.filter((ticket) =>
+      canViewTicket(ticket, viewer),
+    );
+    res.status(200).json(visibleTickets);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
@@ -115,6 +120,13 @@ async function insertTicket(req: Request, res: Response) {
   if (!project) {
     return res.status(404).json({ message: "Project not found" });
   }
+  const projectMemberIds = project.assignments
+    .map((assignment) => assignment.user?.id)
+    .filter((id): id is number => typeof id === "number");
+  const viewerIsPrivileged = isAdmin(viewer) || isProjectManager(viewer);
+  if (!viewerIsPrivileged && !projectMemberIds.includes(viewer.id)) {
+    return res.status(403).json({ message: "Insufficient permissions" });
+  }
 
   const requester = await findUser({ id: effectiveRequesterId });
   if (!requester) {
@@ -132,6 +144,15 @@ async function insertTicket(req: Request, res: Response) {
       return res
         .status(404)
         .json({ message: "One or more assignees not found" });
+    }
+    const missingProjectMembers = uniqueAssigneeIds.filter(
+      (assigneeId) => !projectMemberIds.includes(assigneeId),
+    );
+    if (missingProjectMembers.length) {
+      return res.status(400).json({
+        message: "Assignees must be assigned to the same project",
+        details: { missingProjectMemberIds: missingProjectMembers },
+      });
     }
   }
 
@@ -184,6 +205,8 @@ async function updateTicket(req: Request, res: Response) {
   if (!canModifyTicket(existing, viewer)) {
     return res.status(403).json({ message: "Insufficient permissions" });
   }
+  const projectMemberIds =
+    existing.project?.assignments?.map((assignment) => assignment.userId) ?? [];
 
   const parsed = updateTicketSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -229,6 +252,15 @@ async function updateTicket(req: Request, res: Response) {
           .status(404)
           .json({ message: "One or more assignees not found" });
       }
+      const missingProjectMembers = uniqueAssigneeIds.filter(
+        (assigneeId) => !projectMemberIds.includes(assigneeId),
+      );
+      if (missingProjectMembers.length) {
+        return res.status(400).json({
+          message: "Assignees must be assigned to the same project",
+          details: { missingProjectMemberIds: missingProjectMembers },
+        });
+      }
     }
   }
 
@@ -253,6 +285,7 @@ async function updateTicket(req: Request, res: Response) {
       nextType,
       nextRequesterId,
       nextAssigneeIds,
+      projectMemberIds,
       viewer,
     )
   ) {

@@ -25,6 +25,16 @@ const projectAssignmentSeeds: ProjectAssignmentSeed[] = [
     roleInProject: ProjectRoleType.DEVOPS,
   },
   {
+    projectOwnerEmail: "scott@example.com",
+    userEmail: "legolas@example.com",
+    roleInProject: ProjectRoleType.FRONT_END,
+  },
+  {
+    projectOwnerEmail: "scott@example.com",
+    userEmail: "samwise@example.com",
+    roleInProject: ProjectRoleType.BACK_END,
+  },
+  {
     projectOwnerEmail: "grammont@example.com",
     userEmail: "skywalker@example.com",
     roleInProject: ProjectRoleType.TECH_LEAD,
@@ -40,6 +50,26 @@ const projectAssignmentSeeds: ProjectAssignmentSeed[] = [
     roleInProject: ProjectRoleType.BACK_END,
   },
   {
+    projectOwnerEmail: "grammont@example.com",
+    userEmail: "gandalf@yahoo.com",
+    roleInProject: ProjectRoleType.BACK_END,
+  },
+  {
+    projectOwnerEmail: "grammont@example.com",
+    userEmail: "samwise@example.com",
+    roleInProject: ProjectRoleType.BACK_END,
+  },
+  {
+    projectOwnerEmail: "grammont@example.com",
+    userEmail: "aragorn@example.com",
+    roleInProject: ProjectRoleType.DEVOPS,
+  },
+  {
+    projectOwnerEmail: "grammont@example.com",
+    userEmail: "bard@example.com",
+    roleInProject: ProjectRoleType.CLOUD_ENGINEER,
+  },
+  {
     projectOwnerEmail: "koji@example.com",
     userEmail: "samwise@example.com",
     roleInProject: ProjectRoleType.BACK_END,
@@ -53,6 +83,16 @@ const projectAssignmentSeeds: ProjectAssignmentSeed[] = [
     projectOwnerEmail: "koji@example.com",
     userEmail: "aragorn@example.com",
     roleInProject: ProjectRoleType.DEVOPS,
+  },
+  {
+    projectOwnerEmail: "koji@example.com",
+    userEmail: "legolas@example.com",
+    roleInProject: ProjectRoleType.FRONT_END,
+  },
+  {
+    projectOwnerEmail: "koji@example.com",
+    userEmail: "frodo@example.com",
+    roleInProject: ProjectRoleType.BACK_END,
   },
 ];
 
