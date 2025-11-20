@@ -12,9 +12,13 @@ import { findTicket } from "../services/ticket.service";
 import {
   Viewer,
   TicketWithRelations,
-  getViewer,
+  requireViewer,
   isAdmin,
-} from "../utils/ticketPermissions";
+} from "../utils/permissions";
+import {
+  notifyTicketRequesterComment,
+  CommentNotificationPayload,
+} from "../services/notification.triggers";
 
 const messageSchema = z.object({
   message: z.string().trim().min(1),
@@ -39,16 +43,6 @@ function parseIdParam(raw?: string) {
   }
 
   return id;
-}
-
-function requireViewer(req: Request, res: Response): Viewer | null {
-  const viewer = getViewer(req);
-  if (!viewer) {
-    res.status(401).json({ message: "Authentication required" });
-    return null;
-  }
-
-  return viewer;
 }
 
 function canManageOwnComment(viewer: Viewer, authorId: number) {
@@ -152,6 +146,7 @@ async function insertComment(req: Request, res: Response) {
     message: parsed.data.message,
   });
 
+  await notifyTicketRequesterComment(created as CommentNotificationPayload);
   res.status(201).json(created);
 }
 

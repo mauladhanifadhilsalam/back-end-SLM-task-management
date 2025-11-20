@@ -77,6 +77,17 @@ enum ActivityTargetType {
   PROJECT_OWNER
 }
 
+enum NotificationTargetType {
+  PROJECT
+  TICKET
+  COMMENT
+}
+
+enum NotificationState {
+  UNREAD
+  READ
+}
+
 // ===================== MODELS ===========================
 
 model User {
@@ -186,7 +197,6 @@ model Ticket {
   assignees  TicketAssignee[]
   comments   Comment[]
   attachments Attachment[]
-  notifications Notification[]
 
   @@index([projectId, status, priority, updatedAt])
   @@index([requesterId, updatedAt])
@@ -236,18 +246,38 @@ model Attachment {
 }
 
 model Notification {
-  id          Int              @id @default(autoincrement())
-  ticketId    Int?
-  recipientId Int
-  message     String
-  sentAt      DateTime?
-  status      NotifyStatusType @default(PENDING)
+  id            Int                     @id @default(autoincrement())
+  recipientId   Int
+
+  // What this notification is about
+  targetType    NotificationTargetType
+  targetId      Int?
+
+  // What to show in UI / email
+  message       String
+  subject       String?
+  emailText     String?
+  emailFrom     String?
+  emailReplyTo  String?
+
+  // In-app inbox state
+  state         NotificationState       @default(UNREAD)
+  createdAt     DateTime                @default(now())
+  readAt        DateTime?
+
+  // Email / SMTP (optional)
+  status        NotifyStatusType?
+  sentAt        DateTime?
+  emailError    String?
 
   // Relations
-  ticket    Ticket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  recipient User    @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  recipient     User                    @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
 
+  @@index([recipientId, state, createdAt])
+  @@index([recipientId, targetType, targetId])
+  @@index([status, createdAt])
 }
+
 
 model ActivityLog {
   id         Int                 @id @default(autoincrement())

@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import fs from "fs/promises";
 import path from "path";
-import { z } from "zod";
 import {
   findAttachments,
   findAttachment,
@@ -10,20 +9,14 @@ import {
 } from "../services/attachment.service";
 import { findTicket } from "../services/ticket.service";
 import {
-  getViewer,
-  canViewTicket,
+  requireViewer,
   canModifyTicket,
   isAdmin,
-} from "../utils/ticketPermissions";
-import env from "../utils/env";
-
-const attachmentQuerySchema = z.object({
-  ticketId: z.coerce.number().int().positive().optional(),
-});
-
-const createAttachmentSchema = z.object({
-  ticketId: z.coerce.number().int().positive(),
-});
+} from "../utils/permissions";
+import {
+  attachmentQuerySchema,
+  createAttachmentSchema,
+} from "../schemas/attachment.schema";
 
 function parseIdParam(value: string) {
   const id = Number(value);
@@ -74,11 +67,16 @@ async function getAttachments(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
 
   if (!parsed.data.ticketId) {
-    if (!isAdmin(viewer!)) {
-      return res.status(403).json({ message: "You are not allowed to access all attachments" });
+    if (!isAdmin(viewer)) {
+      return res
+        .status(403)
+        .json({ message: "You are not allowed to access all attachments" });
     }
 
     const attachments = await findAttachments();
@@ -87,7 +85,7 @@ async function getAttachments(req: Request, res: Response) {
       attachments.map(async (attachment) => {
         const base64 = await getBase64(attachment.filePath);
         return { ...attachment, base64 };
-      })
+      }),
     );
 
     return res.status(200).json(base64Attachments);
@@ -104,19 +102,18 @@ async function getAttachments(req: Request, res: Response) {
     attachments.map(async (attachment) => {
       const base64 = await getBase64(attachment.filePath);
       return { ...attachment, base64 };
-    })
+    }),
   );
 
   res.status(200).json(base64Attachments);
 }
 
-
 async function addAttachment(req: Request, res: Response) {
   const file = req.file as Express.Multer.File | undefined;
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
   if (!viewer) {
     await discardUploadedFile(file);
-    return res.status(401).json({ message: "Authentication required" });
+    return;
   }
 
   const parsed = createAttachmentSchema.safeParse(req.body);
@@ -150,18 +147,18 @@ async function addAttachment(req: Request, res: Response) {
     ticketId: ticket.id,
     userId: viewer.id,
     fileName: file.originalname,
-    filePath: `${relativePath}`,
+    filePath: relativePath,
     fileSize: file.size,
-    mimeType: file.mimetype
+    mimeType: file.mimetype,
   });
 
   res.status(201).json(attachment);
 }
 
 async function deleteAttachmentById(req: Request, res: Response) {
-  const viewer = getViewer(req);
+  const viewer = requireViewer(req, res);
   if (!viewer) {
-    return res.status(401).json({ message: "Authentication required" });
+    return;
   }
 
   const id = parseIdParam(req.params.id);

@@ -3,6 +3,7 @@ import seedProjectOwner from "./seeders/project-owner.seeder";
 import seedProject from "./seeders/project.seeder";
 import seedTicket from "./seeders/ticket.seeder";
 import seedComment from "./seeders/comment.seeder";
+import seedNotification from "./seeders/notification.seeder";
 import seedUser from "./seeders/user.seeder";
 
 async function resetSequences() {
@@ -52,6 +53,7 @@ async function main() {
   await seedProject();
   await seedTicket();
   await seedComment();
+  await seedNotification();
 
   console.log("Seed completed successfully!");
 }

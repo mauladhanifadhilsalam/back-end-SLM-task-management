@@ -6,13 +6,12 @@ type AttachmentFilters = {
   userId?: number;
 };
 
-type NewAttachmentInput = {
+type NewAttachmentInput = Pick<
+  Prisma.AttachmentCreateInput,
+  "fileName" | "filePath" | "fileSize" | "mimeType"
+> & {
   ticketId: number;
   userId: number;
-  fileName: string;
-  filePath: string;
-  fileSize: number;
-  mimeType: string;
 };
 
 async function findAttachments(filters: AttachmentFilters = {}) {
@@ -45,9 +44,4 @@ async function deleteAttachment(id: number) {
   });
 }
 
-export {
-  findAttachments,
-  findAttachment,
-  createAttachment,
-  deleteAttachment,
-};
+export { findAttachments, findAttachment, createAttachment, deleteAttachment };
