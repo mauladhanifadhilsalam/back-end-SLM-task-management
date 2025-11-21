@@ -13,7 +13,7 @@ import {
   updateProjectSchema,
 } from "../schemas/project.schema";
 import { notifyProjectAssignments } from "../services/notification.triggers";
-import { requireViewer } from "../utils/permissions";
+import { requireViewer, isAdmin, isProjectManager } from "../utils/permissions";
 import { ActivityTargetType } from "@prisma/client";
 import {
   recordActivity,
@@ -21,20 +21,45 @@ import {
 } from "../services/activity-log.service";
 import { findAnyUser } from "../services/user.service";
 
-async function getAllProjects(_req: Request, res: Response) {
+async function getAllProjects(req: Request, res: Response) {
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
+
   try {
     const projects = await findProjects();
-    res.status(200).json(projects);
+    const canSeeAll = isAdmin(viewer) || isProjectManager(viewer);
+    const visibleProjects = canSeeAll
+      ? projects
+      : projects.filter((project) =>
+          project.assignments.some(
+            (assignment) => assignment.user?.id === viewer.id,
+          ),
+        );
+    res.status(200).json(visibleProjects);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
 }
 
 async function getProjectById(req: Request, res: Response) {
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
+
   try {
     const { id } = req.params;
     const project = await findProject({ id: Number(id) });
     if (!project) return res.status(404).json({ message: "Project not found" });
+    const canSeeProject =
+      isAdmin(viewer) ||
+      isProjectManager(viewer) ||
+      project.assignments.some((assignment) => assignment.user?.id === viewer.id);
+    if (!canSeeProject) {
+      return res.status(403).json({ message: "Insufficient permissions" });
+    }
     res.status(200).json(project);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
