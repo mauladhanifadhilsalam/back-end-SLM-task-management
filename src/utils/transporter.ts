@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import env from "./env";
+import env from "../config/env";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 
 export type MailOptions = {

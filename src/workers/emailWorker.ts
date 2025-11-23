@@ -3,7 +3,7 @@ import { NotifyStatusType } from "@prisma/client";
 import { connection } from "../config/redis";
 import { findNotification, editNotification } from "../services/notification.service";
 import { transporter } from "../utils/transporter";
-import env from "../utils/env";
+import env from "../config/env";
 
 const emailWorker = new Worker(
   "email",
