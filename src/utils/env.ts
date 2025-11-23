@@ -9,6 +9,8 @@ const env: {
   emailUser: string;
   emailPass: string;
   uploadDir: string;
+  redisHost: string;
+  redisPort: number;
 } = {
   jwtSecret: process.env.JWT_SECRET || "secret",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || 3600,
@@ -17,6 +19,8 @@ const env: {
   emailUser: process.env.EMAIL_USER || "user@gmail.com",
   emailPass: process.env.EMAIL_PASS || "abcdefghijklmnop",
   uploadDir: process.env.UPLOAD_DIR || "uploads/",
+  redisHost: process.env.REDIS_HOST!,
+  redisPort: parseInt(process.env.REDIS_PORT!),
 };
 
 export default env;
