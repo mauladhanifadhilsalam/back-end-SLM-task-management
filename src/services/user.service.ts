@@ -6,14 +6,6 @@ type NewUserInput = Pick<
   "fullName" | "role" | "email" | "passwordHash"
 >;
 
-async function findDevelopers() {
-  return await prisma.user.findMany({
-    where: {
-      role: RoleType.DEVELOPER
-    }
-  });
-}
-
 async function findUsers() {
   return await prisma.user.findMany({
     where: {
@@ -83,4 +75,4 @@ async function editPassword(id: number, passwordHash: string) {
   });
 }
 
-export { findUsers, findUser, createUser, editUser, deleteUser, editPassword, findAnyUser, findDevelopers };
+export { findUsers, findUser, createUser, editUser, deleteUser, editPassword, findAnyUser };
