@@ -3,8 +3,7 @@ import {
   NotificationTargetType,
   NotifyStatusType,
 } from "@prisma/client";
-import env from "../utils/env";
-import { transporter } from "../utils/transporter";
+import { enqueueEmailNotification } from "../queues/email";
 import {
   createNotification,
   editNotification,
@@ -29,39 +28,6 @@ type ResendNotificationOverrides = {
   from?: string;
   replyTo?: string;
 };
-
-function sendEmailAsync(
-  notificationId: number,
-  recipientEmail: string,
-  subject: string,
-  text: string,
-  from?: string,
-  replyTo?: string,
-) {
-  transporter
-    .sendMail({
-      from: from ?? `SLM Project Management <${env.emailUser}>`,
-      to: recipientEmail,
-      subject,
-      text,
-      ...(replyTo ? { replyTo } : {}),
-    })
-    .then(() =>
-      editNotification(notificationId, {
-        status: NotifyStatusType.SENT,
-        sentAt: new Date(),
-        emailError: null,
-      }),
-    )
-    .catch((error) => {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown email error";
-      return editNotification(notificationId, {
-        status: NotifyStatusType.FAILED,
-        emailError: errorMessage,
-      });
-    });
-}
 
 async function dispatchNotification({
   recipientId,
@@ -96,14 +62,7 @@ async function dispatchNotification({
     return notification;
   }
 
-  sendEmailAsync(
-    notification.id,
-    recipientEmail,
-    subject,
-    text ?? message,
-    from,
-    replyTo,
-  );
+  await enqueueEmailNotification(notification.id);
 
   return notification;
 }
@@ -151,7 +110,7 @@ async function resendNotificationEmail(
     ...(replyTo !== undefined ? { emailReplyTo: replyTo } : {}),
   });
 
-  sendEmailAsync(notification.id, recipientEmail, subject, text, from, replyTo);
+  await enqueueEmailNotification(notification.id);
 
   return updated;
 }
