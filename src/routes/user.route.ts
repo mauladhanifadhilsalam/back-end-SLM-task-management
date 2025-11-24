@@ -6,6 +6,7 @@ import {
   updateUser,
   deleteUserById,
   changePassword,
+  getAllDevelopers
 } from "../controllers/user.controller";
 import requireRole from "../middleware/requireRole";
 import { RoleType } from "@prisma/client";
@@ -13,6 +14,8 @@ import { RoleType } from "@prisma/client";
 const router = Router();
 
 router.post("/change-password", changePassword);
+
+router.get("/dev", requireRole(RoleType.PROJECT_MANAGER), getAllDevelopers);
 
 router.use(requireRole(RoleType.ADMIN));
 router.get("/", getAllUsers);
