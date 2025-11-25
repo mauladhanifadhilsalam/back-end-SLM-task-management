@@ -7,7 +7,6 @@ import {
   editUser,
   deleteUser,
   editPassword,
-  findDevelopers
 } from "../services/user.service";
 import { userSchema, changePasswordSchema } from "../schemas/user.schema";
 import { ActivityTargetType } from "@prisma/client";
@@ -23,15 +22,6 @@ async function getAllUsers(_req: Request, res: Response) {
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
-  }
-}
-
-async function getAllDevelopers(_req: Request, res: Response) {
-  try {
-    const developers = await findDevelopers();
-    res.status(200).json(developers);
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
   }
 }
 
@@ -189,7 +179,6 @@ async function changePassword(req: Request, res: Response) {
 
 export {
   getAllUsers,
-  getAllDevelopers,
   getUserById,
   insertUser,
   updateUser,
