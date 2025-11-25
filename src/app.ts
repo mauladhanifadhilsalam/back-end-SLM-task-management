@@ -47,7 +47,7 @@ app.use(
   projectOwnerRouter,
 );
 app.use("/projects", projectRouter);
-app.use("/project-phases", requireRole(RoleType.ADMIN), projectPhaseRouter);
+app.use("/project-phases", requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]), projectPhaseRouter);
 app.use("/project-assignments", requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]), projectAssignmentRouter);
 app.use("/tickets", ticketRouter);
 app.use("/comments", commentRouter);

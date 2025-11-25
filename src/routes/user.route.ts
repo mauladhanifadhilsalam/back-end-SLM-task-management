@@ -14,8 +14,8 @@ const router = Router();
 
 router.post("/change-password", changePassword);
 
+router.get("/", requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]), getAllUsers);
 router.use(requireRole(RoleType.ADMIN));
-router.get("/", getAllUsers);
 router.get("/:id", getUserById);
 router.post("/", insertUser);
 router.patch("/:id", updateUser);

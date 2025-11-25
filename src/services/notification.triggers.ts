@@ -195,4 +195,5 @@ export {
 export type {
   CommentWithTicket as CommentNotificationPayload,
   NotificationActor,
+  ProjectWithAssignments
 };

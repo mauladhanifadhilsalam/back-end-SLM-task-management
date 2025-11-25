@@ -7,7 +7,10 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "test": "vitest"
+    "dev:worker": "ts-node-dev --respawn --transpile-only src/worker.ts",
+    "start:worker": "node dist/worker.js",
+    "test": "vitest",
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -23,12 +26,14 @@
   "dependencies": {
     "@prisma/client": "^6.17.0",
     "bcrypt": "^6.0.0",
+    "bullmq": "^5.64.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^7.0.10",
     "multer": "^2.0.2",
+    "nodemailer": "^7.0.10",
     "zod": "^4.1.12"
   },
   "devDependencies": {
