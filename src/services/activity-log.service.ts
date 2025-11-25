@@ -1,5 +1,6 @@
 import prisma from "../db/prisma";
 import { ActivityTargetType, Prisma } from "@prisma/client";
+import { enqueueActivityLog } from "../queues/activityLog";
 
 type LogActivityInput = {
   userId?: number;
@@ -82,7 +83,7 @@ async function logActivity(input: LogActivityInput) {
 
 async function recordActivity(input: LogActivityInput) {
   try {
-    return await logActivity(input);
+    return await enqueueActivityLog(input);
   } catch (error) {
     console.error("Failed to record activity log", error);
     return null;
