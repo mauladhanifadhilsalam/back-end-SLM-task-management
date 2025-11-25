@@ -1,5 +1,6 @@
 import prisma from "../db/prisma";
 import { ActivityTargetType, Prisma } from "@prisma/client";
+import { refreshDashboard } from "./dashboard.service";
 
 type LogActivityInput = {
   userId?: number;
@@ -82,7 +83,10 @@ async function logActivity(input: LogActivityInput) {
 
 async function recordActivity(input: LogActivityInput) {
   try {
-    return await logActivity(input);
+    const activityLog = await logActivity(input);
+    if (activityLog) {
+      await refreshDashboard();
+    }
   } catch (error) {
     console.error("Failed to record activity log", error);
     return null;
