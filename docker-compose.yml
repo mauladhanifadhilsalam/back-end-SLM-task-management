@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    container_name: my-api
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "3000:3000"     # expose API on the host for manual testing
+    env_file:
+      - .env
+    environment:
+      # Enforce container-specific values; everything else comes from .env
+      DATABASE_URL: postgres://myuser:mypassword@db:5432/project_management
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    # Share source for hot reload while preserving container-installed node_modules
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    # Uncomment to run the dev script instead of npm start inside the container
+    # command: ["npm", "run", "dev"]
+
+  worker:
+    build: .
+    container_name: my-worker
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgres://myuser:mypassword@db:5432/project_management
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    command: ["npm", "run", "start:worker"]
+    # Uncomment to run the dev script instead of npm start:worker inside the container
+    # command: ["npm", "run", "dev:worker"]
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+
+  db:
+    image: postgres:16-alpine
+    container_name: my-postgres
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: project_management
+    ports:
+      - "5432:5432"     # allow local tools (psql, GUI clients) to reach Postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: my-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  db-data:

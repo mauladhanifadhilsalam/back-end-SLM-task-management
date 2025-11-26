@@ -1,0 +1,15 @@
+# Dependency/build artifacts
+node_modules
+dist
+
+# Local data/uploads
+uploads
+
+# VCS & config noise
+.git
+.gitignore
+
+# Environment files & logs
+.env
+.env.*
+npm-debug.log*
