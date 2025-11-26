@@ -120,7 +120,7 @@ npm start:worker             # run compiled workers
 | `REDIS_PORT`     | Redis port                                                   | `6379`                                               |
 
 ## Database & Prisma
-Primary models: User, ProjectOwner, Project (categories JSONB, completion), ProjectPhase, ProjectAssignment, Ticket (task/issue), TicketAssignee, Comment, Attachment, Notification, ActivityLog, plus a `DeveloperDashboard` materialized view. Prisma client is generated into `src/generated/prisma` (do not edit manually).
+Primary models: User, ProjectOwner, Project (categories JSONB, completion), ProjectPhase, ProjectAssignment, Ticket (task/issue), TicketAssignee, Comment, Attachment, Notification, ActivityLog, plus a `DeveloperDashboard` materialized view. Prisma client is generated into `./node_modules/.prisma/client` (do not edit manually).
 
 ## Authentication & Authorization
 - **Login**: `POST /auth/login` with email + password returns a Bearer token (`token_type: "Bearer"`) and `expires_in`.
