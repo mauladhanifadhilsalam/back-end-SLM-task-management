@@ -22,7 +22,6 @@ task_stats AS (
   SELECT
     at."userId",
 
-    -- existing
     COUNT(*) FILTER (WHERE at.type = 'TASK')::int AS total_assigned_tasks,
     COUNT(*) FILTER (
       WHERE at.type = 'TASK'
@@ -37,9 +36,8 @@ task_stats AS (
     COUNT(*) FILTER (
       WHERE at.type = 'TASK'
         AND at.status IN ('DONE', 'CLOSED', 'RESOLVED')
-    )::int AS completed_tasks, -- internal, used for completion % and bug/task ratio
+    )::int AS completed_tasks,
 
-    -- new
     COUNT(*) FILTER (
       WHERE at.type = 'TASK'
         AND at.priority IN ('HIGH', 'CRITICAL')
@@ -71,7 +69,6 @@ issue_stats AS (
   SELECT
     at."userId",
 
-    -- existing
     COUNT(*) FILTER (WHERE at.type = 'ISSUE')::int AS total_assigned_issues,
     COUNT(*) FILTER (
       WHERE at.type = 'ISSUE'
@@ -82,7 +79,6 @@ issue_stats AS (
         AND at.priority = 'CRITICAL'
     )::int AS critical_issues,
 
-    -- new
     COUNT(*) FILTER (
       WHERE at.type = 'ISSUE'
         AND at.priority IN ('HIGH', 'CRITICAL')
@@ -106,7 +102,7 @@ issue_stats AS (
     COUNT(*) FILTER (
       WHERE at.type = 'ISSUE'
         AND at.status IN ('DONE', 'CLOSED', 'RESOLVED')
-    )::int AS completed_issues -- internal, for bug/task ratio
+    )::int AS completed_issues
 
   FROM assigned_tickets at
   GROUP BY at."userId"
@@ -235,14 +231,14 @@ notification_stats AS (
 )
 
 SELECT
-  u.id         AS user_id,
+  u.id         AS "userId",
   u."fullName",
   u.email,
 
   -- tasks
-  COALESCE(ts.total_assigned_tasks, 0)        AS total_assigned_tasks,
-  COALESCE(ts.tasks_in_progress, 0)           AS tasks_in_progress,
-  COALESCE(ts.overdue_tasks, 0)               AS overdue_tasks,
+  COALESCE(ts.total_assigned_tasks, 0)        AS "totalAssignedTasks",
+  COALESCE(ts.tasks_in_progress, 0)           AS "tasksInProgress",
+  COALESCE(ts.overdue_tasks, 0)               AS "overdueTasks",
   CASE
     WHEN COALESCE(ts.total_assigned_tasks, 0) = 0 THEN 0
     ELSE ROUND(
@@ -250,18 +246,18 @@ SELECT
         / ts.total_assigned_tasks,
       2
     )
-  END                                         AS task_completion_percentage,
-  COALESCE(ts.open_tasks_high_priority, 0)    AS open_tasks_high_priority,
-  COALESCE(ts.tasks_due_next_7_days, 0)       AS tasks_due_next_7_days,
-  COALESCE(ts.completed_tasks_last_7_days, 0) AS completed_tasks_last_7_days,
+  END                                         AS "taskCompletionPercentage",
+  COALESCE(ts.open_tasks_high_priority, 0)    AS "openTasksHighPriority",
+  COALESCE(ts.tasks_due_next_7_days, 0)       AS "tasksDueNext7Days",
+  COALESCE(ts.completed_tasks_last_7_days, 0) AS "completedTasksLast7Days",
 
   -- issues
-  COALESCE(is2.total_assigned_issues, 0)         AS total_assigned_issues,
-  COALESCE(is2.issues_in_progress, 0)            AS issues_in_progress,
-  COALESCE(is2.critical_issues, 0)               AS critical_issues,
-  COALESCE(is2.open_issues_high_priority, 0)     AS open_issues_high_priority,
-  COALESCE(is2.issues_due_next_7_days, 0)        AS issues_due_next_7_days,
-  COALESCE(is2.completed_issues_last_7_days, 0)  AS completed_issues_last_7_days,
+  COALESCE(is2.total_assigned_issues, 0)         AS "totalAssignedIssues",
+  COALESCE(is2.issues_in_progress, 0)            AS "issuesInProgress",
+  COALESCE(is2.critical_issues, 0)               AS "criticalIssues",
+  COALESCE(is2.open_issues_high_priority, 0)     AS "openIssuesHighPriority",
+  COALESCE(is2.issues_due_next_7_days, 0)        AS "issuesDueNext7Days",
+  COALESCE(is2.completed_issues_last_7_days, 0)  AS "completedIssuesLast7Days",
 
   -- bug-to-task completion ratio (lifetime)
   CASE
@@ -271,22 +267,22 @@ SELECT
         / ts.completed_tasks::numeric,
       2
     )
-  END                                           AS bug_to_task_completion_ratio,
+  END                                           AS "bugToTaskCompletionRatio",
 
   -- projects
-  COALESCE(ps.total_assigned_projects, 0)       AS total_assigned_projects,
-  COALESCE(ps.projects_in_progress, 0)          AS projects_in_progress,
-  pp.primary_project_id                         AS primary_project_id,
-  COALESCE(tbp.tickets_by_project, '[]'::jsonb) AS tickets_by_project,
+  COALESCE(ps.total_assigned_projects, 0)       AS "totalAssignedProjects",
+  COALESCE(ps.projects_in_progress, 0)          AS "projectsInProgress",
+  pp.primary_project_id                         AS "primaryProjectId",
+  COALESCE(tbp.tickets_by_project, '[]'::jsonb) AS "ticketsByProject",
 
   -- workload
-  COALESCE(ws.workload_index, 0)                AS workload_index,
-  COALESCE(asg.new_tickets_assigned_last_7_days, 0) AS new_tickets_assigned_last_7_days,
+  COALESCE(ws.workload_index, 0)                     AS "workloadIndex",
+  COALESCE(asg.new_tickets_assigned_last_7_days, 0)  AS "newTicketsAssignedLast7Days",
 
   -- collaboration
-  COALESCE(cw.comments_written_last_7_days, 0)       AS comments_written_last_7_days,
-  COALESCE(cmt.comments_on_my_tickets_last_7_days, 0) AS comments_on_my_tickets_last_7_days,
-  COALESCE(ns.unread_notifications_count, 0)         AS unread_notifications_count
+  COALESCE(cw.comments_written_last_7_days, 0)        AS "commentsWrittenLast7Days",
+  COALESCE(cmt.comments_on_my_tickets_last_7_days, 0) AS "commentsOnMyTicketsLast7Days",
+  COALESCE(ns.unread_notifications_count, 0)          AS "unreadNotificationsCount"
 
 FROM "User" u
 LEFT JOIN task_stats              ts  ON ts."userId"  = u.id
@@ -303,4 +299,4 @@ WHERE u.role = 'DEVELOPER';
 
 -- Optional indexes for faster lookups
 CREATE INDEX IF NOT EXISTS idx_developer_dashboard_user_id
-  ON developer_dashboard (user_id);
+  ON developer_dashboard ("userId");

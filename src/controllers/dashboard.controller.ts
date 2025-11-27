@@ -11,7 +11,7 @@ async function getDeveloperDashboard(req: Request, res: Response) {
     if (!dashboard) {
       return res.status(404).json({ message: "Dashboard not found" });
     }
-    return res.status(200).json(dashboard);
+    return res.status(200).json(dashboard[0]);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal Server Error" });
