@@ -1,5 +1,6 @@
 import prisma from "../db/prisma";
 import { ActivityTargetType, Prisma } from "@prisma/client";
+import { refreshDashboard } from "./dashboard.service";
 import { enqueueActivityLog } from "../queues/activityLog";
 
 type LogActivityInput = {
@@ -76,9 +77,12 @@ function buildActivityLogWhere(
 }
 
 async function logActivity(input: LogActivityInput) {
-  return prisma.activityLog.create({
+  const activityLog = await prisma.activityLog.create({
     data: input,
   });
+  if (activityLog) {
+    await refreshDashboard();
+  }
 }
 
 async function recordActivity(input: LogActivityInput) {

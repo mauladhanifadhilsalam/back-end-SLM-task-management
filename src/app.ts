@@ -15,6 +15,7 @@ import projectAssignmentRouter from "./routes/project-assignment.route";
 import attachmentRouter from "./routes/attachment.route";
 import notificationRouter from "./routes/notification.route";
 import activityLogRouter from "./routes/activity-log.route";
+import dashboardRouter from "./routes/dashboard.route";
 
 // Middleware for authentication and role-based access control
 import requireAuth from "./middleware/requireAuth";
@@ -53,11 +54,15 @@ app.use("/comments", commentRouter);
 app.use("/ticket-assignees", ticketAssigneeRouter);
 app.use("/attachments", attachmentRouter);
 app.use("/notifications", notificationRouter);
-app.use("/activity-logs",requireRole([RoleType.ADMIN]), activityLogRouter);
+app.use("/activity-logs", requireRole([RoleType.ADMIN]), activityLogRouter);
+
+app.use("/dashboard", dashboardRouter);
 
 // endpoint without requireRole can be accessed by any authenticated user
 app.get("/", (_req: Request, res: Response) => {
   res.json({ message: "Welcome to SLM Project Management API" });
 });
+
+
 
 export default app;
