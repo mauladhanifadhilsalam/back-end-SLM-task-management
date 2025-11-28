@@ -6,6 +6,7 @@ import seedTicket from "./seeders/ticket.seeder";
 import seedComment from "./seeders/comment.seeder";
 import seedNotification from "./seeders/notification.seeder";
 import seedUser from "./seeders/user.seeder";
+import { refreshDashboard } from "../src/services/dashboard.service";
 
 async function resetSequences() {
   console.log("Resetting ID sequences...");
@@ -45,8 +46,6 @@ async function main() {
   await prisma.projectOwner.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log("Cleared existing data");
-
   await resetSequences();
 
   await seedUser();
@@ -56,6 +55,8 @@ async function main() {
   await seedTicket();
   await seedComment();
   await seedNotification();
+
+  await refreshDashboard();
 
   console.log("Seed completed successfully!");
 }
