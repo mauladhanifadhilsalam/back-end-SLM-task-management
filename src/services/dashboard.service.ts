@@ -87,6 +87,10 @@ async function findDeveloperDashboard(userId: number): Promise<DeveloperDashboar
   return await prisma.$queryRaw`SELECT * FROM developer_dashboard WHERE "userId" = ${userId} LIMIT 1`;
 }
 
+async function findAllDeveloperDashboards(): Promise<DeveloperDashboard[]> {
+  return await prisma.$queryRaw`SELECT * FROM developer_dashboard ORDER BY "userId" ASC`;
+}
+
 async function findProjectManagerDashboard(userId: number): Promise<ProjectManagerDashboard> {
   return await prisma.$queryRaw`SELECT * FROM project_manager_dashboard WHERE "userId" = ${userId} LIMIT 1`;
 }
@@ -97,4 +101,4 @@ async function refreshDashboard() {
   prisma.$executeRaw`REFRESH MATERIALIZED VIEW project_manager_dashboard`
   ])
 }
-export { findDeveloperDashboard, findProjectManagerDashboard, refreshDashboard };
+export { findDeveloperDashboard, findAllDeveloperDashboards, findProjectManagerDashboard, refreshDashboard };
