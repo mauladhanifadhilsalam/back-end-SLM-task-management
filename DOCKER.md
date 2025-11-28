@@ -9,19 +9,30 @@ Build and run the full stack (API, PostgreSQL, Redis) with Docker Compose. This 
 ## 2. Build and Start Services
 ```bash
 docker compose up --build -d    # build images (API + worker) and start db/redis
-docker compose ps               # verify api, worker, db, redis are running
-docker compose logs -f api      # optional: tail API logs
-docker compose logs -f worker   # optional: tail worker logs
 ```
 The API is exposed on `http://localhost:3000`. PostgreSQL and Redis forward to the host on ports `5432` and `6379` for GUI tools. The BullMQ worker runs in its own service (`worker`) and automatically processes queued jobs.
 
-## 3. Apply Database Migrations
-Run migrations whenever the Prisma schema or migrations folder changes:
+## 3. Apply Database Migrations (required)
+Run this after the containers start (and again after schema/migration changes) so the database schema is in place:
 ```bash
 docker compose exec api npx prisma migrate deploy
 ```
 
-## 4. Seed Development Data
+## 4. Inspect and Monitor Containers
+Check status:
+```bash
+docker compose ps
+```
+Tail API logs:
+```bash
+docker compose logs -f api
+```
+Tail worker logs:
+```bash
+docker compose logs -f worker
+```
+
+## 5. Seed Development Data
 To load baseline users/projects/tickets (this truncates existing data):
 ```bash
 docker compose exec api npx prisma db seed
@@ -39,8 +50,8 @@ Skip this step if you want to keep your current database contents.
 | `docker compose down -v` | Stop containers and delete named volumes (wipes Postgres data permanently). |
 
 ## 6. Switching Between Dev and Build Modes
-- **Dev / hot reload inside Docker**: the current compose file mounts your workspace into the containers and the worker already runs `npm run dev:worker`. To run the API with ts-node-dev inside Docker, uncomment the `command: ["npm", "run", "dev"]` block under the `api` service (or pass `docker compose run --rm api npm run dev`). Keep the volume mounts to see code changes immediately.
-- **Build / production-style run**: comment out the `volumes` entries for `api` and `worker` so the container uses files baked into the image, then rebuild with `docker compose up --build -d`. Switch the worker command to `"npm", "run", "start:worker"` if you want it to execute the compiled build instead of the dev watcher. Run `docker compose exec api npm run build` first (or add it to the Dockerfile) so `npm start` finds `dist/`.
+- **Dev / hot reload inside Docker**: the compose file mounts your workspace into the containers. To run the API with ts-node-dev inside Docker, uncomment the `command: ["npm", "run", "dev"]` block under the `api` service (or pass `docker compose run --rm api npm run dev`). To run workers with hot reload, switch the worker command to `["npm", "run", "dev:worker"]`. Keep the volume mounts to see code changes immediately.
+- **Build / production-style run**: comment out the `volumes` entries for `api` and `worker` so the container uses files baked into the image, then rebuild with `docker compose up --build -d`. Use the default worker command (`"npm", "run", "start:worker"`) to execute the compiled build. Run `docker compose exec api npm run build` first (or add it to the Dockerfile) so `npm start` finds `dist/`.
 
 ## 7. Troubleshooting
 - **`ECONNREFUSED 127.0.0.1` to Postgres/Redis**: ensure you ran migrations/seed inside Docker and kept `REDIS_HOST`, `DATABASE_URL` overrides pointing to `redis`/`db`.

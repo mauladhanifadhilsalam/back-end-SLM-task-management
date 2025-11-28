@@ -1,6 +1,6 @@
 # SLM Project Management API
 
-REST API for the SLM Project Management System. The service centralises authentication, user administration, project lifecycle tracking, and project phase management for delivery teams.
+REST API for the SLM Project Management System. The service centralises authentication, user administration, project lifecycle tracking, task tickets, notifications, and project assignments for delivery teams.
 
 ## Contents
 - [Features](#features)
@@ -10,53 +10,66 @@ REST API for the SLM Project Management System. The service centralises authenti
 - [Environment Variables](#environment-variables)
 - [Database & Prisma](#database--prisma)
 - [Authentication & Authorization](#authentication--authorization)
-- [API Reference](#api-reference)
+- [API Surface](#api-surface)
 - [Seed Data & Sample Credentials](#seed-data--sample-credentials)
 - [Testing & Tooling](#testing--tooling)
 - [Deployment Notes](#deployment-notes)
 
 ## Features
 - Secure JWT authentication with role-aware middleware (admin, project manager, developer).
-- Admin-only user CRUD plus self-service password changes for all roles.
-- Project owner registry with contact metadata to connect stakeholders and delivery teams.
-- Project tracking with status, progress metrics, categorisation, and per-phase timelines.
-- Project phase management with validation and optional filtering by project.
-- Prisma-backed PostgreSQL persistence with seeds for local development data.
+- User management with admin CRUD, PM visibility, and self-service password changes.
+- Project owner registry plus project lifecycle tracking with phases, categories, and completion recalculation driven by task tickets.
+- Project assignments to map users into delivery roles per project.
+- Ticketing with assignees, permissions, comments, attachments (file uploads), and status transitions.
+- Notification center with in-app state, email dispatch via BullMQ/Redis/Nodemailer, and resend support.
+- Activity logging for auditable actions across resources.
+- Developer dashboard powered by a materialized view.
 
 ## Tech Stack
-- Node.js 20, TypeScript, Express 5
+- Node.js 20, 
+- TypeScript 
+- Express 5
 - Prisma ORM targeting PostgreSQL
-- JSON Web Tokens (jsonwebtoken) and bcrypt password hashing
-- zod schema validation
+- JWT (JSON Web Token)
+- Zod schema validation
+- Redis (currently for BullMQ background jobs)
+- BullMQ for background jobs 
+- Nodemailer for email delivery
+- Multer for file uploads
 - Vitest for unit testing
 
 ## Architecture Overview
 ```
 src/
   app.ts            Express app wiring, middleware registration, route mounting
-  server.ts         Bootstrap logic and environment bootstrap
+  server.ts         HTTP bootstrap
   controllers/      HTTP controllers with validation and response handling
-  services/         Prisma-backed domain services
+  services/         Prisma-backed domain services and business logic
   routes/           Route definitions and role gates per resource
-  middleware/       Auth and role enforcement layers
+  middleware/       Auth, role enforcement, uploads
   db/prisma.ts      Prisma client singleton
-  utils/            Shared utilities (JWT, env loader, etc.)
+  config/           Env loader, Redis connection
+  queues/           BullMQ queue definitions
+  workers/          Queue workers (email, activity logs)
+  utils/            Shared utilities (JWT, env, permissions, transporter)
 prisma/
-  schema.prisma     Data model definitions and enums
+  schema.prisma     Data model definitions, enums, materialized view mapping
   migrations/       Generated SQL migrations (if present)
   seed.ts           Dev database seeding entrypoint
   seeders/          Resource-specific seeding routines
 tests/              Vitest specs and helpers
+uploads/            Saved attachments (created at runtime)
 dist/               Compiled JavaScript after `npm run build`
 ```
 
-`src/app.ts` wires shared middleware (JSON parsing, URL encoding, CORS) before mounting route modules. Authentication is enforced globally via `requireAuth` after the public `/health` and `/auth` routes. Additional role restrictions are applied per resource with `requireRole`.
+`src/app.ts` mounts public `/health` and `/auth` routes, then enforces authentication globally. Resource routers add per-role checks where required.
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js 20.x (includes npm 10)
-- PostgreSQL 14+ running locally or accessible via connection string
+- PostgreSQL 14+ running locally or via connection string
+- Redis
 
 ### Installation
 ```bash
@@ -68,25 +81,27 @@ npm install
 ### Configure Environment
 ```bash
 cp .env.example .env
-# Update DATABASE_URL, JWT_SECRET, and JWT_EXPIRES_IN as needed
+# Update DATABASE_URL, JWT_SECRET, JWT_EXPIRES_IN, email, upload, and Redis settings
 ```
 
 ### Database
 ```bash
 npx prisma migrate dev       # apply migrations and generate Prisma client
-npx prisma db seed           # load baseline data
+npx prisma db seed           # load baseline data (destroys existing data)
 ```
 
-### Run the API
+### Run the API and workers
 ```bash
-npm run dev                  # run with ts-node-dev and hot reload
+npm run dev                  # API with ts-node-dev + hot reload
+npm run dev:worker           # background workers (email, activity logs)
 ```
-The server boots on `http://localhost:3000` unless `PORT` is set.
+Server defaults to `http://localhost:3000` unless `PORT` is set.
 
 ### Production Build
 ```bash
 npm run build                # emit JS to dist/
 npm start                    # run compiled server (expects prior build)
+npm start:worker             # run compiled workers
 ```
 
 ## Environment Variables
@@ -96,196 +111,74 @@ npm start                    # run compiled server (expects prior build)
 | `JWT_SECRET`     | Symmetric signing key for JWT tokens                         | `secret`                                             |
 | `JWT_EXPIRES_IN` | Token lifetime (supports durations like `1h` or seconds)     | `1h`                                                 |
 | `PORT`           | Express listener port (optional)                             | `3000` (set in code if env var missing)              |
+| `EMAIL_HOST`     | SMTP host for outbound notifications                         | `smtp.gmail.com`                                     |
+| `EMAIL_PORT`     | SMTP port                                                    | `587`                                                |
+| `EMAIL_USER`     | SMTP username                                                | `user@gmail.com`                                     |
+| `EMAIL_PASS`     | SMTP password or app password                                | `abcdefghijklmnop`                                   |
+| `UPLOAD_DIR`     | Directory for uploaded attachments                           | `uploads/`                                           |
+| `REDIS_HOST`     | Redis hostname       | `127.0.0.1`                                          |
+| `REDIS_PORT`     | Redis port                                                   | `6379`                                               |
 
 ## Database & Prisma
-Primary models used by the API today:
-
-- **User**: credentials, role (`ADMIN`, `PROJECT_MANAGER`, `DEVELOPER`), activation status, and audit timestamps.
-- **ProjectOwner**: client-side stakeholders with company, phone, and address metadata.
-- **Project**: project metadata (categories stored as JSON array), schedule, status (`NOT_STARTED`, `IN_PROGRESS`, `ON_HOLD`, `DONE`), completion percentage, notes, and relations to an owner and phases.
-- **ProjectPhase**: timeline segments tied to a project, enforcing unique date windows per project.
-
-Additional models (tickets, assignments, notifications, activity logs) already exist in `schema.prisma` for future feature work.
-
-Prisma client code is generated into `src/generated/prisma`. Avoid editing this directory manually.
+Primary models: User, ProjectOwner, Project (categories JSONB, completion), ProjectPhase, ProjectAssignment, Ticket (task/issue), TicketAssignee, Comment, Attachment, Notification, ActivityLog, plus a `DeveloperDashboard` materialized view. Prisma client is generated into `./node_modules/.prisma/client` (do not edit manually).
 
 ## Authentication & Authorization
-- **Login**: `POST /auth/login` authenticates with email + password. Successful responses return a Bearer token (`token_type: "Bearer"`) and `expires_in` seconds.
-- **Token usage**: send `Authorization: Bearer <token>` on protected endpoints. Tokens embed `sub` (user id) and `role`.
-- **Middleware**:
-  - `requireAuth` validates the token and attaches `req.user`.
-  - `requireRole` restricts routes to one or more roles.
+- **Login**: `POST /auth/login` with email + password returns a Bearer token (`token_type: "Bearer"`) and `expires_in`.
+- **Profile**: `GET /auth/profile` returns the authenticated user.
+- **Global**: `/health` and `/auth/login` are public; everything else requires a valid token.
 
-| Resource | Role Access |
-| -------- | ----------- |
-| `/health`, `/auth/login` | Public |
+| Resource | Role Access (as implemented) |
+| -------- | ---------------------------- |
 | `/` (welcome) | Any authenticated user |
 | `/users/change-password` | Any authenticated user |
-| `/users` CRUD | `ADMIN` |
+| `/users` list | `ADMIN`, `PROJECT_MANAGER` |
+| `/users` CRUD (id routes) | `ADMIN` |
 | `/project-owners` CRUD | `ADMIN`, `PROJECT_MANAGER` |
-| `/projects` CRUD | `ADMIN`, `PROJECT_MANAGER` |
-| `/project-phases` CRUD | `ADMIN` |
+| `/projects` (all routes) | Any authenticated user (controllers restrict visibility to assigned users unless admin/PM) |
+| `/project-phases` CRUD | `ADMIN`, `PROJECT_MANAGER` |
+| `/project-assignments` CRUD | `ADMIN`, `PROJECT_MANAGER` |
+| `/tickets`, `/ticket-assignees`, `/comments`, `/attachments` | Any authenticated user; controller-level permission helpers enforce project membership and ownership rules |
+| `/notifications` list/state | Any authenticated user (admins can see all); create/update/delete/resend are admin-only |
+| `/activity-logs` | `ADMIN` |
+| `/dashboard/developer` | `DEVELOPER` |
 
-Unauthorized requests return `401` (missing/invalid token) or `403` (insufficient role).
+Unauthorized requests return `401` for missing/invalid tokens or `403` for insufficient role/permissions.
 
-## API Reference
-Base URL: `http://localhost:3000`
-
-### Health
-```
-GET /health
-```
-Returns service status and timestamp. No authentication required.
-
-### Authentication
-```
-POST /auth/login
-Content-Type: application/json
-```
-Request body:
-```json
-{
-  "email": "sauron@gmail.com",
-  "password": "password123"
-}
-```
-Success (`200 OK`):
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "token_type": "Bearer",
-  "expires_in": "1h",
-  "role": "ADMIN"
-}
-```
-Invalid credentials return `401`.
-
-### Users
-- `GET /users` — list project managers and developers (admin only).
-- `GET /users/:id` — fetch by id (admin only).
-- `POST /users` — create user (admin only).
-- `PATCH /users/:id` — update fields (admin only).
-- `DELETE /users/:id` — remove user (admin only).
-- `POST /users/change-password` — change password using current credentials (any authenticated role).
-
-Create/update payload:
-```json
-{
-  "fullName": "Leia Organa",
-  "email": "leia@resistance.io",
-  "role": "PROJECT_MANAGER",
-  "password": "newpass123",
-  "isActive": true
-}
-```
-Validation highlights:
-
-- `email` must be unique; duplicates return `409`.
-- `password` minimum length 8 and stored hashed via bcrypt.
-- `change-password` rejects wrong current password (`401`) or reuse of the same password (`400`).
-
-### Project Owners
-All operations require `ADMIN` or `PROJECT_MANAGER`.
-
-- `GET /project-owners`
-- `GET /project-owners/:id`
-- `POST /project-owners`
-- `PATCH /project-owners/:id`
-- `DELETE /project-owners/:id`
-
-Sample payload:
-```json
-{
-  "name": "Dana Barrett",
-  "company": "Spengler Consulting",
-  "email": "dana@example.com",
-  "phone": "+12125550100",
-  "address": "55 Central Park West, New York"
-}
-```
-Emails are unique; duplicates return `409`.
-
-### Projects
-Require `ADMIN` or `PROJECT_MANAGER`.
-
-- `GET /projects` — returns projects with owner and phases included (newest first).
-- `GET /projects/:id`
-- `POST /projects`
-- `PATCH /projects/:id`
-- `DELETE /projects/:id`
-
-Create payload:
-```json
-{
-  "name": "Project Aegis",
-  "categories": ["Security", "Platform"],
-  "ownerId": 1,
-  "startDate": "2025-02-01",
-  "endDate": "2025-05-31",
-  "status": "IN_PROGRESS",
-  "completion": 35.5,
-  "notes": "Stakeholder review scheduled for March.",
-  "phases": [
-    { "name": "Discovery", "startDate": "2025-02-01", "endDate": "2025-02-14" },
-    { "name": "Build", "startDate": "2025-02-17", "endDate": "2025-04-11" }
-  ]
-}
-```
-Rules:
-
-- `endDate` must be on or after `startDate`.
-- `categories` must contain at least one value.
-- `ownerId` must reference an existing project owner (`404` if missing).
-- `completion` accepts values between `0` and `100`.
-
-`PATCH` accepts partial updates; omitted fields remain unchanged.
-
-### Project Phases
-Require `ADMIN`.
-
-- `GET /project-phases` — optional `projectId` query filter (example: `/project-phases?projectId=2`).
-- `GET /project-phases/:id`
-- `POST /project-phases`
-- `PATCH /project-phases/:id`
-- `DELETE /project-phases/:id`
-
-Payload:
-```json
-{
-  "name": "Stabilization",
-  "projectId": 3,
-  "startDate": "2025-06-02",
-  "endDate": "2025-06-27"
-}
-```
-Validation mirrors project rules: `endDate` follows `startDate`, and `projectId` must exist.
-
-### Root Welcome
-```
-GET /
-```
-Returns `{ "message": "Welcome to SLM Project Management API" }`. Requires a valid token but no specific role.
+## API Surface
+- **Auth**: `POST /auth/login`, `GET /auth/profile`
+- **Users**: `POST /users/change-password`, admin/PM list, admin CRUD by id
+- **Project Owners**: CRUD (admin/PM)
+- **Projects**: list/detail with phases and assignments; create/update/delete; visibility limited for non-admin/PM
+- **Project Phases**: CRUD (admin/PM)
+- **Project Assignments**: list by project (required for non-admin), create/delete (admin/PM)
+- **Tickets**: filterable list, detail, create/update/delete with granular permission checks; completion recalculation for tasks
+- **Ticket Assignees**: list by ticket, add/remove assignees with project membership validation
+- **Comments**: list by ticket, create, update/delete with author-or-admin rules
+- **Attachments**: list (base64 payload), upload file (`multipart/form-data` field `file`), delete with owner/admin ticket permissions
+- **Notifications**: list (admin sees all, others only their own), get by id, set state, admin create/update/delete/resend
+- **Activity Logs**: list with pagination/filters, get by id, delete/purge (admin)
+- **Dashboard**: `GET /dashboard/developer` for developer-centric stats
 
 ## Seed Data & Sample Credentials
-`npx prisma db seed` creates:
+`npx prisma db seed` resets data and loads:
+- Users (password: `password123`):
+  - `sauron@example.com` (`ADMIN`)
+  - `skywalker@example.com` (`PROJECT_MANAGER`)
+  - `gandalf@yahoo.com`, `frodo@example.com`, `samwise@example.com`, `legolas@example.com`, `aragorn@example.com`, `bard@example.com` (all `DEVELOPER`)
+- Project owners, projects with phases, project assignments, tickets, comments, and notifications.
 
-- Users:
-  - `sauron@gmail.com` / `password123` (`ADMIN`)
-  - `skywalker@gmail.com` / `password123` (`PROJECT_MANAGER`)
-  - `gandalf@yahoo.com` / `password123` (`DEVELOPER`)
-- Project owners and projects with multi-phase schedules for local exploration.
-
-Use these accounts to test authorization flows. Replace all secrets before deploying.
+Use these for local authentication; replace secrets before deployment.
 
 ## Testing & Tooling
-- `npm test` — run Vitest suites (extend with controller/service coverage).
+- `npm test` — run Vitest suites.
 - `npx prisma format` — format the Prisma schema.
-- Recommended pre-commit checklist:
-  1. `npm run build`
-  2. `npm run test`
+- `npx prisma migrate dev` — apply schema changes locally.
+- `npx prisma db seed` — reset and seed dev data.
+- `npm run dev` / `npm run dev:worker` — run API and workers during development.
+- `npm run build` — compile TypeScript; `npm start` and `npm start:worker` run compiled artifacts.
 
 ## Deployment Notes
-- Provide `DATABASE_URL`, `JWT_SECRET`, and `JWT_EXPIRES_IN` in the hosting environment.
-- Run `npm run build` during the deployment pipeline, then launch with `npm start`.
+- Provide PostgreSQL, Redis, JWT, email, upload, and port configuration via environment variables.
+- Run `npm run build` then start both the API (`npm start`) and workers (`npm start:worker`) that use Redis today (BullMQ) and can support future Redis-backed features.
 - Regenerate the Prisma client (`npx prisma generate`) whenever the schema changes.
-- Rotate JWT secrets when compromised and invalidate tokens where necessary.
+- Rotate JWT secrets when compromised and ensure SMTP credentials are secured. The seed script truncates data—do not run against non-dev databases.
