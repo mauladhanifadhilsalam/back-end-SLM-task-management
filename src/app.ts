@@ -27,14 +27,13 @@ import cors from "cors";
 import env from "./config/env";
 
 const app = express();
-const allowedOrigins = env.allowedOrigins.split(",");
 
 // Middleware
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: allowedOrigins,
+  origin: env.allowedOrigins,
   credentials: true
 }));
 

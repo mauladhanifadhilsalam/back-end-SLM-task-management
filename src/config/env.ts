@@ -14,7 +14,7 @@ const env: {
   redisHost: string;
   redisPort: number;
   nodeEnv: string;
-  allowedOrigins: string;
+  allowedOrigins: string[];
 } = {
   jwtSecret: process.env.JWT_SECRET || "secret",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || 10,
@@ -28,7 +28,7 @@ const env: {
   redisHost: process.env.REDIS_HOST!,
   redisPort: parseInt(process.env.REDIS_PORT!),
   nodeEnv: process.env.NODE_ENV || "development",
-  allowedOrigins: process.env.ALLOWED_ORIGINS || "http://localhost:5173",
+  allowedOrigins: process.env.ALLOWED_ORIGINS?.trim().split(",") || ["http://localhost:5173"],
 };
 
 export default env;
