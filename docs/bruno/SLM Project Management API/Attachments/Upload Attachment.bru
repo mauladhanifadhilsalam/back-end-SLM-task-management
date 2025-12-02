@@ -1,0 +1,24 @@
+meta {
+  name: Upload Attachment
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/attachments
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  ticketId: 1
+  file: @file()
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Form-data upload: `file` is the binary, `ticketId` is text.
+}

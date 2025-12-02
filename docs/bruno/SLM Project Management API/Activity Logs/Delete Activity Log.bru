@@ -1,0 +1,19 @@
+meta {
+  name: Delete Activity Log
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/activity-logs/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+settings {
+  encodeUrl: true
+}

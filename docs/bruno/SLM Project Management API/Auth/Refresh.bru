@@ -1,0 +1,31 @@
+meta {
+  name: Refresh
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/auth/refresh
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    const json = res.getBody();
+    if (json.token) bru.setVar("token", json.token);
+    if (json.role) bru.setVar("role", json.role);
+  }
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Authenticate and retrieve a JWT. Seeds include admin (`sauron@gmail.com`), project manager (`skywalker@gmail.com`), and developer (`gandalf@yahoo.com`).
+}

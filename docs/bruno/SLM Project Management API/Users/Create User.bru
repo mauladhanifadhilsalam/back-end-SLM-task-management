@@ -1,0 +1,33 @@
+meta {
+  name: Create User
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/users
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "fullName": "Leia Organa",
+    "email": "leia@resistance.io",
+    "role": "PROJECT_MANAGER",
+    "password": "N3wP@ssw0rd!",
+    "isActive": true
+  }
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  ADMIN only. Role options: PROJECT_MANAGER or DEVELOPER.
+}

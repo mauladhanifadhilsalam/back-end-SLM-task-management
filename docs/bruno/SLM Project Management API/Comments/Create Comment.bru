@@ -1,0 +1,26 @@
+meta {
+  name: Create Comment
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/comments
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "ticketId": 1,
+    "message": "Latest findings attached."
+  }
+}
+
+settings {
+  encodeUrl: true
+}
