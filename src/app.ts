@@ -4,6 +4,8 @@ import { RoleType } from "@prisma/client";
 import cookieParser from "cookie-parser";
 
 // Route handlers for different parts of the application
+import docsRouter from "./routes/docs.route";
+
 import authRouter from "./routes/auth.route";
 import userRouter from "./routes/user.route";
 import projectOwnerRouter from "./routes/project-owner.route";
@@ -36,6 +38,9 @@ app.use(cors({
   origin: env.allowedOrigins,
   credentials: true
 }));
+
+// Documentation route
+app.use("/docs", express.static("docs"), docsRouter);
 
 // Public routes
 app.use("/auth", authRouter);
