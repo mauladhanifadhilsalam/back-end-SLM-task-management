@@ -84,7 +84,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"sauron@gmail.com\",\n  \"password\": \"password123\"\n}",
+							"raw": "{\n  \"email\": \"sauron@example.com\",\n  \"password\": \"password123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -101,7 +101,7 @@
 								"login"
 							]
 						},
-						"description": "Authenticate and retrieve a JWT. Seeds include admin (`sauron@gmail.com`), project manager (`skywalker@gmail.com`), and developer (`gandalf@yahoo.com`)."
+						"description": "Authenticate and retrieve a JWT. Seeds include admin (`sauron@example.com`), project manager (`skywalker@example.com`), and developer (`gandalf@yahoo.com`)."
 					},
 					"response": []
 				},
@@ -154,7 +154,7 @@
 								"refresh"
 							]
 						},
-						"description": "Authenticate and retrieve a JWT. Seeds include admin (`sauron@gmail.com`), project manager (`skywalker@gmail.com`), and developer (`gandalf@yahoo.com`)."
+						"description": "Authenticate and retrieve a JWT. Seeds include admin (`sauron@example.com`), project manager (`skywalker@example.com`), and developer (`gandalf@yahoo.com`)."
 					},
 					"response": []
 				},
@@ -329,7 +329,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"sauron@gmail.com\",\n  \"password\": \"password123\",\n  \"newPassword\": \"B3tterP@ss!\"\n}",
+							"raw": "{\n  \"email\": \"sauron@example.com\",\n  \"password\": \"password123\",\n  \"newPassword\": \"B3tterP@ss!\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
