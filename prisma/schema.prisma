@@ -107,7 +107,20 @@ model User {
   attachments        Attachment[]
   notifications      Notification[]    @relation("NotificationRecipient")
   activityLogs       ActivityLog[]
+  refreshToken       RefreshToken?
 
+}
+
+model RefreshToken {
+  id         Int      @id @default(autoincrement())
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime @default(now())
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
 }
 
 model ProjectOwner {

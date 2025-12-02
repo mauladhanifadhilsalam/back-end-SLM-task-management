@@ -1,6 +1,7 @@
 // Core framework and type imports
 import express, { Request, Response } from "express";
 import { RoleType } from "@prisma/client";
+import cookieParser from "cookie-parser";
 
 // Route handlers for different parts of the application
 import authRouter from "./routes/auth.route";
@@ -23,13 +24,18 @@ import requireRole from "./middleware/requireRole";
 
 // Third-party middleware utilities
 import cors from "cors";
+import env from "./config/env";
 
 const app = express();
 
 // Middleware
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+  origin: env.allowedOrigins,
+  credentials: true
+}));
 
 // Public routes
 app.use("/auth", authRouter);
