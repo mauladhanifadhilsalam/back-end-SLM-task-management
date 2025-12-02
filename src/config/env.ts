@@ -4,7 +4,7 @@ dotenv.config();
 const env: {
   jwtSecret: string;
   jwtExpiresIn: string | number;
-  refreshTokenExpiresIn: number;
+  refreshTokenExpiresIn: string | number;
   refreshTokenCookieName: string;
   emailHost: string;
   emailPort: number;
@@ -17,8 +17,8 @@ const env: {
   allowedOrigins: string[];
 } = {
   jwtSecret: process.env.JWT_SECRET || "secret",
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN || 10,
-  refreshTokenExpiresIn: parseInt(process.env.REFRESH_TOKEN_EXPIRES_IN || String(60 * 60 * 24 * 7)),
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "1h",
+  refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || "7d",
   refreshTokenCookieName: process.env.REFRESH_TOKEN_COOKIE_NAME || "refresh_token",
   emailHost: process.env.EMAIL_HOST || "smtp.gmail.com",
   emailPort: parseInt(process.env.EMAIL_PORT || "587"),
