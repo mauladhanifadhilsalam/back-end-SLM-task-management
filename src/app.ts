@@ -40,7 +40,9 @@ app.use(cors({
 }));
 
 // Documentation route
-app.use("/docs", express.static("docs"), docsRouter);
+if (env.nodeEnv !== "production") {
+   app.use("/docs", express.static("docs"), docsRouter);
+ }
 
 // Public routes
 app.use("/auth", authRouter);
