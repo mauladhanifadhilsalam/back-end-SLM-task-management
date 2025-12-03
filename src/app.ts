@@ -23,12 +23,14 @@ import requireAuth from "./middleware/requireAuth";
 import requireRole from "./middleware/requireRole";
 
 // Third-party middleware utilities
-import cors from "cors";
 import env from "./config/env";
+import cors from "cors";
+import helmet from "helmet";
 
 const app = express();
 
 // Middleware
+app.use(helmet());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
