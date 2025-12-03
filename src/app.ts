@@ -26,10 +26,12 @@ import requireRole from "./middleware/requireRole";
 import env from "./config/env";
 import cors from "cors";
 import helmet from "helmet";
+import morgan from "morgan";
 
 const app = express();
 
 // Middleware
+app.use(morgan("dev"));
 app.use(helmet());
 app.use(cookieParser());
 app.use(express.json());
