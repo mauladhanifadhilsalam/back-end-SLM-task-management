@@ -5,6 +5,7 @@ import {
   generateRefreshToken,
   getRefreshTokenExpiryDate,
   getRefreshTokenCookieOptions,
+  accessTokenExpiresInSeconds,
 } from "../utils/auth";
 import {
   findUserByEmail,
@@ -144,7 +145,7 @@ function buildAuthResponse({
   return {
     token,
     token_type: "Bearer",
-    expires_in: env.jwtExpiresIn,
+    expires_in: accessTokenExpiresInSeconds,
     role,
   };
 }
