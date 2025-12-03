@@ -10,6 +10,7 @@ import { findProject } from "../services/project.service";
 import {
   createProjectPhaseSchema,
   updateProjectPhaseSchema,
+  projectPhaseQuerySchema,
 } from "../schemas/project-phase.schema";
 import { requireViewer } from "../utils/permissions";
 import { ActivityTargetType } from "@prisma/client";
@@ -20,23 +21,12 @@ import {
 
 async function getAllProjectPhases(req: Request, res: Response) {
   try {
-    const { projectId } = req.query;
-
-    let filter: { projectId: number } | undefined;
-    if (projectId !== undefined) {
-      const value = Array.isArray(projectId) ? projectId[0] : projectId;
-      const parsed = Number(value);
-
-      if (!Number.isInteger(parsed) || parsed <= 0) {
-        return res
-          .status(400)
-          .json({ message: "projectId must be a positive integer" });
-      }
-
-      filter = { projectId: parsed };
+    const parsed = projectPhaseQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      return res.status(400).json(parsed.error.format());
     }
 
-    const phases = await findProjectPhases(filter);
+    const phases = await findProjectPhases(parsed.data);
     res.status(200).json(phases);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });

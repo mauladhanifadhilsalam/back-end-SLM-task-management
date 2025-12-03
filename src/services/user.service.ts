@@ -1,19 +1,83 @@
 import prisma from "../db/prisma";
 import { Prisma, RoleType } from "@prisma/client";
+import {
+  buildPaginatedResult,
+  resolvePagination,
+  PaginatedResult,
+} from "../utils/pagination";
 
 type NewUserInput = Pick<
   Prisma.UserCreateInput,
   "fullName" | "role" | "email" | "passwordHash"
 >;
 
-async function findUsers() {
-  return await prisma.user.findMany({
-    where: {
-      role: {
-        in: [RoleType.PROJECT_MANAGER, RoleType.DEVELOPER],
+type ManageableRole = Extract<RoleType, "PROJECT_MANAGER" | "DEVELOPER">;
+
+const manageableRoles: ManageableRole[] = [
+  "PROJECT_MANAGER",
+  "DEVELOPER",
+];
+
+type UserFilters = {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  role?: ManageableRole;
+  isActive?: boolean;
+};
+
+type UserListItem = Prisma.UserGetPayload<{}>;
+
+function buildUserWhere(filters: UserFilters = {}): Prisma.UserWhereInput {
+  const where: Prisma.UserWhereInput = {
+    ...(filters.role
+      ? { role: filters.role }
+      : {
+          role: {
+            in: manageableRoles,
+          },
+        }),
+    ...(typeof filters.isActive === "boolean" ? { isActive: filters.isActive } : {}),
+  };
+
+  if (filters.search) {
+    where.OR = [
+      {
+        fullName: {
+          contains: filters.search,
+          mode: "insensitive",
+        },
       },
-    },
-  });
+      {
+        email: {
+          contains: filters.search,
+          mode: "insensitive",
+        },
+      },
+    ];
+  }
+
+  return where;
+}
+
+async function findUsers(
+  filters: UserFilters = {},
+): Promise<PaginatedResult<UserListItem>> {
+  const pagination = resolvePagination(filters);
+  const where = buildUserWhere(filters);
+  const skip = (pagination.page - 1) * pagination.pageSize;
+
+  const [items, total] = await prisma.$transaction([
+    prisma.user.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: pagination.pageSize,
+    }),
+    prisma.user.count({ where }),
+  ]);
+
+  return buildPaginatedResult(items, total, pagination);
 }
 
 async function findUser(where: Prisma.UserWhereUniqueInput) {
@@ -21,7 +85,7 @@ async function findUser(where: Prisma.UserWhereUniqueInput) {
     where: {
       ...where,
       role: {
-        in: [RoleType.PROJECT_MANAGER, RoleType.DEVELOPER],
+        in: manageableRoles,
       },
     },
   });

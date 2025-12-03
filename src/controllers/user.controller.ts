@@ -8,7 +8,11 @@ import {
   deleteUser,
   editPassword,
 } from "../services/user.service";
-import { userSchema, changePasswordSchema } from "../schemas/user.schema";
+import {
+  userSchema,
+  changePasswordSchema,
+  userQuerySchema,
+} from "../schemas/user.schema";
 import { ActivityTargetType } from "@prisma/client";
 import { requireViewer } from "../utils/permissions";
 import {
@@ -16,9 +20,14 @@ import {
   toActivityDetails,
 } from "../services/activity-log.service";
 
-async function getAllUsers(_req: Request, res: Response) {
+async function getAllUsers(req: Request, res: Response) {
   try {
-    const users = await findUsers();
+    const parsed = userQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      return res.status(400).json(parsed.error.format());
+    }
+
+    const users = await findUsers(parsed.data);
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });

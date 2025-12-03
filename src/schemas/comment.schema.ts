@@ -12,8 +12,23 @@ const createCommentSchema = z
 
 const updateCommentSchema = messageSchema;
 
-const commentFilterSchema = z.object({
-  ticketId: z.coerce.number().int().positive().optional(),
-});
+const commentQuerySchema = z
+  .object({
+    ticketId: z.coerce.number().int().positive().optional(),
+    authorId: z.coerce.number().int().positive().optional(),
+    page: z.coerce.number().int().positive().optional(),
+    pageSize: z.coerce.number().int().positive().max(100).optional(),
+    createdFrom: z.coerce.date().optional(),
+    createdTo: z.coerce.date().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.createdFrom && data.createdTo && data.createdTo < data.createdFrom) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["createdTo"],
+        message: "createdTo must be on or after createdFrom",
+      });
+    }
+  });
 
-export { messageSchema, createCommentSchema, updateCommentSchema, commentFilterSchema };
+export { messageSchema, createCommentSchema, updateCommentSchema, commentQuerySchema };

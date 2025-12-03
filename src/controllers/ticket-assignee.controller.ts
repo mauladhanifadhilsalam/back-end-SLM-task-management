@@ -44,26 +44,27 @@ async function getTicketAssignees(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
-  const ticketId = parsed.data.ticketId;
-  if (!ticketId) {
+  const filters = parsed.data;
+  let scopedFilters = filters;
+
+  if (typeof filters.ticketId !== "number") {
     if (!isAdmin(viewer)) {
       return res.status(400).json({ message: "ticketId is required" });
     }
+  } else {
+    const ticket = await findTicket({ id: filters.ticketId });
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
 
-    const assignees = await findTicketAssignees();
-    return res.status(200).json(assignees);
+    if (!canViewTicket(ticket, viewer)) {
+      return res.status(403).json({ message: "Insufficient permissions" });
+    }
+
+    scopedFilters = { ...filters, ticketId: ticket.id };
   }
 
-  const ticket = await findTicket({ id: ticketId });
-  if (!ticket) {
-    return res.status(404).json({ message: "Ticket not found" });
-  }
-
-  if (!canViewTicket(ticket, viewer)) {
-    return res.status(403).json({ message: "Insufficient permissions" });
-  }
-
-  const assignees = await findTicketAssignees({ ticketId: ticket.id });
+  const assignees = await findTicketAssignees(scopedFilters);
   res.status(200).json(assignees);
 }
 

@@ -1,13 +1,63 @@
 import prisma from "../db/prisma";
 import { Prisma } from "@prisma/client";
+import {
+  buildPaginatedResult,
+  resolvePagination,
+  PaginatedResult,
+} from "../utils/pagination";
 
 type NewProjectOwnerInput = Pick<
   Prisma.ProjectOwnerCreateInput,
   "name" | "company" | "email" | "phone" | "address"
 >;
 
-async function findProjectOwners() {
-  return await prisma.projectOwner.findMany();
+type ProjectOwnerFilters = {
+  company?: string;
+  search?: string;
+  page?: number;
+  pageSize?: number;
+};
+
+type ProjectOwnerListItem = Prisma.ProjectOwnerGetPayload<{}>;
+
+async function findProjectOwners(
+  filters: ProjectOwnerFilters = {},
+): Promise<PaginatedResult<ProjectOwnerListItem>> {
+  const where: Prisma.ProjectOwnerWhereInput = {
+    ...(filters.company
+      ? {
+          company: {
+            contains: filters.company,
+            mode: "insensitive",
+          },
+        }
+      : {}),
+  };
+
+  if (filters.search) {
+    const query = filters.search;
+    where.OR = [
+      { name: { contains: query, mode: "insensitive" } },
+      { email: { contains: query, mode: "insensitive" } },
+      { company: { contains: query, mode: "insensitive" } },
+      { phone: { contains: query, mode: "insensitive" } },
+    ];
+  }
+
+  const pagination = resolvePagination(filters);
+  const skip = (pagination.page - 1) * pagination.pageSize;
+
+  const [items, total] = await prisma.$transaction([
+    prisma.projectOwner.findMany({
+      where,
+      orderBy: { name: "asc" },
+      skip,
+      take: pagination.pageSize,
+    }),
+    prisma.projectOwner.count({ where }),
+  ]);
+
+  return buildPaginatedResult(items, total, pagination);
 }
 
 async function findProjectOwner(where: Prisma.ProjectOwnerWhereUniqueInput) {

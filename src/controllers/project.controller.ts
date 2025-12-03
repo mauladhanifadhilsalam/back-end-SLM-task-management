@@ -11,6 +11,7 @@ import { findProjectOwner } from "../services/project-owner.service";
 import {
   createProjectSchema,
   updateProjectSchema,
+  projectQuerySchema,
 } from "../schemas/project.schema";
 import { notifyProjectAssignments } from "../services/notification.triggers";
 import { requireViewer, isAdmin, isProjectManager } from "../utils/permissions";
@@ -28,16 +29,13 @@ async function getAllProjects(req: Request, res: Response) {
   }
 
   try {
-    const projects = await findProjects();
-    const canSeeAll = isAdmin(viewer) || isProjectManager(viewer);
-    const visibleProjects = canSeeAll
-      ? projects
-      : projects.filter((project) =>
-          project.assignments.some(
-            (assignment) => assignment.user?.id === viewer.id,
-          ),
-        );
-    res.status(200).json(visibleProjects);
+    const parsed = projectQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      return res.status(400).json(parsed.error.format());
+    }
+
+    const projects = await findProjects(parsed.data, viewer);
+    res.status(200).json(projects);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }

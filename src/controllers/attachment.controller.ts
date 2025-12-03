@@ -61,6 +61,17 @@ async function getBase64(FilePath: string) {
   return base64;
 }
 
+async function embedBase64<T extends { filePath: string }>(
+  items: T[],
+) {
+  return Promise.all(
+    items.map(async (attachment) => {
+      const base64 = await getBase64(attachment.filePath);
+      return { ...attachment, base64 };
+    }),
+  );
+}
+
 async function getAttachments(req: Request, res: Response) {
   const parsed = attachmentQuerySchema.safeParse(req.query);
   if (!parsed.success) {
@@ -79,16 +90,11 @@ async function getAttachments(req: Request, res: Response) {
         .json({ message: "You are not allowed to access all attachments" });
     }
 
-    const attachments = await findAttachments();
-
-    const base64Attachments = await Promise.all(
-      attachments.map(async (attachment) => {
-        const base64 = await getBase64(attachment.filePath);
-        return { ...attachment, base64 };
-      }),
-    );
-
-    return res.status(200).json(base64Attachments);
+    const attachments = await findAttachments(parsed.data);
+    const base64Attachments = await embedBase64(attachments.items);
+    return res
+      .status(200)
+      .json({ ...attachments, items: base64Attachments });
   }
 
   const ticket = await findTicket({ id: parsed.data.ticketId });
@@ -96,16 +102,13 @@ async function getAttachments(req: Request, res: Response) {
     return res.status(404).json({ message: "Ticket not found" });
   }
 
-  const attachments = await findAttachments({ ticketId: ticket.id });
+  const attachments = await findAttachments({
+    ...parsed.data,
+    ticketId: ticket.id,
+  });
+  const base64Attachments = await embedBase64(attachments.items);
 
-  const base64Attachments = await Promise.all(
-    attachments.map(async (attachment) => {
-      const base64 = await getBase64(attachment.filePath);
-      return { ...attachment, base64 };
-    }),
-  );
-
-  res.status(200).json(base64Attachments);
+  res.status(200).json({ ...attachments, items: base64Attachments });
 }
 
 async function addAttachment(req: Request, res: Response) {

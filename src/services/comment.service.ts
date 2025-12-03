@@ -1,9 +1,19 @@
 import prisma from "../db/prisma";
 import { Prisma } from "@prisma/client";
 import { ticketInclude } from "./ticket.service";
+import {
+  buildPaginatedResult,
+  resolvePagination,
+  PaginatedResult,
+} from "../utils/pagination";
 
 type CommentFilters = {
   ticketId?: number;
+  authorId?: number;
+  page?: number;
+  pageSize?: number;
+  createdFrom?: Date;
+  createdTo?: Date;
 };
 
 type NewCommentInput = Pick<Prisma.CommentCreateInput, "message"> & {
@@ -25,15 +35,41 @@ const commentInclude = {
   },
 } satisfies Prisma.CommentInclude;
 
-async function findComments(filters: CommentFilters = {}) {
-  const { ticketId } = filters;
-  return await prisma.comment.findMany({
-    where: {
-      ...(ticketId ? { ticketId } : {}),
-    },
-    include: commentInclude,
-    orderBy: { createdAt: "asc" },
-  });
+type CommentListItem = Prisma.CommentGetPayload<{
+  include: typeof commentInclude;
+}>;
+
+async function findComments(
+  filters: CommentFilters = {},
+): Promise<PaginatedResult<CommentListItem>> {
+  const { ticketId, authorId, createdFrom, createdTo } = filters;
+  const where: Prisma.CommentWhereInput = {
+    ...(ticketId ? { ticketId } : {}),
+    ...(authorId ? { userId: authorId } : {}),
+  };
+
+  if (createdFrom || createdTo) {
+    where.createdAt = {
+      ...(createdFrom ? { gte: createdFrom } : {}),
+      ...(createdTo ? { lte: createdTo } : {}),
+    };
+  }
+
+  const pagination = resolvePagination(filters);
+  const skip = (pagination.page - 1) * pagination.pageSize;
+
+  const [items, total] = await prisma.$transaction([
+    prisma.comment.findMany({
+      where,
+      include: commentInclude,
+      orderBy: { createdAt: "asc" },
+      skip,
+      take: pagination.pageSize,
+    }),
+    prisma.comment.count({ where }),
+  ]);
+
+  return buildPaginatedResult(items, total, pagination);
 }
 
 async function findComment(where: Prisma.CommentWhereUniqueInput) {

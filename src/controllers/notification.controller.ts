@@ -17,7 +17,7 @@ import {
   canUpdateNotificationState,
 } from "../utils/permissions";
 import {
-  notificationFilterSchema,
+  notificationQuerySchema,
   createNotificationSchema,
   updateNotificationSchema,
   updateNotificationStateSchema,
@@ -60,7 +60,7 @@ async function getNotifications(req: Request, res: Response) {
     return;
   }
 
-  const parsed = notificationFilterSchema.safeParse(req.query);
+  const parsed = notificationQuerySchema.safeParse(req.query);
   if (!parsed.success) {
     return res.status(400).json(parsed.error.format());
   }

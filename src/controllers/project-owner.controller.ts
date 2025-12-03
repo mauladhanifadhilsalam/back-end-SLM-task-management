@@ -6,7 +6,10 @@ import {
   editProjectOwner,
   deleteProjectOwner,
 } from "../services/project-owner.service";
-import { projectOwnerSchema } from "../schemas/project-owner.schema";
+import {
+  projectOwnerSchema,
+  projectOwnerQuerySchema,
+} from "../schemas/project-owner.schema";
 import { requireViewer } from "../utils/permissions";
 import { ActivityTargetType } from "@prisma/client";
 import {
@@ -14,9 +17,14 @@ import {
   toActivityDetails,
 } from "../services/activity-log.service";
 
-async function getAllProjectOwners(_req: Request, res: Response) {
+async function getAllProjectOwners(req: Request, res: Response) {
   try {
-    const users = await findProjectOwners();
+    const parsed = projectOwnerQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      return res.status(400).json(parsed.error.format());
+    }
+
+    const users = await findProjectOwners(parsed.data);
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });

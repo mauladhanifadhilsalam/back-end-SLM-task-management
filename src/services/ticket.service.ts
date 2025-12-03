@@ -6,6 +6,13 @@ import {
   TicketStatus,
   TicketType,
 } from "@prisma/client";
+import {
+  buildPaginatedResult,
+  resolvePagination,
+  PaginatedResult,
+} from "../utils/pagination";
+
+type TicketSortField = "createdAt" | "updatedAt" | "dueDate" | "priority";
 
 type TicketFilters = {
   projectId?: number;
@@ -15,6 +22,13 @@ type TicketFilters = {
   type?: TicketType;
   assigneeId?: number;
   search?: string;
+  page?: number;
+  pageSize?: number;
+  sortBy?: TicketSortField;
+  sortOrder?: Prisma.SortOrder;
+  dueFrom?: Date;
+  dueTo?: Date;
+  updatedSince?: Date;
 };
 
 type NewTicketInput = {
@@ -82,6 +96,12 @@ const ticketInclude = {
   },
 } satisfies Prisma.TicketInclude;
 
+type TicketListItem = Prisma.TicketGetPayload<{
+  include: typeof ticketInclude;
+}>;
+
+type ViewerContext = { id: number; role: RoleType };
+
 function buildTicketWhere(filters: TicketFilters = {}) {
   const {
     projectId,
@@ -91,6 +111,9 @@ function buildTicketWhere(filters: TicketFilters = {}) {
     type,
     assigneeId,
     search,
+    dueFrom,
+    dueTo,
+    updatedSince,
   } = filters;
 
   const where: Prisma.TicketWhereInput = {
@@ -127,17 +150,94 @@ function buildTicketWhere(filters: TicketFilters = {}) {
     ];
   }
 
-  const orClauses: Prisma.TicketWhereInput[] = [];
+  if (dueFrom || dueTo) {
+    const dueFilter: Prisma.DateTimeNullableFilter = {};
+    if (dueFrom) {
+      dueFilter.gte = dueFrom;
+    }
+    if (dueTo) {
+      dueFilter.lte = dueTo;
+    }
+    where.dueDate = dueFilter;
+  }
+
+  if (updatedSince) {
+    const updatedFilter: Prisma.DateTimeFilter = {};
+    updatedFilter.gte = updatedSince;
+    where.updatedAt = updatedFilter;
+  }
 
   return where;
 }
 
-async function findTickets(filters?: TicketFilters) {
-  return await prisma.ticket.findMany({
-    where: buildTicketWhere(filters),
-    include: ticketInclude,
-    orderBy: { updatedAt: "desc" },
-  });
+function buildViewerTicketWhere(viewer?: ViewerContext) {
+  if (!viewer) {
+    return null;
+  }
+
+  if (
+    viewer.role === RoleType.ADMIN ||
+    viewer.role === RoleType.PROJECT_MANAGER
+  ) {
+    return null;
+  }
+
+  return {
+    OR: [
+      { requesterId: viewer.id },
+      {
+        assignees: {
+          some: {
+            userId: viewer.id,
+          },
+        },
+      },
+      {
+        project: {
+          assignments: {
+            some: { userId: viewer.id },
+          },
+        },
+      },
+    ],
+  } satisfies Prisma.TicketWhereInput;
+}
+
+function buildTicketOrder(
+  sortBy?: TicketSortField,
+  sortOrder?: Prisma.SortOrder,
+) {
+  const field = sortBy ?? "updatedAt";
+  const direction = sortOrder ?? "desc";
+  return { [field]: direction } as Prisma.TicketOrderByWithRelationInput;
+}
+
+async function findTickets(
+  filters: TicketFilters = {},
+  viewer?: ViewerContext,
+): Promise<PaginatedResult<TicketListItem>> {
+  const pagination = resolvePagination(filters);
+  const baseWhere = buildTicketWhere(filters);
+  const viewerWhere = buildViewerTicketWhere(viewer);
+  const where =
+    viewerWhere && Object.keys(viewerWhere).length
+      ? { AND: [baseWhere, viewerWhere] }
+      : baseWhere;
+  const orderBy = buildTicketOrder(filters.sortBy, filters.sortOrder);
+  const skip = (pagination.page - 1) * pagination.pageSize;
+
+  const [items, total] = await prisma.$transaction([
+    prisma.ticket.findMany({
+      where,
+      include: ticketInclude,
+      orderBy,
+      skip,
+      take: pagination.pageSize,
+    }),
+    prisma.ticket.count({ where }),
+  ]);
+
+  return buildPaginatedResult(items, total, pagination);
 }
 
 async function findTicket(where: Prisma.TicketWhereUniqueInput) {
