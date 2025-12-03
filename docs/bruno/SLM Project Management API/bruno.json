@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "SLM Project Management API",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

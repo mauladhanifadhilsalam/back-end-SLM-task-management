@@ -1,0 +1,21 @@
+meta {
+  name: SLM Project Management API
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:3000
+  token: 
+  role: 
+}
+
+docs {
+  Full Postman collection for the SLM Project Management API. Set `{{baseUrl}}` and hit Auth > Login to populate `{{token}}` for protected requests.
+}

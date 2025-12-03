@@ -3,6 +3,8 @@ import express, { Request, Response } from "express";
 import { RoleType } from "@prisma/client";
 
 // Route handlers for different parts of the application
+import docsRouter from "./routes/docs.route";
+
 import authRouter from "./routes/auth.route";
 import userRouter from "./routes/user.route";
 import projectOwnerRouter from "./routes/project-owner.route";
@@ -36,6 +38,11 @@ app.use(cors({
   origin: env.allowedOrigins,
   credentials: true
 }));
+
+// Documentation route
+if (env.nodeEnv !== "production") {
+   app.use("/docs", express.static("docs"), docsRouter);
+ }
 
 // Public routes
 app.use("/auth", authRouter);

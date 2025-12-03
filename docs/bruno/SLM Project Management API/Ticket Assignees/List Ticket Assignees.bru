@@ -1,0 +1,19 @@
+meta {
+  name: List Ticket Assignees
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/ticket-assignees?ticketId=1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ticketId: 1
+}
+
+settings {
+  encodeUrl: true
+}

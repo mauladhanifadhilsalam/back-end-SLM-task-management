@@ -1,0 +1,22 @@
+meta {
+  name: List Notifications
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/notifications?recipientId=&targetType=&targetId=&state=UNREAD
+  body: none
+  auth: inherit
+}
+
+params:query {
+  recipientId: 
+  targetType: 
+  targetId: 
+  state: UNREAD
+}
+
+settings {
+  encodeUrl: true
+}

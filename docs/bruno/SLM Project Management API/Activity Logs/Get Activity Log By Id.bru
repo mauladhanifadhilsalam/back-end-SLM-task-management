@@ -1,0 +1,19 @@
+meta {
+  name: Get Activity Log By Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/activity-logs/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+settings {
+  encodeUrl: true
+}
