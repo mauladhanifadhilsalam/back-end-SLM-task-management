@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import type { CookieOptions } from "express";
+import type { StringValue } from "ms";
 import env from "../config/env";
 
 export async function hashPassword(plain: string) {
@@ -13,13 +14,43 @@ export async function verifyPassword(plain: string, hash: string) {
   return bcrypt.compare(plain, hash);
 }
 
-const expiresInSeconds =
-  typeof env.jwtExpiresIn === "string"
-    ? Number(env.jwtExpiresIn.replace(/\D/g, "")) * 3600
-    : env.jwtExpiresIn;
+const durationMultipliers: Record<string, number> = {
+  s: 1,
+  m: 60,
+  h: 60 * 60,
+  d: 60 * 60 * 24,
+};
+
+function normalizeDuration(
+  value: string | number,
+  label: string,
+): { raw: number | StringValue; seconds: number } {
+  if (typeof value === "number") {
+    return { raw: value, seconds: value };
+  }
+  const trimmed = value.trim();
+  const match = trimmed.toLowerCase().match(/^(\d+)([smhd])?$/);
+  if (!match) {
+    throw new Error(
+      `Invalid ${label} value "${value}". Use seconds or suffix s/m/h/d.`,
+    );
+  }
+  const amount = Number(match[1]);
+  const unit = (match[2] ?? "s") as keyof typeof durationMultipliers;
+  return {
+    raw: trimmed as StringValue,
+    seconds: amount * durationMultipliers[unit],
+  };
+}
+
+const accessTokenExpiry = normalizeDuration(env.jwtExpiresIn, "JWT_EXPIRES_IN");
+const refreshTokenExpiry = normalizeDuration(env.refreshTokenExpiresIn, "REFRESH_TOKEN_EXPIRES_IN");
+
+export const accessTokenExpiresInSeconds = accessTokenExpiry.seconds;
+export const refreshTokenExpiresInSeconds = refreshTokenExpiry.seconds;
 
 export function signJwt(payload: object) {
-  return jwt.sign(payload, env.jwtSecret, { expiresIn: expiresInSeconds });
+  return jwt.sign(payload, env.jwtSecret, { expiresIn: accessTokenExpiry.raw });
 }
 
 export function generateRefreshToken() {
@@ -31,7 +62,7 @@ export function hashToken(token: string) {
 }
 
 export function getRefreshTokenExpiryDate() {
-  return new Date(Date.now() + env.refreshTokenExpiresIn * 1000);
+  return new Date(Date.now() + refreshTokenExpiresInSeconds * 1000);
 }
 
 export function getRefreshTokenCookieOptions(
@@ -42,7 +73,7 @@ export function getRefreshTokenCookieOptions(
     secure: env.nodeEnv === "production",
     sameSite: "strict",
     path: "/",
-    maxAge: env.refreshTokenExpiresIn * 1000,
+    maxAge: refreshTokenExpiresInSeconds * 1000,
   };
   return { ...base, ...overrides };
 }

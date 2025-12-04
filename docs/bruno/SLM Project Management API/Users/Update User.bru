@@ -1,0 +1,35 @@
+meta {
+  name: Update User
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/users/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "fullName": "Leia Organa Solo",
+    "role": "DEVELOPER",
+    "isActive": false
+  }
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  ADMIN only. Partial updates allowed.
+}

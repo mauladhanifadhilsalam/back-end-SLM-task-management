@@ -1,0 +1,30 @@
+meta {
+  name: Update Project Phase
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/project-phases/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "QA",
+    "endDate": "2025-07-05"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

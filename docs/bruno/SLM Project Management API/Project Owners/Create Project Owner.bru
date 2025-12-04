@@ -1,0 +1,29 @@
+meta {
+  name: Create Project Owner
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/project-owners
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Dana Barrett",
+    "company": "Spengler Consulting",
+    "email": "dana@example.com",
+    "phone": "+12125550100",
+    "address": "55 Central Park West, New York"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

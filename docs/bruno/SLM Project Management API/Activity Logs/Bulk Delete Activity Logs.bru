@@ -1,0 +1,24 @@
+meta {
+  name: Bulk Delete Activity Logs
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/activity-logs?olderThan=2025-01-01&targetType=PROJECT
+  body: none
+  auth: inherit
+}
+
+params:query {
+  olderThan: 2025-01-01
+  targetType: PROJECT
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Requires at least `olderThan` or `targetType`.
+}

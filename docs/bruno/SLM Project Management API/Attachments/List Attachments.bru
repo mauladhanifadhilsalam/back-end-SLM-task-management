@@ -1,0 +1,23 @@
+meta {
+  name: List Attachments
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/attachments?ticketId=1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ticketId: 1
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Returns attachments with a base64 payload.
+}

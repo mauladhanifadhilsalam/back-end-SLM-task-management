@@ -1,0 +1,19 @@
+meta {
+  name: Delete Ticket
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/tickets/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+settings {
+  encodeUrl: true
+}

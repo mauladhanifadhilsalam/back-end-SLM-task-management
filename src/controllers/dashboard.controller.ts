@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import {
+    findAllDeveloperDashboards,
   findDeveloperDashboard,
   findProjectManagerDashboard,
 } from "../services/dashboard.service";
@@ -15,6 +16,19 @@ async function getDeveloperDashboard(req: Request, res: Response) {
       return res.status(404).json({ message: "Dashboard not found" });
     }
     return res.status(200).json(dashboard);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+async function getAllDeveloperDashboards(_req: Request, res: Response) {
+  try {
+    const dashboards = await findAllDeveloperDashboards();
+    if (!dashboards) {
+      return res.status(404).json({ message: "Dashboards not found" });
+    }
+    return res.status(200).json(dashboards);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal Server Error" });
@@ -38,4 +52,4 @@ async function getProjectManagerDashboard(req: Request, res: Response) {
   }
 }
 
-export { getDeveloperDashboard, getProjectManagerDashboard };
+export { getDeveloperDashboard, getAllDeveloperDashboards, getProjectManagerDashboard };

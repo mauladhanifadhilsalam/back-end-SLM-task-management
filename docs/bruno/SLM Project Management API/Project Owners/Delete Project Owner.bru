@@ -1,0 +1,19 @@
+meta {
+  name: Delete Project Owner
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/project-owners/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+settings {
+  encodeUrl: true
+}

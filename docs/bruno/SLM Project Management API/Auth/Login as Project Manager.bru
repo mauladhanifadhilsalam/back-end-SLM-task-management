@@ -1,0 +1,38 @@
+meta {
+  name: Login as Project Manager
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "skywalker@example.com",
+    "password": "password123"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    const json = res.getBody();
+    if (json.token) bru.setVar("token", json.token);
+    if (json.role) bru.setVar("role", json.role);
+  }
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Authenticate and retrieve a JWT. Seeds include admin (`sauron@example.com`), project manager (`skywalker@example.com`), and developer (`gandalf@yahoo.com`).
+}

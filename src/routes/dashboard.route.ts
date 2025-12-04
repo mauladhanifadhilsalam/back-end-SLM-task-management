@@ -1,5 +1,6 @@
 import Router from "express";
 import {
+    getAllDeveloperDashboards,
   getDeveloperDashboard,
   getProjectManagerDashboard,
 } from "../controllers/dashboard.controller";
@@ -17,6 +18,11 @@ router.get(
   "/project-manager",
   requireRole(RoleType.PROJECT_MANAGER),
   getProjectManagerDashboard,
+);
+router.get(
+  "/project-manager/dev-stat",
+  requireRole(RoleType.PROJECT_MANAGER),
+  getAllDeveloperDashboards,
 );
 
 export default router;

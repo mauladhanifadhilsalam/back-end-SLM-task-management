@@ -1,0 +1,33 @@
+meta {
+  name: Update Notification State
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/notifications/:id/state
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "state": "READ"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Recipients can mark UNREAD -> READ; admins can set any state.
+}
