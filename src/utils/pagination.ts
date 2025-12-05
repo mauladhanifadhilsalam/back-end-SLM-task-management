@@ -13,12 +13,18 @@ type Pagination = {
   pageSize: number;
 };
 
-type PaginatedResult<T> = {
-  items: T[];
+type PaginationMeta = {
   total: number;
   page: number;
   pageSize: number;
   totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+};
+
+type PaginatedResult<T> = {
+  data: T[];
+  pagination: PaginationMeta;
 };
 
 const DEFAULT_PAGE = 1;
@@ -44,7 +50,7 @@ function resolvePagination(
 }
 
 function buildPaginatedResult<T>(
-  items: T[],
+  data: T[],
   total: number,
   pagination: Pagination,
 ): PaginatedResult<T> {
@@ -52,13 +58,19 @@ function buildPaginatedResult<T>(
     pagination.pageSize > 0
       ? Math.ceil(total / pagination.pageSize)
       : 0;
+  const hasNextPage = totalPages > 0 && pagination.page < totalPages;
+  const hasPrevPage = pagination.page > 1 && totalPages > 0;
 
   return {
-    items,
-    total,
-    page: pagination.page,
-    pageSize: pagination.pageSize,
-    totalPages,
+    data,
+    pagination: {
+      total,
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      totalPages,
+      hasNextPage,
+      hasPrevPage,
+    },
   };
 }
 
@@ -66,6 +78,7 @@ export {
   PaginationInput,
   PaginationConfig,
   Pagination,
+  PaginationMeta,
   PaginatedResult,
   resolvePagination,
   buildPaginatedResult,

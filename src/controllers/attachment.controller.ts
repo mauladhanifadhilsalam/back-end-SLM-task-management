@@ -62,10 +62,10 @@ async function getBase64(FilePath: string) {
 }
 
 async function embedBase64<T extends { filePath: string }>(
-  items: T[],
+  data: T[],
 ) {
   return Promise.all(
-    items.map(async (attachment) => {
+    data.map(async (attachment) => {
       const base64 = await getBase64(attachment.filePath);
       return { ...attachment, base64 };
     }),
@@ -91,10 +91,10 @@ async function getAttachments(req: Request, res: Response) {
     }
 
     const attachments = await findAttachments(parsed.data);
-    const base64Attachments = await embedBase64(attachments.items);
+    const base64Attachments = await embedBase64(attachments.data);
     return res
       .status(200)
-      .json({ ...attachments, items: base64Attachments });
+      .json({ ...attachments, data: base64Attachments });
   }
 
   const ticket = await findTicket({ id: parsed.data.ticketId });
@@ -106,9 +106,9 @@ async function getAttachments(req: Request, res: Response) {
     ...parsed.data,
     ticketId: ticket.id,
   });
-  const base64Attachments = await embedBase64(attachments.items);
+  const base64Attachments = await embedBase64(attachments.data);
 
-  res.status(200).json({ ...attachments, items: base64Attachments });
+  res.status(200).json({ ...attachments, data: base64Attachments });
 }
 
 async function addAttachment(req: Request, res: Response) {
