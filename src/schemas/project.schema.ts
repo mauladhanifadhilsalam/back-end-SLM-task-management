@@ -54,9 +54,19 @@ const updateProjectSchema = z
     }
   });
 
+const projectQuerySchema = z.object({
+  status: z.enum(ProjectStatus).optional(),
+  ownerId: z.coerce.number().int().positive().optional(),
+  assignedUserId: z.coerce.number().int().positive().optional(),
+  category: z.string().trim().min(1).optional(),
+  page: z.coerce.number().int().positive().optional(),
+  pageSize: z.coerce.number().int().positive().max(100).optional(),
+});
+
 export {
   phaseInputSchema,
   projectAssignmentSchema,
   createProjectSchema,
   updateProjectSchema,
+  projectQuerySchema,
 };

@@ -39,22 +39,22 @@ async function getProjectAssignments(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
-  const projectId = parsed.data.projectId;
-  if (projectId === undefined) {
+  const filters = parsed.data;
+  let scopedFilters = filters;
+
+  if (typeof filters.projectId !== "number") {
     if (!isAdmin(viewer)) {
       return res.status(400).json({ message: "projectId is required" });
     }
-
-    const assignments = await findProjectAssignments();
-    return res.status(200).json(assignments);
+  } else {
+    const project = await findProject({ id: filters.projectId });
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+    scopedFilters = { ...filters, projectId: project.id };
   }
 
-  const project = await findProject({ id: projectId });
-  if (!project) {
-    return res.status(404).json({ message: "Project not found" });
-  }
-
-  const assignments = await findProjectAssignments({ projectId: project.id });
+  const assignments = await findProjectAssignments(scopedFilters);
   res.status(200).json(assignments);
 }
 

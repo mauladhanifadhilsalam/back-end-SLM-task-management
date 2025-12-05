@@ -12,12 +12,27 @@ const emailTextSchema = z.string().trim().min(1).max(2000);
 const emailFromSchema = z.string().trim().min(1).max(255);
 const emailReplyToSchema = z.string().trim().email().max(255);
 
-const notificationFilterSchema = z.object({
-  recipientId: z.coerce.number().int().positive().optional(),
-  targetType: z.enum(NotificationTargetType).optional(),
-  targetId: z.coerce.number().int().positive().optional(),
-  state: z.enum(NotificationState).optional(),
-});
+const notificationQuerySchema = z
+  .object({
+    recipientId: z.coerce.number().int().positive().optional(),
+    targetType: z.enum(NotificationTargetType).optional(),
+    targetId: z.coerce.number().int().positive().optional(),
+    state: z.enum(NotificationState).optional(),
+    status: z.enum(NotifyStatusType).optional(),
+    page: z.coerce.number().int().positive().optional(),
+    pageSize: z.coerce.number().int().positive().max(100).optional(),
+    sentFrom: z.coerce.date().optional(),
+    sentTo: z.coerce.date().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.sentFrom && data.sentTo && data.sentTo < data.sentFrom) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["sentTo"],
+        message: "sentTo must be on or after sentFrom",
+      });
+    }
+  });
 
 const baseFields = {
   recipientId: positiveInt,
@@ -86,7 +101,7 @@ const updateNotificationStateSchema = z.object({
 
 export {
   nullableDateSchema,
-  notificationFilterSchema,
+  notificationQuerySchema,
   createNotificationSchema,
   updateNotificationSchema,
   updateNotificationStateSchema,

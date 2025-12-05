@@ -1,5 +1,10 @@
 import prisma from "../db/prisma";
-import { Prisma, RoleType } from "@prisma/client";
+import { Prisma, RoleType, ProjectStatus } from "@prisma/client";
+import {
+  buildPaginatedResult,
+  resolvePagination,
+  PaginatedResult,
+} from "../utils/pagination";
 
 type NewProjectInput = Pick<
   Prisma.ProjectUncheckedCreateInput,
@@ -14,6 +19,15 @@ type NewProjectInput = Pick<
   | "phases"
   | "assignments"
 >;
+
+type ProjectFilters = {
+  status?: ProjectStatus;
+  ownerId?: number;
+  assignedUserId?: number;
+  category?: string;
+  page?: number;
+  pageSize?: number;
+};
 
 const projectInclude = {
   owner: {
@@ -46,11 +60,79 @@ const projectInclude = {
   }
 } satisfies Prisma.ProjectInclude;
 
-async function findProjects() {
-  return await prisma.project.findMany({
-    include: projectInclude,
-    orderBy: { createdAt: "desc" },
-  });
+type ProjectListItem = Prisma.ProjectGetPayload<{
+  include: typeof projectInclude;
+}>;
+
+type ViewerContext = { id: number; role: RoleType };
+
+function buildProjectWhere(filters: ProjectFilters = {}) {
+  const { status, ownerId, assignedUserId, category } = filters;
+  const where: Prisma.ProjectWhereInput = {
+    ...(status ? { status } : {}),
+    ...(typeof ownerId === "number" ? { ownerId } : {}),
+    ...(typeof assignedUserId === "number"
+      ? {
+          assignments: {
+            some: { userId: assignedUserId },
+          },
+        }
+      : {}),
+  };
+
+  if (category) {
+    where.categories = {
+      array_contains: category,
+    } as Prisma.JsonFilter;
+  }
+
+  return where;
+}
+
+function buildViewerProjectWhere(viewer?: ViewerContext) {
+  if (!viewer) {
+    return null;
+  }
+
+  if (
+    viewer.role === RoleType.ADMIN ||
+    viewer.role === RoleType.PROJECT_MANAGER
+  ) {
+    return null;
+  }
+
+  return {
+    assignments: {
+      some: { userId: viewer.id },
+    },
+  } satisfies Prisma.ProjectWhereInput;
+}
+
+async function findProjects(
+  filters: ProjectFilters = {},
+  viewer?: ViewerContext,
+): Promise<PaginatedResult<ProjectListItem>> {
+  const pagination = resolvePagination(filters);
+  const baseWhere = buildProjectWhere(filters);
+  const viewerWhere = buildViewerProjectWhere(viewer);
+  const where =
+    viewerWhere && Object.keys(viewerWhere).length
+      ? { AND: [baseWhere, viewerWhere] }
+      : baseWhere;
+  const skip = (pagination.page - 1) * pagination.pageSize;
+
+  const [items, total] = await prisma.$transaction([
+    prisma.project.findMany({
+      where,
+      include: projectInclude,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: pagination.pageSize,
+    }),
+    prisma.project.count({ where }),
+  ]);
+
+  return buildPaginatedResult(items, total, pagination);
 }
 
 async function findProject(where: Prisma.ProjectWhereUniqueInput) {

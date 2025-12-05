@@ -1,9 +1,18 @@
 import prisma from "../db/prisma";
 import { Prisma } from "@prisma/client";
+import {
+  buildPaginatedResult,
+  resolvePagination,
+  PaginatedResult,
+} from "../utils/pagination";
 
 type AttachmentFilters = {
   ticketId?: number;
   userId?: number;
+  page?: number;
+  pageSize?: number;
+  uploadedFrom?: Date;
+  uploadedTo?: Date;
 };
 
 type NewAttachmentInput = Pick<
@@ -14,16 +23,37 @@ type NewAttachmentInput = Pick<
   userId: number;
 };
 
-async function findAttachments(filters: AttachmentFilters = {}) {
+type AttachmentListItem = Prisma.AttachmentGetPayload<{}>;
+
+async function findAttachments(
+  filters: AttachmentFilters = {},
+): Promise<PaginatedResult<AttachmentListItem>> {
   const where: Prisma.AttachmentWhereInput = {
     ...(filters.ticketId ? { ticketId: filters.ticketId } : {}),
     ...(filters.userId ? { userId: filters.userId } : {}),
   };
 
-  return prisma.attachment.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-  });
+  if (filters.uploadedFrom || filters.uploadedTo) {
+    where.createdAt = {
+      ...(filters.uploadedFrom ? { gte: filters.uploadedFrom } : {}),
+      ...(filters.uploadedTo ? { lte: filters.uploadedTo } : {}),
+    };
+  }
+
+  const pagination = resolvePagination(filters);
+  const skip = (pagination.page - 1) * pagination.pageSize;
+
+  const [items, total] = await prisma.$transaction([
+    prisma.attachment.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: pagination.pageSize,
+    }),
+    prisma.attachment.count({ where }),
+  ]);
+
+  return buildPaginatedResult(items, total, pagination);
 }
 
 async function findAttachment(where: Prisma.AttachmentWhereUniqueInput) {

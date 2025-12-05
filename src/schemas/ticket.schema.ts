@@ -5,17 +5,39 @@ import {
   TicketType,
 } from "@prisma/client";
 
-const nullableDateSchema = z.union([z.literal(null), z.coerce.date()]).optional();
+const nullableDateSchema = z
+  .union([z.literal(null), z.coerce.date()])
+  .optional();
 
-const ticketQuerySchema = z.object({
-  projectId: z.coerce.number().int().positive().optional(),
-  requesterId: z.coerce.number().int().positive().optional(),
-  status: z.enum(TicketStatus).optional(),
-  priority: z.enum(TicketPriority).optional(),
-  type: z.enum(TicketType).optional(),
-  assigneeId: z.coerce.number().int().positive().optional(),
-  search: z.string().trim().min(1).optional(),
-});
+const ticketSortFields = ["createdAt", "updatedAt", "dueDate", "priority"] as const;
+const sortDirections = ["asc", "desc"] as const;
+
+const ticketQuerySchema = z
+  .object({
+    projectId: z.coerce.number().int().positive().optional(),
+    requesterId: z.coerce.number().int().positive().optional(),
+    status: z.enum(TicketStatus).optional(),
+    priority: z.enum(TicketPriority).optional(),
+    type: z.enum(TicketType).optional(),
+    assigneeId: z.coerce.number().int().positive().optional(),
+    search: z.string().trim().min(1).optional(),
+    page: z.coerce.number().int().positive().optional(),
+    pageSize: z.coerce.number().int().positive().max(100).optional(),
+    sortBy: z.enum(ticketSortFields).optional(),
+    sortOrder: z.enum(sortDirections).optional(),
+    dueFrom: z.coerce.date().optional(),
+    dueTo: z.coerce.date().optional(),
+    updatedSince: z.coerce.date().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.dueFrom && data.dueTo && data.dueTo < data.dueFrom) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["dueTo"],
+        message: "dueTo must be on or after dueFrom",
+      });
+    }
+  });
 
 const ticketBaseSchema = z
   .object({

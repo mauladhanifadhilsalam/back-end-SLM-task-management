@@ -5,12 +5,22 @@ import {
   NotificationTargetType,
   NotifyStatusType,
 } from "@prisma/client";
+import {
+  buildPaginatedResult,
+  resolvePagination,
+  PaginatedResult,
+} from "../utils/pagination";
 
 type NotificationFilters = {
   recipientId?: number;
   state?: NotificationState;
   targetType?: NotificationTargetType;
   targetId?: number;
+  status?: NotifyStatusType;
+  page?: number;
+  pageSize?: number;
+  sentFrom?: Date;
+  sentTo?: Date;
 };
 
 type CreateNotificationInput = {
@@ -75,19 +85,42 @@ function buildStatePatch(state?: NotificationState, readAt?: Date | null) {
   return {};
 }
 
-async function findNotifications(filters: NotificationFilters = {}) {
-  const { recipientId, state, targetType, targetId } = filters;
+async function findNotifications(
+  filters: NotificationFilters = {},
+): Promise<PaginatedResult<NotificationWithRelations>> {
+  const { recipientId, state, targetType, targetId, status, sentFrom, sentTo } =
+    filters;
 
-  return prisma.notification.findMany({
-    where: {
-      ...(typeof recipientId === "number" ? { recipientId } : {}),
-      ...(state ? { state } : {}),
-      ...(targetType ? { targetType } : {}),
-      ...(typeof targetId === "number" ? { targetId } : {}),
-    },
-    include: notificationInclude,
-    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-  });
+  const where: Prisma.NotificationWhereInput = {
+    ...(typeof recipientId === "number" ? { recipientId } : {}),
+    ...(state ? { state } : {}),
+    ...(targetType ? { targetType } : {}),
+    ...(typeof targetId === "number" ? { targetId } : {}),
+    ...(status ? { status } : {}),
+  };
+
+  if (sentFrom || sentTo) {
+    where.sentAt = {
+      ...(sentFrom ? { gte: sentFrom } : {}),
+      ...(sentTo ? { lte: sentTo } : {}),
+    };
+  }
+
+  const pagination = resolvePagination(filters);
+  const skip = (pagination.page - 1) * pagination.pageSize;
+
+  const [items, total] = await prisma.$transaction([
+    prisma.notification.findMany({
+      where,
+      include: notificationInclude,
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      skip,
+      take: pagination.pageSize,
+    }),
+    prisma.notification.count({ where }),
+  ]);
+
+  return buildPaginatedResult(items, total, pagination);
 }
 
 async function findNotification(where: Prisma.NotificationWhereUniqueInput) {

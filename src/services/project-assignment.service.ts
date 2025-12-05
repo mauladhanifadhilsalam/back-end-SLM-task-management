@@ -1,9 +1,19 @@
 import prisma from "../db/prisma";
 import { Prisma, ProjectRoleType } from "@prisma/client";
+import {
+  buildPaginatedResult,
+  resolvePagination,
+  PaginatedResult,
+} from "../utils/pagination";
 
 type ProjectAssignmentFilters = {
   projectId?: number;
   userId?: number;
+  roleInProject?: ProjectRoleType;
+  assignedFrom?: Date;
+  assignedTo?: Date;
+  page?: number;
+  pageSize?: number;
 };
 
 type NewProjectAssignmentInput = {
@@ -32,19 +42,44 @@ const projectAssignmentInclude = {
   },
 } satisfies Prisma.ProjectAssignmentInclude;
 
+type ProjectAssignmentListItem = Prisma.ProjectAssignmentGetPayload<{
+  include: typeof projectAssignmentInclude;
+}>;
+
 async function findProjectAssignments(
   filters: ProjectAssignmentFilters = {},
-) {
-  const { projectId, userId } = filters;
+): Promise<PaginatedResult<ProjectAssignmentListItem>> {
+  const { projectId, userId, roleInProject, assignedFrom, assignedTo } =
+    filters;
 
-  return prisma.projectAssignment.findMany({
-    where: {
-      ...(typeof projectId === "number" ? { projectId } : {}),
-      ...(typeof userId === "number" ? { userId } : {}),
-    },
-    include: projectAssignmentInclude,
-    orderBy: { assignedAt: "desc" },
-  });
+  const where: Prisma.ProjectAssignmentWhereInput = {
+    ...(typeof projectId === "number" ? { projectId } : {}),
+    ...(typeof userId === "number" ? { userId } : {}),
+    ...(roleInProject ? { roleInProject } : {}),
+  };
+
+  if (assignedFrom || assignedTo) {
+    where.assignedAt = {
+      ...(assignedFrom ? { gte: assignedFrom } : {}),
+      ...(assignedTo ? { lte: assignedTo } : {}),
+    };
+  }
+
+  const pagination = resolvePagination(filters);
+  const skip = (pagination.page - 1) * pagination.pageSize;
+
+  const [items, total] = await prisma.$transaction([
+    prisma.projectAssignment.findMany({
+      where,
+      include: projectAssignmentInclude,
+      orderBy: { assignedAt: "desc" },
+      skip,
+      take: pagination.pageSize,
+    }),
+    prisma.projectAssignment.count({ where }),
+  ]);
+
+  return buildPaginatedResult(items, total, pagination);
 }
 
 async function findProjectAssignment(

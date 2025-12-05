@@ -52,11 +52,8 @@ async function getAllTickets(req: Request, res: Response) {
       return res.status(400).json(parsed.error.format());
     }
 
-    const tickets = await findTickets(parsed.data);
-    const visibleTickets = tickets.filter((ticket) =>
-      canViewTicket(ticket, viewer),
-    );
-    res.status(200).json(visibleTickets);
+    const result = await findTickets(parsed.data, viewer);
+    res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }

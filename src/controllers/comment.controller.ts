@@ -23,7 +23,7 @@ import {
   toActivityDetails,
 } from "../services/activity-log.service";
 import {
-  commentFilterSchema,
+  commentQuerySchema,
   createCommentSchema,
   updateCommentSchema,
 } from "../schemas/comment.schema";
@@ -79,21 +79,21 @@ async function getComments(req: Request, res: Response) {
     return;
   }
 
-  const parsed = commentFilterSchema.safeParse(req.query);
+  const parsed = commentQuerySchema.safeParse(req.query);
   if (!parsed.success) {
     return res.status(400).json(parsed.error.format());
   }
 
-  const { ticketId } = parsed.data;
+  const filters = parsed.data;
 
-  if (ticketId) {
-    const ticket = await ensureTicketAccess(ticketId, res);
+  if (filters.ticketId) {
+    const ticket = await ensureTicketAccess(filters.ticketId, res);
     if (!ticket) {
       return;
     }
   }
 
-  const comments = await findComments({ ticketId });
+  const comments = await findComments(filters);
   res.status(200).json(comments);
 }
 

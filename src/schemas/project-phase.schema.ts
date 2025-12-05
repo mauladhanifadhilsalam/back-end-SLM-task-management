@@ -29,4 +29,30 @@ const updateProjectPhaseSchema = createProjectPhaseSchema.partial().superRefine(
   },
 );
 
-export { createProjectPhaseSchema, updateProjectPhaseSchema };
+const phaseSortOrderSchema = z.enum(["asc", "desc"]);
+
+const projectPhaseQuerySchema = z
+  .object({
+    projectId: z.coerce.number().int().positive().optional(),
+    startAfter: z.coerce.date().optional(),
+    endBefore: z.coerce.date().optional(),
+    activeOnly: z.coerce.boolean().optional(),
+    sortOrder: phaseSortOrderSchema.optional(),
+    page: z.coerce.number().int().positive().optional(),
+    pageSize: z.coerce.number().int().positive().max(100).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.startAfter && data.endBefore && data.endBefore < data.startAfter) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["endBefore"],
+        message: "endBefore must be on or after startAfter",
+      });
+    }
+  });
+
+export {
+  createProjectPhaseSchema,
+  updateProjectPhaseSchema,
+  projectPhaseQuerySchema,
+};
