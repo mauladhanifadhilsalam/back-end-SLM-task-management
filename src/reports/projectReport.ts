@@ -1,10 +1,13 @@
 import ExcelJS from "exceljs";
 import { ProjectRoleType } from "@prisma/client";
 import type { ProjectWithRelations } from "../services/project.service";
+import colorsJson from "./colors.json";
 
 type GenerateProjectReportOptions = {
   year?: number;
 };
+
+const colors = colorsJson.projectReport;
 
 const MONTHS = [
   "Jan",
@@ -21,27 +24,10 @@ const MONTHS = [
   "Dec",
 ];
 
-const COLORS = {
-  navy: "FF002060",
-  orange: "FF9E480E",
-  white: "FFFFFFFF",
-  grid: "FF0F243E",
-  text: "FFFFFFFF",
-};
-
 const BASE_FONT = {
   name: "Montserrat",
   size: 8,
 } as const;
-
-const PHASE_PALETTE = [
-  "FFB7D7A8",
-  "FF9BC2E6",
-  "FFB4A7D6",
-  "FFEA9999",
-  "FFF9CB9C",
-  "FFCFE2F3",
-];
 
 const MONTH_COLUMN_START = 9;
 
@@ -143,7 +129,7 @@ function applyPhaseFill(
     const monthIndexes = monthIndexesWithinYear(start, end, year);
     if (!monthIndexes.length) return;
 
-    const color = PHASE_PALETTE[index % PHASE_PALETTE.length];
+    const color = colors.phasePalette[index % colors.phasePalette.length];
 
     monthIndexes.forEach((monthIdx) => {
       const cell = row.getCell(MONTH_COLUMN_START + monthIdx);
@@ -153,10 +139,10 @@ function applyPhaseFill(
         fgColor: { argb: color },
       };
       cell.border = {
-        top: { style: "thin", color: { argb: COLORS.grid } },
-        left: { style: "thin", color: { argb: COLORS.grid } },
-        bottom: { style: "thin", color: { argb: COLORS.grid } },
-        right: { style: "thin", color: { argb: COLORS.grid } },
+        top: { style: "thin", color: { argb: colors.grid } },
+        left: { style: "thin", color: { argb: colors.grid } },
+        bottom: { style: "thin", color: { argb: colors.grid } },
+        right: { style: "thin", color: { argb: colors.grid } },
       };
     });
   });
@@ -212,7 +198,7 @@ async function generateProjectReport(
 const headerFill = {
   type: "pattern" as const,
   pattern: "solid" as const,
-  fgColor: { argb: COLORS.navy },
+  fgColor: { argb: colors.navy },
 };
 
   const timelineYear = options.year ?? new Date().getFullYear();
@@ -229,13 +215,13 @@ const headerFill = {
         return;
       }
       cell.fill = headerFill;
-      cell.font = { ...BASE_FONT, bold: true, color: { argb: COLORS.text } };
+      cell.font = { ...BASE_FONT, bold: true, color: { argb: colors.text } };
       cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
       cell.border = {
-        top: { style: "thin", color: { argb: COLORS.text } },
-        left: { style: "thin", color: { argb: COLORS.text } },
-        bottom: { style: "thin", color: { argb: COLORS.text } },
-        right: { style: "thin", color: { argb: COLORS.text } },
+        top: { style: "thin", color: { argb: colors.text } },
+        left: { style: "thin", color: { argb: colors.text } },
+        bottom: { style: "thin", color: { argb: colors.text } },
+        right: { style: "thin", color: { argb: colors.text } },
       };
     });
   });
@@ -289,11 +275,11 @@ const headerFill = {
     cell.fill = {
       type: "pattern" as const,
       pattern: "solid" as const,
-      fgColor: { argb: COLORS.orange },
-      bgColor: { argb: COLORS.orange },
+      fgColor: { argb: colors.orange },
+      bgColor: { argb: colors.orange },
     };
     cell.border = {
-      bottom: { style: "thin", color: { argb: COLORS.navy } },
+      bottom: { style: "thin", color: { argb: colors.navy } },
     };
   });
 

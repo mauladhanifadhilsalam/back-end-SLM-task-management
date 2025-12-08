@@ -153,7 +153,7 @@ async function findProjectsForReport(
   return prisma.project.findMany({
     where,
     include: projectInclude,
-    orderBy: { createdAt: "desc" },
+    orderBy: { id: "asc" },
   });
 }
 
