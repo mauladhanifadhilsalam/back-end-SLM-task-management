@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import {
   findProjects,
+  findProjectsForReport,
   findProject,
   createProject,
   editProject,
@@ -21,6 +22,7 @@ import {
   toActivityDetails,
 } from "../services/activity-log.service";
 import { findAnyUser } from "../services/user.service";
+import { generateProjectReport } from "../reports/projectReport";
 
 async function getAllProjects(req: Request, res: Response) {
   const viewer = requireViewer(req, res);
@@ -216,10 +218,59 @@ async function deleteProjectById(req: Request, res: Response) {
     targetId: project.id,
     details: toActivityDetails({
       name: project.name,
-      ownerId: project.ownerId,
+      ownerId: project.ownerId
     }),
   });
   res.status(200).send({ message: "Project deleted successfully" });
+}
+
+async function downloadProjectReport(req: Request, res: Response) {
+  const viewer = requireViewer(req, res);
+  if (!viewer) {
+    return;
+  }
+
+  if (!isAdmin(viewer) && !isProjectManager(viewer)) {
+    return res.status(403).json({ message: "Insufficient permissions" });
+  }
+
+  const yearParam = Array.isArray(req.query.year)
+    ? req.query.year[0]
+    : req.query.year;
+  const year =
+    typeof yearParam === "string" && yearParam.trim().length
+      ? Number(yearParam)
+      : undefined;
+
+  if (year !== undefined && (Number.isNaN(year) || year < 1900 || year > 2500)) {
+    return res.status(400).json({ message: "Invalid year parameter" });
+  }
+
+  const parsedFilters = projectQuerySchema.safeParse(req.query);
+  if (!parsedFilters.success) {
+    return res.status(400).json(parsedFilters.error.format());
+  }
+
+  const { page: _page, pageSize: _pageSize, ...reportFilters } =
+    parsedFilters.data;
+
+  try {
+    const projects = await findProjectsForReport(reportFilters, viewer);
+    const workbook = await generateProjectReport(projects, { year });
+    const filename = `projects-${(year ?? new Date().getFullYear())
+      .toString()
+      .padStart(4, "0")}.xlsx`;
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    res.status(500).json({ message: "Unable to generate project report" });
+  }
 }
 
 export {
@@ -228,4 +279,5 @@ export {
   insertProject,
   updateProject,
   deleteProjectById,
+  downloadProjectReport,
 };
