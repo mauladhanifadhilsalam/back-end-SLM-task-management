@@ -135,6 +135,28 @@ async function findProjects(
   return buildPaginatedResult(items, total, pagination);
 }
 
+type ProjectWithRelations = Prisma.ProjectGetPayload<{
+  include: typeof projectInclude;
+}>;
+
+async function findProjectsForReport(
+  filters: ProjectFilters = {},
+  viewer?: ViewerContext,
+): Promise<ProjectWithRelations[]> {
+  const baseWhere = buildProjectWhere(filters);
+  const viewerWhere = buildViewerProjectWhere(viewer);
+  const where =
+    viewerWhere && Object.keys(viewerWhere).length
+      ? { AND: [baseWhere, viewerWhere] }
+      : baseWhere;
+
+  return prisma.project.findMany({
+    where,
+    include: projectInclude,
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 async function findProject(where: Prisma.ProjectWhereUniqueInput) {
   return await prisma.project.findUnique({
     where,
@@ -189,4 +211,13 @@ async function verifyUsersExist(userIds: number[]) {
 }
 
 
-export { findProjects, findProject, createProject, editProject, deleteProject, verifyUsersExist };
+export {
+  findProjects,
+  findProjectsForReport,
+  findProject,
+  createProject,
+  editProject,
+  deleteProject,
+  verifyUsersExist,
+};
+export type { ProjectWithRelations };
