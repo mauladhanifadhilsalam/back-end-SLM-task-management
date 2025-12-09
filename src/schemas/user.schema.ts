@@ -3,6 +3,16 @@ import { baseQuerySchema } from "./base.schema";
 
 const manageableRoles = ["PROJECT_MANAGER", "DEVELOPER"] as const;
 
+const userSortFields = [
+  "id",
+  "fullName",
+  "email",
+  "role",
+  "isActive",
+  "createdAt",
+  "updatedAt",
+] as const;
+
 const passwordSchema = z
   .string()
   .min(8, { message: "Password must be at least 8 characters long." })
@@ -33,10 +43,13 @@ const changePasswordSchema = z.object({
   newPassword: passwordSchema,
 });
 
-const userQuerySchema = z.object({
-  search: z.string().trim().min(1).optional(),
-  role: z.enum(manageableRoles).optional(),
-  isActive: z.coerce.boolean().optional(),
-}).extend(baseQuerySchema.shape);
+const userQuerySchema = z
+  .object({
+    search: z.string().trim().min(1).optional(),
+    role: z.enum(manageableRoles).optional(),
+    isActive: z.coerce.boolean().optional(),
+    sortBy: z.enum(userSortFields).optional(),
+  })
+  .extend(baseQuerySchema.shape);
 
 export { passwordSchema, userSchema, changePasswordSchema, userQuerySchema };

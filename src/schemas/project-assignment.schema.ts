@@ -2,6 +2,14 @@ import { z } from "zod";
 import { ProjectRoleType } from "@prisma/client";
 import { baseQuerySchema } from "./base.schema";
 
+const projectAssignmentSortFields = [
+  "id",
+  "projectId",
+  "userId",
+  "roleInProject",
+  "assignedAt",
+] as const;
+
 const projectAssignmentQuerySchema = z
   .object({
     projectId: z.coerce.number().int().positive().optional(),
@@ -9,6 +17,7 @@ const projectAssignmentQuerySchema = z
     roleInProject: z.enum(ProjectRoleType).optional(),
     assignedFrom: z.coerce.date().optional(),
     assignedTo: z.coerce.date().optional(),
+    sortBy: z.enum(projectAssignmentSortFields).optional(),
   }).extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (

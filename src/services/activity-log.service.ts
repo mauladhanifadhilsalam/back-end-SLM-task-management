@@ -1,7 +1,11 @@
 import prisma from "../db/prisma";
-import { ActivityTargetType, Prisma } from "@prisma/client";
+import { ActivityLog, ActivityTargetType, Prisma } from "@prisma/client";
 import { refreshDashboard } from "./dashboard.service";
 import { enqueueActivityLog } from "../queues/activityLog";
+import { resolvePagination } from "../utils/pagination";
+import { resolveSorting } from "../utils/sorting";
+import { activityLogQuerySchema } from "../schemas/activity-log.schema";
+import { z } from "zod";
 
 type LogActivityInput = {
   userId?: number;
@@ -12,16 +16,8 @@ type LogActivityInput = {
   occurredAt?: Date;
 };
 
-type ActivityLogFilters = {
-  targetType?: ActivityTargetType;
-  targetId?: number;
-  userId?: number;
-  action?: string;
-  from?: Date;
-  to?: Date;
-  page?: number;
-  pageSize?: number;
-};
+type ActivityLogFilters = z.infer<typeof activityLogQuerySchema>;
+type ActivityLogSortBy = keyof ActivityLog;
 
 type DeleteActivityLogsInput = {
   olderThan?: Date;
@@ -99,30 +95,32 @@ function toActivityDetails(payload: unknown): Prisma.InputJsonValue {
 }
 
 async function findActivityLogs(filters: ActivityLogFilters) {
-  const page = filters.page ?? 1;
-  const pageSize = filters.pageSize ?? 25;
-
+  const pagination = resolvePagination(filters);
   const where = buildActivityLogWhere(filters);
-  const skip = (page - 1) * pageSize;
+  const orderBy = resolveSorting<ActivityLogSortBy>(filters, "occurredAt", "desc");
+  const skip = (pagination.page - 1) * pagination.pageSize;
 
   const [items, total] = await prisma.$transaction([
     prisma.activityLog.findMany({
       where,
       skip,
-      take: pageSize,
-      orderBy: { occurredAt: "desc" },
+      take: pagination.pageSize,
+      orderBy,
       include: activityLogInclude,
     }),
     prisma.activityLog.count({ where }),
   ]);
 
-  const totalPages = pageSize > 0 ? Math.ceil(total / pageSize) : 0;
+  const totalPages =
+    pagination.pageSize > 0
+      ? Math.ceil(total / pagination.pageSize)
+      : 0;
 
   return {
     items,
     total,
-    page,
-    pageSize,
+    page: pagination.page,
+    pageSize: pagination.pageSize,
     totalPages,
   };
 }

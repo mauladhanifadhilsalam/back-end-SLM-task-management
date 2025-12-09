@@ -2,6 +2,20 @@ import { z } from "zod";
 import { ProjectStatus, ProjectRoleType } from "@prisma/client";
 import { baseQuerySchema } from "./base.schema";
 
+const projectSortFields = [
+  "name",
+  "categories",
+  "ownerId",
+  "startDate",
+  "endDate",
+  "status",
+  "completion",
+  "notes",
+  "id",
+  "createdAt",
+  "updatedAt",
+] as const;
+
 const phaseInputSchema = z.object({
   name: z.string(),
   startDate: z.coerce.date(),
@@ -55,12 +69,15 @@ const updateProjectSchema = z
     }
   });
 
-const projectQuerySchema = z.object({
-  status: z.enum(ProjectStatus).optional(),
-  ownerId: z.coerce.number().int().positive().optional(),
-  assignedUserId: z.coerce.number().int().positive().optional(),
-  category: z.string().trim().min(1).optional(),
-}).extend(baseQuerySchema.shape);
+const projectQuerySchema = z
+  .object({
+    status: z.enum(ProjectStatus).optional(),
+    ownerId: z.coerce.number().int().positive().optional(),
+    assignedUserId: z.coerce.number().int().positive().optional(),
+    category: z.string().trim().min(1).optional(),
+    sortBy: z.enum(projectSortFields).optional(),
+  })
+  .extend(baseQuerySchema.shape);
 
 export {
   phaseInputSchema,

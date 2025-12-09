@@ -1,6 +1,15 @@
 import { z } from "zod";
 import { baseQuerySchema } from "./base.schema";
 
+const projectPhaseSortFields = [
+  "id",
+  "projectId",
+  "name",
+  "startDate",
+  "endDate",
+  "createdAt",
+] as const;
+
 const createProjectPhaseSchema = z
   .object({
     name: z.string().min(1),
@@ -30,15 +39,13 @@ const updateProjectPhaseSchema = createProjectPhaseSchema.partial().superRefine(
   },
 );
 
-const phaseSortOrderSchema = z.enum(["asc", "desc"]);
-
 const projectPhaseQuerySchema = z
   .object({
     projectId: z.coerce.number().int().positive().optional(),
     startAfter: z.coerce.date().optional(),
     endBefore: z.coerce.date().optional(),
     activeOnly: z.coerce.boolean().optional(),
-    sortOrder: phaseSortOrderSchema.optional(),
+    sortBy: z.enum(projectPhaseSortFields).optional(),
   }).extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (data.startAfter && data.endBefore && data.endBefore < data.startAfter) {

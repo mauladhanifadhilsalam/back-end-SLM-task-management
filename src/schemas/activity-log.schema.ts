@@ -2,6 +2,15 @@ import { z } from "zod";
 import { ActivityTargetType } from "@prisma/client";
 import { baseQuerySchema } from "./base.schema";
 
+const activityLogSortFields = [
+  "id",
+  "occurredAt",
+  "userId",
+  "action",
+  "targetType",
+  "targetId",
+] as const;
+
 const activityLogQuerySchema = z
   .object({
     targetType: z.enum(ActivityTargetType).optional(),
@@ -10,6 +19,7 @@ const activityLogQuerySchema = z
     action: z.string().trim().min(1).max(100).optional(),
     from: z.coerce.date().optional(),
     to: z.coerce.date().optional(),
+    sortBy: z.enum(activityLogSortFields).optional(),
   }).extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (data.from && data.to && data.to < data.from) {

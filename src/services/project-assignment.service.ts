@@ -1,20 +1,16 @@
 import prisma from "../db/prisma";
-import { Prisma, ProjectRoleType } from "@prisma/client";
+import { ProjectAssignment, Prisma, ProjectRoleType } from "@prisma/client";
 import {
   buildPaginatedResult,
   resolvePagination,
   PaginatedResult,
 } from "../utils/pagination";
+import { resolveSorting } from "../utils/sorting";
+import z from "zod";
+import { projectAssignmentQuerySchema } from "../schemas/project-assignment.schema";
 
-type ProjectAssignmentFilters = {
-  projectId?: number;
-  userId?: number;
-  roleInProject?: ProjectRoleType;
-  assignedFrom?: Date;
-  assignedTo?: Date;
-  page?: number;
-  pageSize?: number;
-};
+type ProjectAssignmentFilters = z.infer<typeof projectAssignmentQuerySchema>;
+type ProjectAssignmentSortBy = keyof ProjectAssignment;
 
 type NewProjectAssignmentInput = {
   projectId: number;
@@ -66,13 +62,14 @@ async function findProjectAssignments(
   }
 
   const pagination = resolvePagination(filters);
+  const orderBy = resolveSorting<ProjectAssignmentSortBy>(filters, "assignedAt", "desc");
   const skip = (pagination.page - 1) * pagination.pageSize;
 
   const [items, total] = await prisma.$transaction([
     prisma.projectAssignment.findMany({
       where,
       include: projectAssignmentInclude,
-      orderBy: { assignedAt: "desc" },
+      orderBy,
       skip,
       take: pagination.pageSize,
     }),

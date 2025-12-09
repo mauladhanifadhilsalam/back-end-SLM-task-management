@@ -1,22 +1,21 @@
 import prisma from "../db/prisma";
-import { Prisma } from "@prisma/client";
+import { ProjectOwner, Prisma } from "@prisma/client";
 import {
   buildPaginatedResult,
   resolvePagination,
   PaginatedResult,
 } from "../utils/pagination";
+import { resolveSorting } from "../utils/sorting";
+import z from "zod";
+import { projectOwnerQuerySchema } from "../schemas/project-owner.schema";
 
 type NewProjectOwnerInput = Pick<
   Prisma.ProjectOwnerCreateInput,
   "name" | "company" | "email" | "phone" | "address"
 >;
 
-type ProjectOwnerFilters = {
-  company?: string;
-  search?: string;
-  page?: number;
-  pageSize?: number;
-};
+type ProjectOwnerFilters = z.infer<typeof projectOwnerQuerySchema>;
+type ProjectOwnerSortBy = keyof ProjectOwner;
 
 type ProjectOwnerListItem = Prisma.ProjectOwnerGetPayload<{}>;
 
@@ -45,12 +44,13 @@ async function findProjectOwners(
   }
 
   const pagination = resolvePagination(filters);
+  const orderBy = resolveSorting<ProjectOwnerSortBy>(filters, "name", "asc");
   const skip = (pagination.page - 1) * pagination.pageSize;
 
   const [items, total] = await prisma.$transaction([
     prisma.projectOwner.findMany({
       where,
-      orderBy: { name: "asc" },
+      orderBy,
       skip,
       take: pagination.pageSize,
     }),

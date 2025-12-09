@@ -9,9 +9,14 @@ const projectOwnerSchema = z.object({
   address: z.string(),
 });
 
-const projectOwnerQuerySchema = z.object({
-  company: z.string().trim().min(1).optional(),
-  search: z.string().trim().min(1).optional(),
-}).extend(baseQuerySchema.shape);
+const projectOwnerSortFields = ["id", "name", "company", "createdAt"] as const;
+
+const projectOwnerQuerySchema = z
+  .object({
+    company: z.string().trim().min(1).optional(),
+    search: z.string().trim().min(1).optional(),
+    sortBy: z.enum(projectOwnerSortFields).optional(),
+  })
+  .extend(baseQuerySchema.shape);
 
 export { projectOwnerSchema, projectOwnerQuerySchema };

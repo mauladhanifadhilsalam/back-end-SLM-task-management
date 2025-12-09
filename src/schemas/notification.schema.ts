@@ -13,6 +13,16 @@ const emailTextSchema = z.string().trim().min(1).max(2000);
 const emailFromSchema = z.string().trim().min(1).max(255);
 const emailReplyToSchema = z.email().trim().max(255);
 
+const notificationSortFields = [
+  "id",
+  "recipientId",
+  "targetId",
+  "state",
+  "status",
+  "sentAt",
+  "createdAt",
+] as const;
+
 const notificationQuerySchema = z
   .object({
     recipientId: z.coerce.number().int().positive().optional(),
@@ -22,6 +32,7 @@ const notificationQuerySchema = z
     status: z.enum(NotifyStatusType).optional(),
     sentFrom: z.coerce.date().optional(),
     sentTo: z.coerce.date().optional(),
+    sortBy: z.enum(notificationSortFields).optional(),
   }).extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (data.sentFrom && data.sentTo && data.sentTo < data.sentFrom) {
