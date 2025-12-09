@@ -19,6 +19,7 @@ import {
   recordActivity,
   toActivityDetails,
 } from "../services/activity-log.service";
+import { findUserById } from "../services/auth.service";
 
 async function getAllUsers(req: Request, res: Response) {
   try {
@@ -151,9 +152,9 @@ async function changePassword(req: Request, res: Response) {
 
   const parsed = changePasswordSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.format());
-  const { email, password, newPassword } = parsed.data;
+  const { password, newPassword } = parsed.data;
 
-  const user = await findUser({ email });
+  const user = await findUserById(viewer.id);
   if (!user) return res.status(404).json({ message: "User not found" });
 
   const isVerified = await verifyPassword(password, user.passwordHash);
