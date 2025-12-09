@@ -80,7 +80,9 @@ function pickAssignments(project: ProjectWithRelations) {
     (assignment) => assignment.roleInProject === ProjectRoleType.TECH_LEAD,
   );
   const developerNames = project.assignments
-    .filter((assignment) => assignment.roleInProject !== ProjectRoleType.TECH_LEAD)
+    .filter(
+      (assignment) => assignment.roleInProject !== ProjectRoleType.TECH_LEAD,
+    )
     .map((assignment) => toFirstName(assignment.user?.fullName))
     .filter(Boolean);
 
@@ -148,6 +150,49 @@ function applyPhaseFill(
   });
 }
 
+const AUTO_FIT_COLUMNS = {
+  CATEGORY: 3,
+  PROJECT_NAME: 5,
+  PROJECT_OWNER: 6,
+  LEAD: 23,
+  DEVELOPER: 24,
+  NOTES: 25,
+} as const;
+
+function autofitColumn(
+  worksheet: ExcelJS.Worksheet,
+  colIndex: number,
+  options?: { max?: number; min?: number },
+) {
+  const column = worksheet.getColumn(colIndex);
+  let maxLength = 10;
+
+  column.eachCell({ includeEmpty: false }, (cell) => {
+    let rawValue = cell.value;
+
+    if (rawValue instanceof Date) {
+      rawValue = rawValue.toLocaleDateString();
+    } else if (typeof rawValue !== "string") {
+      rawValue = String(rawValue ?? "");
+    }
+
+    const textLength = rawValue.length;
+    maxLength = Math.max(maxLength, textLength);
+  });
+
+  let computedWidth;
+  if (maxLength > 40) {
+    computedWidth = maxLength * 0.8 + 1;
+  } else {
+    computedWidth = maxLength + 1;
+  }
+
+  if (options?.max) computedWidth = Math.min(computedWidth, options.max);
+  if (options?.min) computedWidth = Math.max(computedWidth, options.min);
+
+  column.width = computedWidth;
+}
+
 async function generateProjectReport(
   projects: ProjectWithRelations[],
   options: GenerateProjectReportOptions = {},
@@ -195,11 +240,11 @@ async function generateProjectReport(
     "Notes",
   ];
 
-const headerFill = {
-  type: "pattern" as const,
-  pattern: "solid" as const,
-  fgColor: { argb: colors.navy },
-};
+  const headerFill = {
+    type: "pattern" as const,
+    pattern: "solid" as const,
+    fgColor: { argb: colors.navy },
+  };
 
   const timelineYear = options.year ?? new Date().getFullYear();
 
@@ -243,10 +288,7 @@ const headerFill = {
           topHeaderRow.number,
           MONTH_COLUMN_START + MONTHS.length - 1,
         );
-        const cell = worksheet.getCell(
-          topHeaderRow.number,
-          MONTH_COLUMN_START,
-        );
+        const cell = worksheet.getCell(topHeaderRow.number, MONTH_COLUMN_START);
         cell.value = timelineYear.toString();
         cell.alignment = { horizontal: "center", vertical: "middle" };
       }
@@ -330,6 +372,10 @@ const headerFill = {
     });
 
     applyPhaseFill(row, project.phases, timelineYear);
+  });
+
+  Object.values(AUTO_FIT_COLUMNS).forEach((col) => {
+    autofitColumn(worksheet, col);
   });
 
   return workbook;
