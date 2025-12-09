@@ -42,9 +42,9 @@ type ProjectAssignmentListItem = Prisma.ProjectAssignmentGetPayload<{
   include: typeof projectAssignmentInclude;
 }>;
 
-async function findProjectAssignments(
+function buildProjectAssignmentWhere(
   filters: ProjectAssignmentFilters = {},
-): Promise<PaginatedResult<ProjectAssignmentListItem>> {
+): Prisma.ProjectAssignmentWhereInput {
   const { projectId, userId, roleInProject, assignedFrom, assignedTo } =
     filters;
 
@@ -60,6 +60,14 @@ async function findProjectAssignments(
       ...(assignedTo ? { lte: assignedTo } : {}),
     };
   }
+
+  return where;
+}
+
+async function findProjectAssignments(
+  filters: ProjectAssignmentFilters = {},
+): Promise<PaginatedResult<ProjectAssignmentListItem>> {
+  const where = buildProjectAssignmentWhere(filters);
 
   const pagination = resolvePagination(filters);
   const orderBy = resolveSorting<ProjectAssignmentSortBy>(filters, "assignedAt", "desc");

@@ -43,9 +43,9 @@ type TicketAssigneeListItem = Prisma.TicketAssigneeGetPayload<{
   include: typeof ticketAssigneeInclude;
 }>;
 
-async function findTicketAssignees(
+function buildTicketAssigneeWhere(
   filters: TicketAssigneeFilters = {},
-): Promise<PaginatedResult<TicketAssigneeListItem>> {
+): Prisma.TicketAssigneeWhereInput {
   const { ticketId, userId, assignedFrom, assignedTo } = filters;
 
   const where: Prisma.TicketAssigneeWhereInput = {
@@ -59,6 +59,14 @@ async function findTicketAssignees(
       ...(assignedTo ? { lte: assignedTo } : {}),
     };
   }
+
+  return where;
+}
+
+async function findTicketAssignees(
+  filters: TicketAssigneeFilters = {},
+): Promise<PaginatedResult<TicketAssigneeListItem>> {
+  const where = buildTicketAssigneeWhere(filters);
 
   const pagination = resolvePagination(filters);
   const orderBy = resolveSorting<ticketAssigneeSortBy>(filters, "id", "desc");
