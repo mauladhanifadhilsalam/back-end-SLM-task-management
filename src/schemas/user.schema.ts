@@ -27,7 +27,6 @@ const userSchema = z.object({
 });
 
 const changePasswordSchema = z.object({
-  email: z.email(),
   password: z.string(),
   newPassword: passwordSchema,
 });
