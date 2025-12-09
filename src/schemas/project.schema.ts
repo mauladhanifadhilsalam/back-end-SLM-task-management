@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ProjectStatus, ProjectRoleType } from "@prisma/client";
+import { baseQuerySchema } from "./base.schema";
 
 const phaseInputSchema = z.object({
   name: z.string(),
@@ -59,9 +60,7 @@ const projectQuerySchema = z.object({
   ownerId: z.coerce.number().int().positive().optional(),
   assignedUserId: z.coerce.number().int().positive().optional(),
   category: z.string().trim().min(1).optional(),
-  page: z.coerce.number().int().positive().optional(),
-  pageSize: z.coerce.number().int().positive().max(100).optional(),
-});
+}).extend(baseQuerySchema.shape);
 
 export {
   phaseInputSchema,

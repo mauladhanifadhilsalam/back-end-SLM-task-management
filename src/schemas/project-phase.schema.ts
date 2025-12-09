@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { baseQuerySchema } from "./base.schema";
 
 const createProjectPhaseSchema = z
   .object({
@@ -38,9 +39,7 @@ const projectPhaseQuerySchema = z
     endBefore: z.coerce.date().optional(),
     activeOnly: z.coerce.boolean().optional(),
     sortOrder: phaseSortOrderSchema.optional(),
-    page: z.coerce.number().int().positive().optional(),
-    pageSize: z.coerce.number().int().positive().max(100).optional(),
-  })
+  }).extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (data.startAfter && data.endBefore && data.endBefore < data.startAfter) {
       ctx.addIssue({

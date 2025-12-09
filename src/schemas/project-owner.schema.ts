@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { baseQuerySchema } from "./base.schema";
 
 const projectOwnerSchema = z.object({
   name: z.string(),
@@ -11,8 +12,6 @@ const projectOwnerSchema = z.object({
 const projectOwnerQuerySchema = z.object({
   company: z.string().trim().min(1).optional(),
   search: z.string().trim().min(1).optional(),
-  page: z.coerce.number().int().positive().optional(),
-  pageSize: z.coerce.number().int().positive().max(100).optional(),
-});
+}).extend(baseQuerySchema.shape);
 
 export { projectOwnerSchema, projectOwnerQuerySchema };

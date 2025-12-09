@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { baseQuerySchema } from "./base.schema";
 
 const manageableRoles = ["PROJECT_MANAGER", "DEVELOPER"] as const;
 
@@ -33,11 +34,9 @@ const changePasswordSchema = z.object({
 });
 
 const userQuerySchema = z.object({
-  page: z.coerce.number().int().positive().optional(),
-  pageSize: z.coerce.number().int().positive().max(100).optional(),
   search: z.string().trim().min(1).optional(),
   role: z.enum(manageableRoles).optional(),
   isActive: z.coerce.boolean().optional(),
-});
+}).extend(baseQuerySchema.shape);
 
 export { passwordSchema, userSchema, changePasswordSchema, userQuerySchema };

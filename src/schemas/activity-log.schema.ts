@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ActivityTargetType } from "@prisma/client";
+import { baseQuerySchema } from "./base.schema";
 
 const activityLogQuerySchema = z
   .object({
@@ -7,11 +8,9 @@ const activityLogQuerySchema = z
     targetId: z.coerce.number().int().positive().optional(),
     userId: z.coerce.number().int().positive().optional(),
     action: z.string().trim().min(1).max(100).optional(),
-    page: z.coerce.number().int().positive().optional(),
-    pageSize: z.coerce.number().int().positive().max(100).optional(),
     from: z.coerce.date().optional(),
     to: z.coerce.date().optional(),
-  })
+  }).extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (data.from && data.to && data.to < data.from) {
       ctx.addIssue({
@@ -25,7 +24,7 @@ const activityLogQuerySchema = z
 const activityLogBulkDeleteSchema = z
   .object({
     olderThan: z.coerce.date().optional(),
-    targetType: z.nativeEnum(ActivityTargetType).optional(),
+    targetType: z.enum(ActivityTargetType).optional(),
   })
   .refine((data) => data.olderThan || data.targetType, {
     message: "Provide at least olderThan or targetType",

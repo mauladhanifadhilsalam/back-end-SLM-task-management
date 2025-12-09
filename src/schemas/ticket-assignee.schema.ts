@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { baseQuerySchema } from "./base.schema";
 
 const ticketAssigneeQuerySchema = z
   .object({
@@ -6,9 +7,7 @@ const ticketAssigneeQuerySchema = z
     userId: z.coerce.number().int().positive().optional(),
     assignedFrom: z.coerce.date().optional(),
     assignedTo: z.coerce.date().optional(),
-    page: z.coerce.number().int().positive().optional(),
-    pageSize: z.coerce.number().int().positive().max(100).optional(),
-  })
+  }).extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (
       data.assignedFrom &&

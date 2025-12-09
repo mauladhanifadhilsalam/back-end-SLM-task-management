@@ -4,6 +4,7 @@ import {
   TicketStatus,
   TicketType,
 } from "@prisma/client";
+import { baseQuerySchema } from "./base.schema";
 
 const nullableDateSchema = z
   .union([z.literal(null), z.coerce.date()])
@@ -21,14 +22,12 @@ const ticketQuerySchema = z
     type: z.enum(TicketType).optional(),
     assigneeId: z.coerce.number().int().positive().optional(),
     search: z.string().trim().min(1).optional(),
-    page: z.coerce.number().int().positive().optional(),
-    pageSize: z.coerce.number().int().positive().max(100).optional(),
     sortBy: z.enum(ticketSortFields).optional(),
     sortOrder: z.enum(sortDirections).optional(),
     dueFrom: z.coerce.date().optional(),
     dueTo: z.coerce.date().optional(),
     updatedSince: z.coerce.date().optional(),
-  })
+    }).extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (data.dueFrom && data.dueTo && data.dueTo < data.dueFrom) {
       ctx.addIssue({
