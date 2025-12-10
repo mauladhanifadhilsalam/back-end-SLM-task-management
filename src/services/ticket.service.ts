@@ -2,6 +2,7 @@ import prisma from "../db/prisma";
 import {
   Prisma,
   RoleType,
+  Ticket,
   TicketPriority,
   TicketStatus,
   TicketType,
@@ -11,25 +12,13 @@ import {
   resolvePagination,
   PaginatedResult,
 } from "../utils/pagination";
+import z from "zod";
+import { ticketQuerySchema } from "../schemas/ticket.schema";
+import { resolveSorting } from "../utils/sorting";
 
-type TicketSortField = "createdAt" | "updatedAt" | "dueDate" | "priority";
+type TicketSortBy = keyof Ticket;
 
-type TicketFilters = {
-  projectId?: number;
-  requesterId?: number;
-  status?: TicketStatus;
-  priority?: TicketPriority | null;
-  type?: TicketType;
-  assigneeId?: number;
-  search?: string;
-  page?: number;
-  pageSize?: number;
-  sortBy?: TicketSortField;
-  sortOrder?: Prisma.SortOrder;
-  dueFrom?: Date;
-  dueTo?: Date;
-  updatedSince?: Date;
-};
+type TicketFilters = z.infer<typeof ticketQuerySchema>;
 
 type NewTicketInput = {
   projectId: number;
@@ -203,15 +192,6 @@ function buildViewerTicketWhere(viewer?: ViewerContext) {
   } satisfies Prisma.TicketWhereInput;
 }
 
-function buildTicketOrder(
-  sortBy?: TicketSortField,
-  sortOrder?: Prisma.SortOrder,
-) {
-  const field = sortBy ?? "updatedAt";
-  const direction = sortOrder ?? "desc";
-  return { [field]: direction } as Prisma.TicketOrderByWithRelationInput;
-}
-
 async function findTickets(
   filters: TicketFilters = {},
   viewer?: ViewerContext,
@@ -223,7 +203,7 @@ async function findTickets(
     viewerWhere && Object.keys(viewerWhere).length
       ? { AND: [baseWhere, viewerWhere] }
       : baseWhere;
-  const orderBy = buildTicketOrder(filters.sortBy, filters.sortOrder);
+  const orderBy = resolveSorting<TicketSortBy>(filters, "id", "desc");
   const skip = (pagination.page - 1) * pagination.pageSize;
 
   const [items, total] = await prisma.$transaction([

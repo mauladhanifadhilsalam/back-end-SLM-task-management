@@ -1,6 +1,17 @@
 import { z } from "zod";
+import { baseQuerySchema } from "./base.schema";
 
 const manageableRoles = ["PROJECT_MANAGER", "DEVELOPER"] as const;
+
+const userSortFields = [
+  "id",
+  "fullName",
+  "email",
+  "role",
+  "isActive",
+  "createdAt",
+  "updatedAt",
+] as const;
 
 const passwordSchema = z
   .string()
@@ -31,12 +42,13 @@ const changePasswordSchema = z.object({
   newPassword: passwordSchema,
 });
 
-const userQuerySchema = z.object({
-  page: z.coerce.number().int().positive().optional(),
-  pageSize: z.coerce.number().int().positive().max(100).optional(),
-  search: z.string().trim().min(1).optional(),
-  role: z.enum(manageableRoles).optional(),
-  isActive: z.coerce.boolean().optional(),
-});
+const userQuerySchema = z
+  .object({
+    search: z.string().trim().min(1).optional(),
+    role: z.enum(manageableRoles).optional(),
+    isActive: z.coerce.boolean().optional(),
+    sortBy: z.enum(userSortFields).optional(),
+  })
+  .extend(baseQuerySchema.shape);
 
 export { passwordSchema, userSchema, changePasswordSchema, userQuerySchema };

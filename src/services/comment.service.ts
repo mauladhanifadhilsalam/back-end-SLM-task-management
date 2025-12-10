@@ -1,20 +1,17 @@
 import prisma from "../db/prisma";
-import { Prisma } from "@prisma/client";
+import { Comment, Prisma } from "@prisma/client";
 import { ticketInclude } from "./ticket.service";
 import {
   buildPaginatedResult,
   resolvePagination,
   PaginatedResult,
 } from "../utils/pagination";
+import { resolveSorting } from "../utils/sorting";
+import z from "zod";
+import { commentQuerySchema } from "../schemas/comment.schema";
 
-type CommentFilters = {
-  ticketId?: number;
-  authorId?: number;
-  page?: number;
-  pageSize?: number;
-  createdFrom?: Date;
-  createdTo?: Date;
-};
+type CommentFilters = z.infer<typeof commentQuerySchema>;
+type CommentSortBy = keyof Comment;
 
 type NewCommentInput = Pick<Prisma.CommentCreateInput, "message"> & {
   ticketId: number;
@@ -56,13 +53,14 @@ async function findComments(
   }
 
   const pagination = resolvePagination(filters);
+  const orderBy = resolveSorting<CommentSortBy>(filters, "createdAt", "asc");
   const skip = (pagination.page - 1) * pagination.pageSize;
 
   const [items, total] = await prisma.$transaction([
     prisma.comment.findMany({
       where,
       include: commentInclude,
-      orderBy: { createdAt: "asc" },
+      orderBy,
       skip,
       take: pagination.pageSize,
     }),

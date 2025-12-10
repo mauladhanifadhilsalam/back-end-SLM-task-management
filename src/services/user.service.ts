@@ -1,32 +1,27 @@
 import prisma from "../db/prisma";
-import { Prisma, RoleType } from "@prisma/client";
+import { Prisma, RoleType, User } from "@prisma/client";
 import {
   buildPaginatedResult,
   resolvePagination,
   PaginatedResult,
 } from "../utils/pagination";
+import z from "zod";
+import { userQuerySchema } from "../schemas/user.schema";
+import { resolveSorting } from "../utils/sorting";
 
 type NewUserInput = Pick<
   Prisma.UserCreateInput,
   "fullName" | "role" | "email" | "passwordHash"
 >;
 
+
 type ManageableRole = Extract<RoleType, "PROJECT_MANAGER" | "DEVELOPER">;
 
-const manageableRoles: ManageableRole[] = [
-  "PROJECT_MANAGER",
-  "DEVELOPER",
-];
+const manageableRoles: ManageableRole[] = ["PROJECT_MANAGER", "DEVELOPER"];
 
-type UserFilters = {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  role?: ManageableRole;
-  isActive?: boolean;
-};
+type UserFilters = z.infer<typeof userQuerySchema>;
 
-type UserListItem = Prisma.UserGetPayload<{}>;
+type UserSortBy = keyof Omit<User, "passwordHash">;
 
 function buildUserWhere(filters: UserFilters = {}): Prisma.UserWhereInput {
   const where: Prisma.UserWhereInput = {
@@ -37,7 +32,9 @@ function buildUserWhere(filters: UserFilters = {}): Prisma.UserWhereInput {
             in: manageableRoles,
           },
         }),
-    ...(typeof filters.isActive === "boolean" ? { isActive: filters.isActive } : {}),
+    ...(typeof filters.isActive === "boolean"
+      ? { isActive: filters.isActive }
+      : {}),
   };
 
   if (filters.search) {
@@ -62,15 +59,16 @@ function buildUserWhere(filters: UserFilters = {}): Prisma.UserWhereInput {
 
 async function findUsers(
   filters: UserFilters = {},
-): Promise<PaginatedResult<UserListItem>> {
+): Promise<PaginatedResult<User>> {
   const pagination = resolvePagination(filters);
   const where = buildUserWhere(filters);
+  const orderBy = resolveSorting<UserSortBy>(filters, "createdAt", "desc");
   const skip = (pagination.page - 1) * pagination.pageSize;
 
   const [items, total] = await prisma.$transaction([
     prisma.user.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy,
       skip,
       take: pagination.pageSize,
     }),
@@ -139,4 +137,13 @@ async function editPassword(id: number, passwordHash: string) {
   });
 }
 
-export { findUsers, findUser, createUser, editUser, deleteUser, editPassword, findAnyUser };
+export {
+  findUsers,
+  findUser,
+  createUser,
+  editUser,
+  deleteUser,
+  editPassword,
+  findAnyUser,
+  UserSortBy
+};

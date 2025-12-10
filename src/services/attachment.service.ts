@@ -1,19 +1,16 @@
 import prisma from "../db/prisma";
-import { Prisma } from "@prisma/client";
+import { Attachment, Prisma } from "@prisma/client";
 import {
   buildPaginatedResult,
   resolvePagination,
   PaginatedResult,
 } from "../utils/pagination";
+import { resolveSorting } from "../utils/sorting";
+import z from "zod";
+import { attachmentQuerySchema } from "../schemas/attachment.schema";
 
-type AttachmentFilters = {
-  ticketId?: number;
-  userId?: number;
-  page?: number;
-  pageSize?: number;
-  uploadedFrom?: Date;
-  uploadedTo?: Date;
-};
+type AttachmentFilters = z.infer<typeof attachmentQuerySchema>;
+type AttachmentSortBy = keyof Attachment;
 
 type NewAttachmentInput = Pick<
   Prisma.AttachmentCreateInput,
@@ -41,12 +38,13 @@ async function findAttachments(
   }
 
   const pagination = resolvePagination(filters);
+  const orderBy = resolveSorting<AttachmentSortBy>(filters, "createdAt", "desc");
   const skip = (pagination.page - 1) * pagination.pageSize;
 
   const [items, total] = await prisma.$transaction([
     prisma.attachment.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy,
       skip,
       take: pagination.pageSize,
     }),

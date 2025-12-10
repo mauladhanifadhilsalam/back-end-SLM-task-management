@@ -1,27 +1,22 @@
 import prisma from "../db/prisma";
 import {
-  Prisma,
+  Notification,
   NotificationState,
   NotificationTargetType,
   NotifyStatusType,
+  Prisma,
 } from "@prisma/client";
 import {
   buildPaginatedResult,
   resolvePagination,
   PaginatedResult,
 } from "../utils/pagination";
+import { resolveSorting } from "../utils/sorting";
+import z from "zod";
+import { notificationQuerySchema } from "../schemas/notification.schema";
 
-type NotificationFilters = {
-  recipientId?: number;
-  state?: NotificationState;
-  targetType?: NotificationTargetType;
-  targetId?: number;
-  status?: NotifyStatusType;
-  page?: number;
-  pageSize?: number;
-  sentFrom?: Date;
-  sentTo?: Date;
-};
+type NotificationFilters = z.infer<typeof notificationQuerySchema>;
+type NotificationSortBy = keyof Notification;
 
 type CreateNotificationInput = {
   recipientId: number;
@@ -107,13 +102,14 @@ async function findNotifications(
   }
 
   const pagination = resolvePagination(filters);
+  const orderBy = resolveSorting<NotificationSortBy>(filters, "createdAt", "desc");
   const skip = (pagination.page - 1) * pagination.pageSize;
 
   const [items, total] = await prisma.$transaction([
     prisma.notification.findMany({
       where,
       include: notificationInclude,
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      orderBy,
       skip,
       take: pagination.pageSize,
     }),

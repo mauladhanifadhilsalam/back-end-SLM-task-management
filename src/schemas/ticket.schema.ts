@@ -1,16 +1,25 @@
 import { z } from "zod";
-import {
-  TicketPriority,
-  TicketStatus,
-  TicketType,
-} from "@prisma/client";
+import { TicketPriority, TicketStatus, TicketType } from "@prisma/client";
+import { baseQuerySchema } from "./base.schema";
 
 const nullableDateSchema = z
   .union([z.literal(null), z.coerce.date()])
   .optional();
 
-const ticketSortFields = ["createdAt", "updatedAt", "dueDate", "priority"] as const;
-const sortDirections = ["asc", "desc"] as const;
+const ticketSortFields = [
+  "id",
+  "projectId",
+  "type",
+  "title",
+  "description",
+  "priority",
+  "status",
+  "requesterId",
+  "startDate",
+  "dueDate",
+  "createdAt",
+  "updatedAt",
+] as const;
 
 const ticketQuerySchema = z
   .object({
@@ -21,14 +30,12 @@ const ticketQuerySchema = z
     type: z.enum(TicketType).optional(),
     assigneeId: z.coerce.number().int().positive().optional(),
     search: z.string().trim().min(1).optional(),
-    page: z.coerce.number().int().positive().optional(),
-    pageSize: z.coerce.number().int().positive().max(100).optional(),
     sortBy: z.enum(ticketSortFields).optional(),
-    sortOrder: z.enum(sortDirections).optional(),
     dueFrom: z.coerce.date().optional(),
     dueTo: z.coerce.date().optional(),
     updatedSince: z.coerce.date().optional(),
   })
+  .extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (data.dueFrom && data.dueTo && data.dueTo < data.dueFrom) {
       ctx.addIssue({
@@ -67,8 +74,9 @@ const ticketBaseSchema = z
 
 const createTicketSchema = ticketBaseSchema;
 
-const updateTicketSchema = ticketBaseSchema.partial().superRefine(
-  (data, ctx) => {
+const updateTicketSchema = ticketBaseSchema
+  .partial()
+  .superRefine((data, ctx) => {
     const start = data.startDate instanceof Date ? data.startDate : null;
     const due = data.dueDate instanceof Date ? data.dueDate : null;
 
@@ -79,8 +87,7 @@ const updateTicketSchema = ticketBaseSchema.partial().superRefine(
         message: "Due date must be on or after start date",
       });
     }
-  },
-);
+  });
 
 export {
   ticketQuerySchema,

@@ -4,13 +4,24 @@ import {
   NotificationTargetType,
   NotifyStatusType,
 } from "@prisma/client";
+import { baseQuerySchema } from "./base.schema";
 
 const positiveInt = z.number().int().positive();
 const nullableDateSchema = z.union([z.literal(null), z.coerce.date()]);
 const emailSubjectSchema = z.string().trim().min(1).max(200);
 const emailTextSchema = z.string().trim().min(1).max(2000);
 const emailFromSchema = z.string().trim().min(1).max(255);
-const emailReplyToSchema = z.string().trim().email().max(255);
+const emailReplyToSchema = z.email().trim().max(255);
+
+const notificationSortFields = [
+  "id",
+  "recipientId",
+  "targetId",
+  "state",
+  "status",
+  "sentAt",
+  "createdAt",
+] as const;
 
 const notificationQuerySchema = z
   .object({
@@ -19,11 +30,10 @@ const notificationQuerySchema = z
     targetId: z.coerce.number().int().positive().optional(),
     state: z.enum(NotificationState).optional(),
     status: z.enum(NotifyStatusType).optional(),
-    page: z.coerce.number().int().positive().optional(),
-    pageSize: z.coerce.number().int().positive().max(100).optional(),
     sentFrom: z.coerce.date().optional(),
     sentTo: z.coerce.date().optional(),
-  })
+    sortBy: z.enum(notificationSortFields).optional(),
+  }).extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (data.sentFrom && data.sentTo && data.sentTo < data.sentFrom) {
       ctx.addIssue({

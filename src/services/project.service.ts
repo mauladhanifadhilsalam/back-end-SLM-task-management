@@ -1,10 +1,13 @@
 import prisma from "../db/prisma";
-import { Prisma, RoleType, ProjectStatus } from "@prisma/client";
+import { Prisma, RoleType, ProjectStatus, Project } from "@prisma/client";
 import {
   buildPaginatedResult,
   resolvePagination,
   PaginatedResult,
 } from "../utils/pagination";
+import z from "zod";
+import { projectQuerySchema } from "../schemas/project.schema";
+import { resolveSorting } from "../utils/sorting";
 
 type NewProjectInput = Pick<
   Prisma.ProjectUncheckedCreateInput,
@@ -20,14 +23,9 @@ type NewProjectInput = Pick<
   | "assignments"
 >;
 
-type ProjectFilters = {
-  status?: ProjectStatus;
-  ownerId?: number;
-  assignedUserId?: number;
-  category?: string;
-  page?: number;
-  pageSize?: number;
-};
+type ProjectFilters = z.infer<typeof projectQuerySchema>;
+
+type ProjectSortBy = keyof Project;
 
 const projectInclude = {
   owner: {
@@ -120,12 +118,13 @@ async function findProjects(
       ? { AND: [baseWhere, viewerWhere] }
       : baseWhere;
   const skip = (pagination.page - 1) * pagination.pageSize;
+  const orderBy = resolveSorting<ProjectSortBy>(filters, "createdAt", "desc");
 
   const [items, total] = await prisma.$transaction([
     prisma.project.findMany({
       where,
       include: projectInclude,
-      orderBy: { createdAt: "desc" },
+      orderBy,
       skip,
       take: pagination.pageSize,
     }),
@@ -149,11 +148,12 @@ async function findProjectsForReport(
     viewerWhere && Object.keys(viewerWhere).length
       ? { AND: [baseWhere, viewerWhere] }
       : baseWhere;
+  const orderBy = resolveSorting<ProjectSortBy>(filters, "id", "asc");
 
   return prisma.project.findMany({
     where,
     include: projectInclude,
-    orderBy: { id: "asc" },
+    orderBy,
   });
 }
 

@@ -1,19 +1,17 @@
 import prisma from "../db/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma, TicketAssignee } from "@prisma/client";
 import {
   buildPaginatedResult,
   resolvePagination,
   PaginatedResult,
 } from "../utils/pagination";
+import z from "zod";
+import { ticketAssigneeQuerySchema } from "../schemas/ticket-assignee.schema";
+import { resolveSorting } from "../utils/sorting";
 
-type TicketAssigneeFilters = {
-  ticketId?: number;
-  userId?: number;
-  assignedFrom?: Date;
-  assignedTo?: Date;
-  page?: number;
-  pageSize?: number;
-};
+type TicketAssigneeFilters = z.infer<typeof ticketAssigneeQuerySchema>;
+
+type ticketAssigneeSortBy = keyof TicketAssignee;
 
 type NewTicketAssigneeInput = {
   ticketId: number;
@@ -45,9 +43,9 @@ type TicketAssigneeListItem = Prisma.TicketAssigneeGetPayload<{
   include: typeof ticketAssigneeInclude;
 }>;
 
-async function findTicketAssignees(
+function buildTicketAssigneeWhere(
   filters: TicketAssigneeFilters = {},
-): Promise<PaginatedResult<TicketAssigneeListItem>> {
+): Prisma.TicketAssigneeWhereInput {
   const { ticketId, userId, assignedFrom, assignedTo } = filters;
 
   const where: Prisma.TicketAssigneeWhereInput = {
@@ -62,14 +60,23 @@ async function findTicketAssignees(
     };
   }
 
+  return where;
+}
+
+async function findTicketAssignees(
+  filters: TicketAssigneeFilters = {},
+): Promise<PaginatedResult<TicketAssigneeListItem>> {
+  const where = buildTicketAssigneeWhere(filters);
+
   const pagination = resolvePagination(filters);
+  const orderBy = resolveSorting<ticketAssigneeSortBy>(filters, "id", "desc");
   const skip = (pagination.page - 1) * pagination.pageSize;
 
   const [items, total] = await prisma.$transaction([
     prisma.ticketAssignee.findMany({
       where,
       include: ticketAssigneeInclude,
-      orderBy: { assignedAt: "desc" },
+      orderBy,
       skip,
       take: pagination.pageSize,
     }),

@@ -1,25 +1,22 @@
 import prisma from "../db/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma, ProjectPhase } from "@prisma/client";
 import {
   buildPaginatedResult,
   resolvePagination,
   PaginatedResult,
 } from "../utils/pagination";
+import z from "zod";
+import { projectPhaseQuerySchema } from "../schemas/project-phase.schema";
+import { resolveSorting } from "../utils/sorting";
 
 type NewProjectPhaseInput = Pick<
   Prisma.ProjectPhaseUncheckedCreateInput,
   "name" | "startDate" | "endDate" | "projectId"
 >;
 
-type ProjectPhaseFilters = {
-  projectId?: number;
-  startAfter?: Date;
-  endBefore?: Date;
-  activeOnly?: boolean;
-  sortOrder?: "asc" | "desc";
-  page?: number;
-  pageSize?: number;
-};
+type ProjectPhaseFilters = z.infer<typeof projectPhaseQuerySchema>;
+
+type ProjectPhaseSortBy = keyof ProjectPhase;
 
 const projectPhaseInclude = {
   project: {
@@ -64,10 +61,8 @@ async function findProjectPhases(
   }
 
   const pagination = resolvePagination(filters);
+  const orderBy = resolveSorting<ProjectPhaseSortBy>(filters, "startDate", "asc");
   const skip = (pagination.page - 1) * pagination.pageSize;
-  const orderBy: Prisma.ProjectPhaseOrderByWithRelationInput = {
-    startDate: filters.sortOrder ?? "asc",
-  };
 
   const [items, total] = await prisma.$transaction([
     prisma.projectPhase.findMany({
