@@ -2,7 +2,10 @@ import prisma from "../db/prisma";
 import { ActivityLog, ActivityTargetType, Prisma } from "@prisma/client";
 import { refreshDashboard } from "./dashboard.service";
 import { enqueueActivityLog } from "../queues/activityLog";
-import { resolvePagination } from "../utils/pagination";
+import {
+  buildPaginatedResult,
+  resolvePagination,
+} from "../utils/pagination";
 import { resolveSorting } from "../utils/sorting";
 import { activityLogQuerySchema } from "../schemas/activity-log.schema";
 import { z } from "zod";
@@ -111,18 +114,7 @@ async function findActivityLogs(filters: ActivityLogFilters) {
     prisma.activityLog.count({ where }),
   ]);
 
-  const totalPages =
-    pagination.pageSize > 0
-      ? Math.ceil(total / pagination.pageSize)
-      : 0;
-
-  return {
-    items,
-    total,
-    page: pagination.page,
-    pageSize: pagination.pageSize,
-    totalPages,
-  };
+  return buildPaginatedResult(items, total, pagination);
 }
 
 async function findActivityLog(id: number) {
