@@ -1,1737 +1,2246 @@
 {
-	"info": {
-		"_postman_id": "a583c05a-9d24-4da3-ba2a-2c46d645569d",
-		"name": "SLM Project Management API",
-		"description": "Full Postman collection for the SLM Project Management API. Set `{{baseUrl}}` and hit Auth > Login to populate `{{token}}` for protected requests.",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "34242328"
-	},
-	"item": [
-		{
-			"name": "Health & Root",
-			"item": [
-				{
-					"name": "Health Check",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/health",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"health"
-							]
-						},
-						"description": "Public liveness probe."
-					},
-					"response": []
-				},
-				{
-					"name": "Welcome (root)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								""
-							]
-						},
-						"description": "Authenticated welcome message from `/`."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Auth",
-			"item": [
-				{
-					"name": "Login as Admin",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 200) {",
-									"  const json = pm.response.json();",
-									"  if (json.token) pm.collectionVariables.set(\"token\", json.token);",
-									"  if (json.role) pm.collectionVariables.set(\"role\", json.role);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"sauron@example.com\",\n  \"password\": \"password123\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/auth/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"auth",
-								"login"
-							]
-						},
-						"description": "Authenticate and retrieve a JWT. Seeds include admin (`sauron@example.com`), project manager (`skywalker@example.com`), and developer (`gandalf@yahoo.com`)."
-					},
-					"response": []
-				},
-				{
-					"name": "Refresh",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 200) {",
-									"  const json = pm.response.json();",
-									"  if (json.token) pm.collectionVariables.set(\"token\", json.token);",
-									"  if (json.role) pm.collectionVariables.set(\"role\", json.role);",
-									"}"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/auth/refresh",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"auth",
-								"refresh"
-							]
-						},
-						"description": "Authenticate and retrieve a JWT. Seeds include admin (`sauron@example.com`), project manager (`skywalker@example.com`), and developer (`gandalf@yahoo.com`)."
-					},
-					"response": []
-				},
-				{
-					"name": "Profile (me)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/auth/profile",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"auth",
-								"profile"
-							]
-						},
-						"description": "Return the authenticated user's profile."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Users",
-			"item": [
-				{
-					"name": "List Users",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/users",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get User By Id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/users/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"users",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						},
-						"description": "ADMIN only."
-					},
-					"response": []
-				},
-				{
-					"name": "Create User",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"fullName\": \"Leia Organa\",\n  \"email\": \"leia@resistance.io\",\n  \"role\": \"PROJECT_MANAGER\",\n  \"password\": \"N3wP@ssw0rd!\",\n  \"isActive\": true\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/users",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"users"
-							]
-						},
-						"description": "ADMIN only. Role options: PROJECT_MANAGER or DEVELOPER."
-					},
-					"response": []
-				},
-				{
-					"name": "Update User",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"fullName\": \"Leia Organa Solo\",\n  \"role\": \"DEVELOPER\",\n  \"isActive\": false\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/users/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"users",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						},
-						"description": "ADMIN only. Partial updates allowed."
-					},
-					"response": []
-				},
-				{
-					"name": "Delete User",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/users/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"users",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						},
-						"description": "ADMIN only."
-					},
-					"response": []
-				},
-				{
-					"name": "Change Password (self-service)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"sauron@example.com\",\n  \"password\": \"password123\",\n  \"newPassword\": \"B3tterP@ss!\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/users/change-password",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"users",
-								"change-password"
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"description": "User management. `GET /users` requires ADMIN or PROJECT_MANAGER; CRUD is ADMIN-only; change-password is open to any authenticated user."
-		},
-		{
-			"name": "Project Owners",
-			"item": [
-				{
-					"name": "List Project Owners",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/project-owners",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"project-owners"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Project Owner By Id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/project-owners/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"project-owners",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create Project Owner",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Dana Barrett\",\n  \"company\": \"Spengler Consulting\",\n  \"email\": \"dana@example.com\",\n  \"phone\": \"+12125550100\",\n  \"address\": \"55 Central Park West, New York\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/project-owners",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"project-owners"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Project Owner",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"company\": \"Spengler & Co.\",\n  \"phone\": \"+12125550101\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/project-owners/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"project-owners",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Project Owner",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/project-owners/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"project-owners",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Projects",
-			"item": [
-				{
-					"name": "List Projects",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/projects",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Project By Id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/projects/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create Project",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Project Aegis\",\n  \"categories\": [\"Security\", \"Platform\"],\n  \"ownerId\": 1,\n  \"startDate\": \"2025-02-01\",\n  \"endDate\": \"2025-05-31\",\n  \"status\": \"IN_PROGRESS\",\n  \"notes\": \"Stakeholder review scheduled for March.\",\n  \"phases\": [\n    { \"name\": \"Discovery\", \"startDate\": \"2025-02-01\", \"endDate\": \"2025-02-14\" },\n    { \"name\": \"Build\", \"startDate\": \"2025-02-17\", \"endDate\": \"2025-04-11\" }\n  ],\n  \"assignments\": [\n    { \"userId\": 2, \"roleInProject\": \"TECH_LEAD\" },\n    { \"userId\": 3, \"roleInProject\": \"BACK_END\" }\n  ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/projects",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Project",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"status\": \"ON_HOLD\",\n  \"endDate\": \"2025-06-15\",\n  \"notes\": \"Paused for scope review\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/projects/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Project",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/projects/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"description": "Create/update/delete requires ADMIN or PROJECT_MANAGER. Listing is filtered to the viewer's assignments unless ADMIN/PROJECT_MANAGER."
-		},
-		{
-			"name": "Project Phases",
-			"item": [
-				{
-					"name": "List Project Phases",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/project-phases?projectId=1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"project-phases"
-							],
-							"query": [
-								{
-									"key": "projectId",
-									"value": "1",
-									"description": "Optional filter"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Project Phase By Id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/project-phases/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"project-phases",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create Project Phase",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Stabilization\",\n  \"projectId\": 1,\n  \"startDate\": \"2025-06-02\",\n  \"endDate\": \"2025-06-27\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/project-phases",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"project-phases"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Project Phase",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"QA\",\n  \"endDate\": \"2025-07-05\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/project-phases/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"project-phases",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Project Phase",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/project-phases/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"project-phases",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"description": "ADMIN or PROJECT_MANAGER (mount-level guard)."
-		},
-		{
-			"name": "Project Assignments",
-			"item": [
-				{
-					"name": "List Project Assignments",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/project-assignments?projectId=1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"project-assignments"
-							],
-							"query": [
-								{
-									"key": "projectId",
-									"value": "1",
-									"description": "Required unless ADMIN"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add Project Assignment",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"projectId\": 1,\n  \"userId\": 3,\n  \"roleInProject\": \"FRONT_END\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/project-assignments",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"project-assignments"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Remove Project Assignment",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/project-assignments/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"project-assignments",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"description": "ADMIN or PROJECT_MANAGER (mount-level guard)."
-		},
-		{
-			"name": "Tickets",
-			"item": [
-				{
-					"name": "List Tickets (with filters)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/tickets?projectId=1&requesterId=&status=IN_PROGRESS&priority=HIGH&type=TASK&assigneeId=3&search=login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"tickets"
-							],
-							"query": [
-								{
-									"key": "projectId",
-									"value": "1"
-								},
-								{
-									"key": "requesterId",
-									"value": ""
-								},
-								{
-									"key": "status",
-									"value": "IN_PROGRESS"
-								},
-								{
-									"key": "priority",
-									"value": "HIGH"
-								},
-								{
-									"key": "type",
-									"value": "TASK"
-								},
-								{
-									"key": "assigneeId",
-									"value": "3"
-								},
-								{
-									"key": "search",
-									"value": "login"
-								}
-							]
-						},
-						"description": "Filters are optional; results are limited to tickets the viewer can see."
-					},
-					"response": []
-				},
-				{
-					"name": "Get Ticket By Id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/tickets/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"tickets",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create Ticket",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"projectId\": 1,\n  \"requesterId\": 2,\n  \"type\": \"TASK\",\n  \"title\": \"Implement authentication\",\n  \"description\": \"Add JWT login and middleware\",\n  \"priority\": \"HIGH\",\n  \"status\": \"TO_DO\",\n  \"startDate\": \"2025-02-03\",\n  \"dueDate\": \"2025-02-10\",\n  \"assigneeIds\": [3]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/tickets",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"tickets"
-							]
-						},
-						"description": "Admins can override `requesterId`; other roles default to the viewer. Assignees must already be assigned to the project."
-					},
-					"response": []
-				},
-				{
-					"name": "Update Ticket",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"status\": \"IN_PROGRESS\",\n  \"assigneeIds\": [2,3],\n  \"dueDate\": \"2025-02-15\",\n  \"priority\": \"CRITICAL\",\n  \"type\": \"ISSUE\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/tickets/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"tickets",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						},
-						"description": "Only admins/project managers/requesters/assignees (or developers on their own tasks) can update. Admins alone can change the requester."
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Ticket",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/tickets/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"tickets",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"description": "All endpoints require authentication; controllers enforce fine-grained permissions based on role, requester/assignee, and project membership."
-		},
-		{
-			"name": "Ticket Assignees",
-			"item": [
-				{
-					"name": "List Ticket Assignees",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/ticket-assignees?ticketId=1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"ticket-assignees"
-							],
-							"query": [
-								{
-									"key": "ticketId",
-									"value": "1",
-									"description": "Required for non-admins"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add Ticket Assignee",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"ticketId\": 1,\n  \"userId\": 3\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/ticket-assignees",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"ticket-assignees"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Remove Ticket Assignee",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/ticket-assignees/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"ticket-assignees",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"description": "Manage ticket-level assignees. Non-admins must provide `ticketId` when listing."
-		},
-		{
-			"name": "Comments",
-			"item": [
-				{
-					"name": "List Comments",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/comments?ticketId=1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"comments"
-							],
-							"query": [
-								{
-									"key": "ticketId",
-									"value": "1",
-									"description": "Optional filter"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Comment By Id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/comments/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"comments",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create Comment",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"ticketId\": 1,\n  \"message\": \"Latest findings attached.\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/comments",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"comments"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Comment",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"message\": \"Updated with log snippet.\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/comments/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"comments",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Comment",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/comments/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"comments",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"description": "Comment permissions follow ticket visibility; only admins or the author (PM/Developer) can edit/delete their own comments."
-		},
-		{
-			"name": "Attachments",
-			"item": [
-				{
-					"name": "List Attachments",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/attachments?ticketId=1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"attachments"
-							],
-							"query": [
-								{
-									"key": "ticketId",
-									"value": "1",
-									"description": "Optional for admins; required otherwise"
-								}
-							]
-						},
-						"description": "Returns attachments with a base64 payload."
-					},
-					"response": []
-				},
-				{
-					"name": "Upload Attachment",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "ticketId",
-									"value": "1",
-									"type": "text"
-								},
-								{
-									"key": "file",
-									"value": "",
-									"type": "file"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/attachments",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"attachments"
-							]
-						},
-						"description": "Form-data upload: `file` is the binary, `ticketId` is text."
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Attachment",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/attachments/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"attachments",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"description": "Uploads are limited to 5MB. Admins can list all attachments; others must provide a ticketId."
-		},
-		{
-			"name": "Notifications",
-			"item": [
-				{
-					"name": "List Notifications",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/notifications?recipientId=&targetType=&targetId=&state=UNREAD",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"notifications"
-							],
-							"query": [
-								{
-									"key": "recipientId",
-									"value": ""
-								},
-								{
-									"key": "targetType",
-									"value": ""
-								},
-								{
-									"key": "targetId",
-									"value": ""
-								},
-								{
-									"key": "state",
-									"value": "UNREAD"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Notification By Id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/notifications/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"notifications",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Notification State",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"state\": \"READ\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/notifications/:id/state",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"notifications",
-								":id",
-								"state"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						},
-						"description": "Recipients can mark UNREAD -> READ; admins can set any state."
-					},
-					"response": []
-				},
-				{
-					"name": "Create Notification (admin)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"recipientId\": 3,\n  \"targetType\": \"TICKET\",\n  \"targetId\": 1,\n  \"message\": \"You were assigned to ticket #1\",\n  \"subject\": \"Ticket assignment\",\n  \"emailText\": \"You have been assigned to ticket #1.\",\n  \"state\": \"UNREAD\",\n  \"status\": \"PENDING\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/notifications",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"notifications"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Notification (admin)",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"message\": \"Reminder: ticket #1 is overdue\",\n  \"status\": \"SENT\",\n  \"sentAt\": \"2025-02-05T12:00:00Z\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/notifications/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"notifications",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Resend Notification (admin; failed only)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"subject\": \"Retry: ticket assignment\",\n  \"text\": \"Re-sending assignment email.\",\n  \"from\": \"noreply@slm.local\",\n  \"replyTo\": \"support@slm.local\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/notifications/:id/resend",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"notifications",
-								":id",
-								"resend"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Notification (admin)",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/notifications/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"notifications",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"description": "Non-admins only see their own notifications. Admin-only: create/update/resend/delete. Recipients can mark their own notifications READ."
-		},
-		{
-			"name": "Activity Logs",
-			"item": [
-				{
-					"name": "List Activity Logs",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/activity-logs?targetType=PROJECT&targetId=1&userId=1&action=PROJECT_CREATED&page=1&pageSize=25&from=2025-01-01&to=2025-12-31",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"activity-logs"
-							],
-							"query": [
-								{
-									"key": "targetType",
-									"value": "PROJECT"
-								},
-								{
-									"key": "targetId",
-									"value": "1"
-								},
-								{
-									"key": "userId",
-									"value": "1"
-								},
-								{
-									"key": "action",
-									"value": "PROJECT_CREATED"
-								},
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "pageSize",
-									"value": "25"
-								},
-								{
-									"key": "from",
-									"value": "2025-01-01"
-								},
-								{
-									"key": "to",
-									"value": "2025-12-31"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Activity Log By Id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/activity-logs/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"activity-logs",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Activity Log",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/activity-logs/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"activity-logs",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Bulk Delete Activity Logs",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/activity-logs?olderThan=2025-01-01&targetType=PROJECT",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"activity-logs"
-							],
-							"query": [
-								{
-									"key": "olderThan",
-									"value": "2025-01-01"
-								},
-								{
-									"key": "targetType",
-									"value": "PROJECT"
-								}
-							]
-						},
-						"description": "Requires at least `olderThan` or `targetType`."
-					},
-					"response": []
-				}
-			],
-			"description": "ADMIN-only audit log access and cleanup."
-		},
-		{
-			"name": "Dashboard",
-			"item": [],
-			"description": "dashboards sourced from materialized views."
-		}
-	],
-	"auth": {
-		"type": "bearer",
-		"bearer": [
-			{
-				"key": "token",
-				"value": "{{token}}",
-				"type": "string"
-			}
-		]
-	},
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "http://localhost:3000",
-			"type": "string"
-		},
-		{
-			"key": "token",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "role",
-			"value": "",
-			"type": "string"
-		}
-	]
+  "info": {
+    "_postman_id": "a583c05a-9d24-4da3-ba2a-2c46d645569d",
+    "name": "SLM Project Management API",
+    "description": "Full Postman collection for the SLM Project Management API. Set `{{baseUrl}}` and hit Auth > Login to populate `{{token}}` for protected requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "34242328"
+  },
+  "item": [
+    {
+      "name": "Health & Root",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Public liveness probe."
+          },
+          "response": []
+        },
+        {
+          "name": "Welcome (root)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ""
+              ]
+            },
+            "description": "Authenticated welcome message from `/`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login as Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) pm.collectionVariables.set(\"token\", json.token);",
+                  "  if (json.role) pm.collectionVariables.set(\"role\", json.role);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sauron@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticate and retrieve a JWT. Seeds include admin (`sauron@example.com`), project manager (`skywalker@example.com`), and developer (`bard@example.com`)."
+          },
+          "response": []
+        },
+        {
+          "name": "Login as Project Manager",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) pm.collectionVariables.set(\"token\", json.token);",
+                  "  if (json.role) pm.collectionVariables.set(\"role\", json.role);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"skywalker@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticate and retrieve a JWT. Seeds include admin (`sauron@example.com`), project manager (`skywalker@example.com`), and developer (`gandalf@yahoo.com`)."
+          },
+          "response": []
+        },
+        {
+          "name": "Login as Developer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) pm.collectionVariables.set(\"token\", json.token);",
+                  "  if (json.role) pm.collectionVariables.set(\"role\", json.role);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"bard@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticate and retrieve a JWT. Seeds include admin (`sauron@example.com`), project manager (`skywalker@example.com`), and developer (`gandalf@yahoo.com`)."
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) pm.collectionVariables.set(\"token\", json.token);",
+                  "  if (json.role) pm.collectionVariables.set(\"role\", json.role);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Authenticate and retrieve a JWT. Seeds include admin (`sauron@example.com`), project manager (`skywalker@example.com`), and developer (`gandalf@yahoo.com`)."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) pm.collectionVariables.set(\"token\", json.token);",
+                  "  if (json.role) pm.collectionVariables.set(\"role\", json.role);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Revoke refresh token."
+          },
+          "response": []
+        },
+        {
+          "name": "Profile (me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "profile"
+              ]
+            },
+            "description": "Return the authenticated user's profile."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "search",
+                  "value": "test"
+                },
+                {
+                  "key": "role",
+                  "value": "DEVELOPER"
+                },
+                {
+                  "key": "isActive",
+                  "value": "true"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            },
+            "description": "ADMIN only."
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Leia Organa\",\n  \"email\": \"leia@resistance.io\",\n  \"role\": \"PROJECT_MANAGER\",\n  \"password\": \"N3wP@ssw0rd!\",\n  \"isActive\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "description": "ADMIN only. Role options: PROJECT_MANAGER or DEVELOPER."
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Leia Organa Solo\",\n  \"role\": \"DEVELOPER\",\n  \"isActive\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            },
+            "description": "ADMIN only. Partial updates allowed."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            },
+            "description": "ADMIN only."
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password (self-service)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sauron@example.com\",\n  \"password\": \"password123\",\n  \"newPassword\": \"B3tterP@ss!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "User management. `GET /users` requires ADMIN or PROJECT_MANAGER; CRUD is ADMIN-only; change-password is open to any authenticated user."
+    },
+    {
+      "name": "Project Owners",
+      "item": [
+        {
+          "name": "List Project Owners",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project-owners",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-owners"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "company",
+                  "value": "sampleco"
+                },
+                {
+                  "key": "search",
+                  "value": "test"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Project Owner By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project-owners/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-owners",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Project Owner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dana Barrett\",\n  \"company\": \"Spengler Consulting\",\n  \"email\": \"dana@example.com\",\n  \"phone\": \"+12125550100\",\n  \"address\": \"55 Central Park West, New York\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/project-owners",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-owners"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Project Owner",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"company\": \"Spengler & Co.\",\n  \"phone\": \"+12125550101\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/project-owners/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-owners",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Project Owner",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project-owners/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-owners",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Projects",
+      "item": [
+        {
+          "name": "List Projects",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "status",
+                  "value": "IN_PROGRESS"
+                },
+                {
+                  "key": "ownerId",
+                  "value": "1"
+                },
+                {
+                  "key": "assignedUserId",
+                  "value": "1"
+                },
+                {
+                  "key": "category",
+                  "value": "sample"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Project By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Project Aegis\",\n  \"categories\": [\"Security\", \"Platform\"],\n  \"ownerId\": 1,\n  \"startDate\": \"2025-02-01\",\n  \"endDate\": \"2025-05-31\",\n  \"status\": \"IN_PROGRESS\",\n  \"notes\": \"Stakeholder review scheduled for March.\",\n  \"phases\": [\n    { \"name\": \"Discovery\", \"startDate\": \"2025-02-01\", \"endDate\": \"2025-02-14\" },\n    { \"name\": \"Build\", \"startDate\": \"2025-02-17\", \"endDate\": \"2025-04-11\" }\n  ],\n  \"assignments\": [\n    { \"userId\": 2, \"roleInProject\": \"TECH_LEAD\" },\n    { \"userId\": 3, \"roleInProject\": \"BACK_END\" }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ON_HOLD\",\n  \"endDate\": \"2025-06-15\",\n  \"notes\": \"Paused for scope review\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Project",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Create/update/delete requires ADMIN or PROJECT_MANAGER. Listing is filtered to the viewer's assignments unless ADMIN/PROJECT_MANAGER."
+    },
+    {
+      "name": "Project Phases",
+      "item": [
+        {
+          "name": "List Project Phases",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project-phases?projectId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-phases"
+              ],
+              "query": [
+                {
+                  "key": "projectId",
+                  "value": "1",
+                  "description": "Optional filter"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "startAfter",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "endBefore",
+                  "value": "2024-12-31"
+                },
+                {
+                  "key": "activeOnly",
+                  "value": "true"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Project Phase By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project-phases/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-phases",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Project Phase",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Stabilization\",\n  \"projectId\": 1,\n  \"startDate\": \"2025-06-02\",\n  \"endDate\": \"2025-06-27\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/project-phases",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-phases"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Project Phase",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"QA\",\n  \"endDate\": \"2025-07-05\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/project-phases/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-phases",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Project Phase",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project-phases/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-phases",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "ADMIN or PROJECT_MANAGER (mount-level guard)."
+    },
+    {
+      "name": "Project Assignments",
+      "item": [
+        {
+          "name": "List Project Assignments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project-assignments?projectId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-assignments"
+              ],
+              "query": [
+                {
+                  "key": "projectId",
+                  "value": "1",
+                  "description": "Required unless ADMIN"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "userId",
+                  "value": "1"
+                },
+                {
+                  "key": "roleInProject",
+                  "value": "DEVELOPER"
+                },
+                {
+                  "key": "assignedFrom",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "assignedTo",
+                  "value": "2024-12-31"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Project Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": 1,\n  \"userId\": 3,\n  \"roleInProject\": \"FRONT_END\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/project-assignments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-assignments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Project Assignment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project-assignments/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-assignments",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "ADMIN or PROJECT_MANAGER (mount-level guard)."
+    },
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "List Tickets (with filters)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets?projectId=1&requesterId=&status=IN_PROGRESS&priority=HIGH&type=TASK&assigneeId=3&search=login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets"
+              ],
+              "query": [
+                {
+                  "key": "projectId",
+                  "value": "1"
+                },
+                {
+                  "key": "requesterId",
+                  "value": "1"
+                },
+                {
+                  "key": "status",
+                  "value": "IN_PROGRESS"
+                },
+                {
+                  "key": "priority",
+                  "value": "MEDIUM"
+                },
+                {
+                  "key": "type",
+                  "value": "TASK"
+                },
+                {
+                  "key": "assigneeId",
+                  "value": "1"
+                },
+                {
+                  "key": "search",
+                  "value": "test"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "dueFrom",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "dueTo",
+                  "value": "2024-12-31"
+                },
+                {
+                  "key": "updatedSince",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "id"
+                }
+              ]
+            },
+            "description": "Filters are optional; results are limited to tickets the viewer can see."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": 1,\n  \"requesterId\": 2,\n  \"type\": \"TASK\",\n  \"title\": \"Implement authentication\",\n  \"description\": \"Add JWT login and middleware\",\n  \"priority\": \"HIGH\",\n  \"status\": \"TO_DO\",\n  \"startDate\": \"2025-02-03\",\n  \"dueDate\": \"2025-02-10\",\n  \"assigneeIds\": [3]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets"
+              ]
+            },
+            "description": "Admins can override `requesterId`; other roles default to the viewer. Assignees must already be assigned to the project."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Ticket",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\",\n  \"assigneeIds\": [2,3],\n  \"dueDate\": \"2025-02-15\",\n  \"priority\": \"CRITICAL\",\n  \"type\": \"ISSUE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tickets/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            },
+            "description": "Only admins/project managers/requesters/assignees (or developers on their own tasks) can update. Admins alone can change the requester."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Ticket",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "All endpoints require authentication; controllers enforce fine-grained permissions based on role, requester/assignee, and project membership."
+    },
+    {
+      "name": "Ticket Assignees",
+      "item": [
+        {
+          "name": "List Ticket Assignees",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ticket-assignees?ticketId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ticket-assignees"
+              ],
+              "query": [
+                {
+                  "key": "ticketId",
+                  "value": "1",
+                  "description": "Required for non-admins"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "userId",
+                  "value": "1"
+                },
+                {
+                  "key": "assignedFrom",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "assignedTo",
+                  "value": "2024-12-31"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Ticket Assignee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ticketId\": 1,\n  \"userId\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ticket-assignees",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ticket-assignees"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Ticket Assignee",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ticket-assignees/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ticket-assignees",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Manage ticket-level assignees. Non-admins must provide `ticketId` when listing."
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "List Comments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/comments?ticketId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "comments"
+              ],
+              "query": [
+                {
+                  "key": "ticketId",
+                  "value": "1",
+                  "description": "Optional filter"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "authorId",
+                  "value": "1"
+                },
+                {
+                  "key": "createdFrom",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "createdTo",
+                  "value": "2024-12-31"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Comment By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/comments/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "comments",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ticketId\": 1,\n  \"message\": \"Latest findings attached.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "comments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Comment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Updated with log snippet.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/comments/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "comments",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Comment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/comments/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "comments",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Comment permissions follow ticket visibility; only admins or the author (PM/Developer) can edit/delete their own comments."
+    },
+    {
+      "name": "Attachments",
+      "item": [
+        {
+          "name": "List Attachments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/attachments?ticketId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "attachments"
+              ],
+              "query": [
+                {
+                  "key": "ticketId",
+                  "value": "1",
+                  "description": "Optional for admins; required otherwise"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "userId",
+                  "value": "1"
+                },
+                {
+                  "key": "uploadedFrom",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "uploadedTo",
+                  "value": "2024-12-31"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "id"
+                }
+              ]
+            },
+            "description": "Returns attachments with a base64 payload."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Attachment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "ticketId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "value": "",
+                  "type": "file"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/attachments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "attachments"
+              ]
+            },
+            "description": "Form-data upload: `file` is the binary, `ticketId` is text."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Attachment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/attachments/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "attachments",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Uploads are limited to 5MB. Admins can list all attachments; others must provide a ticketId."
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications?recipientId=&targetType=&targetId=&state=UNREAD",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "recipientId",
+                  "value": "1"
+                },
+                {
+                  "key": "targetType",
+                  "value": "TICKET"
+                },
+                {
+                  "key": "targetId",
+                  "value": "1"
+                },
+                {
+                  "key": "state",
+                  "value": "UNREAD"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "status",
+                  "value": "IN_PROGRESS"
+                },
+                {
+                  "key": "sentFrom",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "sentTo",
+                  "value": "2024-12-31"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Notification By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Notification State",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"state\": \"READ\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:id/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                ":id",
+                "state"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            },
+            "description": "Recipients can mark UNREAD -> READ; admins can set any state."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Notification (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": 3,\n  \"targetType\": \"TICKET\",\n  \"targetId\": 1,\n  \"message\": \"You were assigned to ticket #1\",\n  \"subject\": \"Ticket assignment\",\n  \"emailText\": \"You have been assigned to ticket #1.\",\n  \"state\": \"UNREAD\",\n  \"status\": \"PENDING\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Notification (admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Reminder: ticket #1 is overdue\",\n  \"status\": \"SENT\",\n  \"sentAt\": \"2025-02-05T12:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Resend Notification (admin; failed only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Retry: ticket assignment\",\n  \"text\": \"Re-sending assignment email.\",\n  \"from\": \"noreply@slm.local\",\n  \"replyTo\": \"support@slm.local\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:id/resend",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                ":id",
+                "resend"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Notification (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Non-admins only see their own notifications. Admin-only: create/update/resend/delete. Recipients can mark their own notifications READ."
+    },
+    {
+      "name": "Activity Logs",
+      "item": [
+        {
+          "name": "List Activity Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/activity-logs?targetType=PROJECT&targetId=1&userId=1&action=PROJECT_CREATED&page=1&pageSize=25&from=2025-01-01&to=2025-12-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "activity-logs"
+              ],
+              "query": [
+                {
+                  "key": "targetType",
+                  "value": "TICKET"
+                },
+                {
+                  "key": "targetId",
+                  "value": "1"
+                },
+                {
+                  "key": "userId",
+                  "value": "1"
+                },
+                {
+                  "key": "action",
+                  "value": "UPDATED"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "from",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "to",
+                  "value": "2024-12-31"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Activity Log By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/activity-logs/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "activity-logs",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Activity Log",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/activity-logs/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "activity-logs",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk Delete Activity Logs",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/activity-logs?olderThan=2025-01-01&targetType=PROJECT",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "activity-logs"
+              ],
+              "query": [
+                {
+                  "key": "olderThan",
+                  "value": "2023-01-01"
+                },
+                {
+                  "key": "targetType",
+                  "value": "TICKET"
+                }
+              ]
+            },
+            "description": "Requires at least `olderThan` or `targetType`."
+          },
+          "response": []
+        }
+      ],
+      "description": "ADMIN-only audit log access and cleanup."
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Project Manager Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project-manager",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "project-manager"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Project Manager Developer Stat Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project-manager/dev-stat",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "project-manager",
+                "dev-stat"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Developer Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/developer",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "developer"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "dashboards sourced from materialized views."
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "role",
+      "value": "",
+      "type": "string"
+    }
+  ]
 }
