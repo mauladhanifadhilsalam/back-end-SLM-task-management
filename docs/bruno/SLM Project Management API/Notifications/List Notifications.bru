@@ -11,10 +11,17 @@ get {
 }
 
 params:query {
-  recipientId: 
-  targetType: 
-  targetId: 
+  recipientId: 1
+  targetType: TICKET
+  targetId: 1
   state: UNREAD
+  page: 1
+  pageSize: 20
+  sortOrder: asc
+  status: IN_PROGRESS
+  sentFrom: 2024-01-01
+  sentTo: 2024-12-31
+  sortBy: id
 }
 
 settings {
