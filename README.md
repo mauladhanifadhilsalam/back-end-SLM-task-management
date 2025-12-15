@@ -158,6 +158,7 @@ Unauthorized requests return `401` for missing/invalid tokens or `403` for insuf
 - **Notifications**: list (admin sees all, others only their own), get by id, set state, admin create/update/delete/resend
 - **Activity Logs**: list with pagination/filters, get by id, delete/purge (admin)
 - **Dashboard**: `GET /dashboard/developer` for developer-centric stats
+- **Metrics**: `GET /metrics` exposes Prometheus-compatible runtime metrics
 
 ## Seed Data & Sample Credentials
 `npx prisma db seed` resets data and loads:
