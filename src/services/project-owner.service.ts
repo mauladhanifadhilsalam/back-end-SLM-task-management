@@ -1,10 +1,6 @@
 import prisma from "../db/prisma";
 import { ProjectOwner, Prisma } from "@prisma/client";
-import {
-  buildPaginatedResult,
-  resolvePagination,
-  PaginatedResult,
-} from "../utils/pagination";
+import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import { resolveSorting } from "../utils/sorting";
 import z from "zod";
 import { projectOwnerQuerySchema } from "../schemas/project-owner.schema";
@@ -64,13 +60,7 @@ async function findProjectOwner(where: Prisma.ProjectOwnerWhereUniqueInput) {
   return await prisma.projectOwner.findUnique({ where });
 }
 
-async function createProjectOwner({
-  name,
-  company,
-  email,
-  phone,
-  address,
-}: NewProjectOwnerInput) {
+async function createProjectOwner({ name, company, email, phone, address }: NewProjectOwnerInput) {
   return await prisma.projectOwner.create({
     data: {
       name,
@@ -88,10 +78,7 @@ async function createProjectOwner({
   });
 }
 
-async function editProjectOwner(
-  id: number,
-  data: Prisma.ProjectOwnerUpdateInput,
-) {
+async function editProjectOwner(id: number, data: Prisma.ProjectOwnerUpdateInput) {
   return await prisma.projectOwner.update({
     where: { id },
     data,

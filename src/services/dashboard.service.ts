@@ -35,7 +35,7 @@ type DeveloperDashboard = [
     commentsWrittenLast7Days: number;
     commentsOnMyTicketsLast7Days: number;
     unreadNotificationsCount: number;
-  }
+  },
 ];
 
 type ProjectManagerDashboard = [
@@ -80,7 +80,7 @@ type ProjectManagerDashboard = [
     commentsLast7Days: number;
     commentsLast30Days: number;
     unreadNotificationsCount: number;
-  }
+  },
 ];
 
 async function findDeveloperDashboard(userId: number): Promise<DeveloperDashboard> {
@@ -97,8 +97,13 @@ async function findProjectManagerDashboard(userId: number): Promise<ProjectManag
 
 async function refreshDashboard() {
   return await prisma.$transaction([
-  prisma.$executeRaw`REFRESH MATERIALIZED VIEW developer_dashboard`,
-  prisma.$executeRaw`REFRESH MATERIALIZED VIEW project_manager_dashboard`
-  ])
+    prisma.$executeRaw`REFRESH MATERIALIZED VIEW developer_dashboard`,
+    prisma.$executeRaw`REFRESH MATERIALIZED VIEW project_manager_dashboard`,
+  ]);
 }
-export { findDeveloperDashboard, findAllDeveloperDashboards, findProjectManagerDashboard, refreshDashboard };
+export {
+  findDeveloperDashboard,
+  findAllDeveloperDashboards,
+  findProjectManagerDashboard,
+  refreshDashboard,
+};

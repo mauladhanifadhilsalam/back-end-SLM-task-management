@@ -1,10 +1,5 @@
 import { Router } from "express";
-import {
-  getUser,
-  login,
-  refreshAccessToken,
-  logout,
-} from "./../controllers/auth.controller";
+import { getUser, login, refreshAccessToken, logout } from "./../controllers/auth.controller";
 import requireAuth from "../middleware/requireAuth";
 
 const router = Router();

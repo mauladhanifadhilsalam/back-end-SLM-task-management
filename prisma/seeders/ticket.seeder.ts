@@ -1,8 +1,4 @@
-import {
-  TicketPriority,
-  TicketStatus,
-  TicketType,
-} from "@prisma/client";
+import { TicketPriority, TicketStatus, TicketType } from "@prisma/client";
 import prisma from "../../src/db/prisma";
 import { createTicket } from "../../src/services/ticket.service";
 
@@ -52,8 +48,7 @@ const ticketSeeds: TicketSeed[] = [
     assigneeEmails: ["legolas@example.com"],
     type: TicketType.ISSUE,
     title: "Rotate TLS certificates across sensor gateway",
-    description:
-      "Coordinate a zero-downtime TLS certificate rotation for all gateway nodes.",
+    description: "Coordinate a zero-downtime TLS certificate rotation for all gateway nodes.",
     priority: TicketPriority.MEDIUM,
     status: TicketStatus.TO_DO,
     startDate: "2025-03-03",
@@ -65,8 +60,7 @@ const ticketSeeds: TicketSeed[] = [
     assigneeEmails: ["frodo@example.com", "samwise@example.com"],
     type: TicketType.TASK,
     title: "Draft customer launch communications",
-    description:
-      "Produce launch briefing kit for marketing ahead of the client summit.",
+    description: "Produce launch briefing kit for marketing ahead of the client summit.",
     priority: TicketPriority.LOW,
     status: TicketStatus.NEW,
     startDate: "2025-03-01",
@@ -139,10 +133,7 @@ const ticketSeeds: TicketSeed[] = [
   },
 ];
 
-async function getUserId(
-  email: string,
-  cache: Map<string, number>,
-): Promise<number> {
+async function getUserId(email: string, cache: Map<string, number>): Promise<number> {
   const cached = cache.get(email);
   if (cached) return cached;
 
@@ -159,10 +150,7 @@ async function getUserId(
   return user.id;
 }
 
-async function getProjectId(
-  ownerEmail: string,
-  cache: Map<string, number>,
-): Promise<number> {
+async function getProjectId(ownerEmail: string, cache: Map<string, number>): Promise<number> {
   const cached = cache.get(ownerEmail);
   if (cached) return cached;
 
@@ -176,9 +164,7 @@ async function getProjectId(
   });
 
   if (!project) {
-    throw new Error(
-      `Cannot seed tickets: project for owner ${ownerEmail} not found`,
-    );
+    throw new Error(`Cannot seed tickets: project for owner ${ownerEmail} not found`);
   }
 
   cache.set(ownerEmail, project.id);
@@ -194,9 +180,7 @@ export default async function seedTicket() {
     const requesterId = await getUserId(seed.requesterEmail, userCache);
     const assigneeIds = [
       ...new Set(
-        await Promise.all(
-          seed.assigneeEmails.map((email) => getUserId(email, userCache)),
-        ),
+        await Promise.all(seed.assigneeEmails.map((email) => getUserId(email, userCache))),
       ),
     ];
 

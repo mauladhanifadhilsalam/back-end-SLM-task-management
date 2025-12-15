@@ -7,22 +7,14 @@ import {
 } from "../services/ticket-assignee.service";
 import { findTicket } from "../services/ticket.service";
 import { findUser, findAnyUser } from "../services/user.service";
-import {
-  requireViewer,
-  canViewTicket,
-  canModifyTicket,
-  isAdmin,
-} from "../utils/permissions";
+import { requireViewer, canViewTicket, canModifyTicket, isAdmin } from "../utils/permissions";
 import {
   ticketAssigneeQuerySchema,
-  createTicketAssigneeSchema
+  createTicketAssigneeSchema,
 } from "../schemas/ticket-assignee.schema";
 import { notifyTicketAssignees } from "../services/notification.triggers";
 import { ActivityTargetType } from "@prisma/client";
-import {
-  recordActivity,
-  toActivityDetails,
-} from "../services/activity-log.service";
+import { recordActivity, toActivityDetails } from "../services/activity-log.service";
 
 function parseIdParam(value: string) {
   const id = Number(value);
@@ -96,9 +88,7 @@ async function addTicketAssignee(req: Request, res: Response) {
 
   const uniqueAssigneeIds = ticket.assignees.map((assignee) => assignee.user.id);
   if (uniqueAssigneeIds.includes(userId)) {
-    return res
-      .status(409)
-      .json({ message: "User is already assigned to this ticket" });
+    return res.status(409).json({ message: "User is already assigned to this ticket" });
   }
 
   const assignee = await findUser({ id: userId });
@@ -142,9 +132,7 @@ async function removeTicketAssignee(req: Request, res: Response) {
 
   const id = parseIdParam(req.params.id);
   if (!id) {
-    return res
-      .status(400)
-      .json({ message: "Invalid ticket assignee identifier" });
+    return res.status(400).json({ message: "Invalid ticket assignee identifier" });
   }
 
   const assignment = await findTicketAssignee({ id });
@@ -175,8 +163,4 @@ async function removeTicketAssignee(req: Request, res: Response) {
   res.status(200).json({ message: "Assignee removed successfully" });
 }
 
-export {
-  getTicketAssignees,
-  addTicketAssignee,
-  removeTicketAssignee,
-};
+export { getTicketAssignees, addTicketAssignee, removeTicketAssignee };

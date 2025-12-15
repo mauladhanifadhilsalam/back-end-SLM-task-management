@@ -96,10 +96,7 @@ const projectAssignmentSeeds: ProjectAssignmentSeed[] = [
   },
 ];
 
-async function getProjectId(
-  ownerEmail: string,
-  cache: Map<string, number>,
-): Promise<number> {
+async function getProjectId(ownerEmail: string, cache: Map<string, number>): Promise<number> {
   const cached = cache.get(ownerEmail);
   if (cached) return cached;
 
@@ -111,19 +108,14 @@ async function getProjectId(
   });
 
   if (!project) {
-    throw new Error(
-      `Cannot seed project assignments: project for owner ${ownerEmail} not found`,
-    );
+    throw new Error(`Cannot seed project assignments: project for owner ${ownerEmail} not found`);
   }
 
   cache.set(ownerEmail, project.id);
   return project.id;
 }
 
-async function getUserId(
-  email: string,
-  cache: Map<string, number>,
-): Promise<number> {
+async function getUserId(email: string, cache: Map<string, number>): Promise<number> {
   const cached = cache.get(email);
   if (cached) return cached;
 
@@ -133,9 +125,7 @@ async function getUserId(
   });
 
   if (!user) {
-    throw new Error(
-      `Cannot seed project assignments: user with email ${email} not found`,
-    );
+    throw new Error(`Cannot seed project assignments: user with email ${email} not found`);
   }
 
   cache.set(email, user.id);

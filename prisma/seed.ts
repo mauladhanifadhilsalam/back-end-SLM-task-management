@@ -20,13 +20,11 @@ async function resetSequences() {
     "ProjectPhase",
     "Project",
     "ProjectOwner",
-    "User"
+    "User",
   ];
 
   for (const table of tableNames) {
-    await prisma.$executeRawUnsafe(
-      `ALTER SEQUENCE "${table}_id_seq" RESTART WITH 1;`
-    );
+    await prisma.$executeRawUnsafe(`ALTER SEQUENCE "${table}_id_seq" RESTART WITH 1;`);
   }
 
   console.log("Sequences reset complete.");

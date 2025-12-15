@@ -1,9 +1,5 @@
 import { z } from "zod";
-import {
-  NotificationState,
-  NotificationTargetType,
-  NotifyStatusType,
-} from "@prisma/client";
+import { NotificationState, NotificationTargetType, NotifyStatusType } from "@prisma/client";
 import { baseQuerySchema } from "./base.schema";
 
 const positiveInt = z.number().int().positive();
@@ -33,7 +29,8 @@ const notificationQuerySchema = z
     sentFrom: z.coerce.date().optional(),
     sentTo: z.coerce.date().optional(),
     sortBy: z.enum(notificationSortFields).optional(),
-  }).extend(baseQuerySchema.shape)
+  })
+  .extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (data.sentFrom && data.sentTo && data.sentTo < data.sentFrom) {
       ctx.addIssue({
@@ -69,17 +66,15 @@ const resendNotificationSchema = z
   })
   .partial();
 
-const createNotificationSchema = z
-  .object(baseFields)
-  .superRefine((data, ctx) => {
-    if (data.readAt !== undefined && data.state !== NotificationState.READ) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["readAt"],
-        message: "readAt can only be set when state is READ",
-      });
-    }
-  });
+const createNotificationSchema = z.object(baseFields).superRefine((data, ctx) => {
+  if (data.readAt !== undefined && data.state !== NotificationState.READ) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["readAt"],
+      message: "readAt can only be set when state is READ",
+    });
+  }
+});
 
 const updateNotificationSchema = z
   .object({
@@ -88,13 +83,10 @@ const updateNotificationSchema = z
     targetType: z.enum(NotificationTargetType).optional(),
   })
   .partial()
-  .refine(
-    (data) => Object.values(data).some((value) => value !== undefined),
-    {
-      message: "At least one field must be provided",
-      path: [],
-    },
-  )
+  .refine((data) => Object.values(data).some((value) => value !== undefined), {
+    message: "At least one field must be provided",
+    path: [],
+  })
   .superRefine((data, ctx) => {
     if (data.readAt !== undefined && data.state !== NotificationState.READ) {
       ctx.addIssue({

@@ -1,8 +1,5 @@
 import prisma from "../../src/db/prisma";
-import {
-  NotificationState,
-  NotificationTargetType,
-} from "@prisma/client";
+import { NotificationState, NotificationTargetType } from "@prisma/client";
 import { createNotification } from "../../src/services/notification.service";
 
 type NotificationSeed = {
@@ -46,10 +43,7 @@ const notificationSeeds: NotificationSeed[] = [
   },
 ];
 
-async function getUserId(
-  email: string,
-  cache: Map<string, number>,
-): Promise<number> {
+async function getUserId(email: string, cache: Map<string, number>): Promise<number> {
   const cached = cache.get(email);
   if (cached) return cached;
 
@@ -82,19 +76,14 @@ async function getProjectIdByOwner(
   });
 
   if (!project) {
-    throw new Error(
-      `Cannot seed notifications: project for owner ${ownerEmail} not found`,
-    );
+    throw new Error(`Cannot seed notifications: project for owner ${ownerEmail} not found`);
   }
 
   cache.set(ownerEmail, project.id);
   return project.id;
 }
 
-async function getTicketIdByTitle(
-  title: string,
-  cache: Map<string, number>,
-): Promise<number> {
+async function getTicketIdByTitle(title: string, cache: Map<string, number>): Promise<number> {
   const cached = cache.get(title);
   if (cached) return cached;
 
@@ -104,19 +93,14 @@ async function getTicketIdByTitle(
   });
 
   if (!ticket) {
-    throw new Error(
-      `Cannot seed notifications: ticket with title "${title}" not found`,
-    );
+    throw new Error(`Cannot seed notifications: ticket with title "${title}" not found`);
   }
 
   cache.set(title, ticket.id);
   return ticket.id;
 }
 
-async function getCommentIdByMessage(
-  message: string,
-  cache: Map<string, number>,
-): Promise<number> {
+async function getCommentIdByMessage(message: string, cache: Map<string, number>): Promise<number> {
   const cached = cache.get(message);
   if (cached) return cached;
 
@@ -126,9 +110,7 @@ async function getCommentIdByMessage(
   });
 
   if (!comment) {
-    throw new Error(
-      "Cannot seed notifications: comment with the provided message not found",
-    );
+    throw new Error("Cannot seed notifications: comment with the provided message not found");
   }
 
   cache.set(message, comment.id);
@@ -147,23 +129,17 @@ export default async function seedNotification() {
     let targetId: number | undefined;
     if (seed.targetType === NotificationTargetType.PROJECT) {
       if (!seed.projectOwnerEmail) {
-        throw new Error(
-          "Cannot seed notifications: projectOwnerEmail missing for PROJECT target",
-        );
+        throw new Error("Cannot seed notifications: projectOwnerEmail missing for PROJECT target");
       }
       targetId = await getProjectIdByOwner(seed.projectOwnerEmail, projectCache);
     } else if (seed.targetType === NotificationTargetType.TICKET) {
       if (!seed.ticketTitle) {
-        throw new Error(
-          "Cannot seed notifications: ticketTitle missing for TICKET target",
-        );
+        throw new Error("Cannot seed notifications: ticketTitle missing for TICKET target");
       }
       targetId = await getTicketIdByTitle(seed.ticketTitle, ticketCache);
     } else if (seed.targetType === NotificationTargetType.COMMENT) {
       if (!seed.commentMessage) {
-        throw new Error(
-          "Cannot seed notifications: commentMessage missing for COMMENT target",
-        );
+        throw new Error("Cannot seed notifications: commentMessage missing for COMMENT target");
       }
       targetId = await getCommentIdByMessage(seed.commentMessage, commentCache);
     }

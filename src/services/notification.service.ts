@@ -6,11 +6,7 @@ import {
   NotifyStatusType,
   Prisma,
 } from "@prisma/client";
-import {
-  buildPaginatedResult,
-  resolvePagination,
-  PaginatedResult,
-} from "../utils/pagination";
+import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import { resolveSorting } from "../utils/sorting";
 import z from "zod";
 import { notificationQuerySchema } from "../schemas/notification.schema";
@@ -83,8 +79,7 @@ function buildStatePatch(state?: NotificationState, readAt?: Date | null) {
 async function findNotifications(
   filters: NotificationFilters = {},
 ): Promise<PaginatedResult<NotificationWithRelations>> {
-  const { recipientId, state, targetType, targetId, status, sentFrom, sentTo } =
-    filters;
+  const { recipientId, state, targetType, targetId, status, sentFrom, sentTo } = filters;
 
   const where: Prisma.NotificationWhereInput = {
     ...(typeof recipientId === "number" ? { recipientId } : {}),
@@ -138,9 +133,7 @@ async function createNotification(data: CreateNotificationInput) {
       ...(data.subject !== undefined ? { subject: data.subject } : {}),
       ...(data.emailText !== undefined ? { emailText: data.emailText } : {}),
       ...(data.emailFrom !== undefined ? { emailFrom: data.emailFrom } : {}),
-      ...(data.emailReplyTo !== undefined
-        ? { emailReplyTo: data.emailReplyTo }
-        : {}),
+      ...(data.emailReplyTo !== undefined ? { emailReplyTo: data.emailReplyTo } : {}),
       ...(data.status !== undefined ? { status: data.status } : {}),
       ...(data.sentAt !== undefined ? { sentAt: data.sentAt } : {}),
       ...(data.emailError !== undefined ? { emailError: data.emailError } : {}),
@@ -193,11 +186,7 @@ async function deleteNotification(id: number) {
   });
 }
 
-async function setNotificationState(
-  id: number,
-  state: NotificationState,
-  readAt?: Date | null,
-) {
+async function setNotificationState(id: number, state: NotificationState, readAt?: Date | null) {
   const patch = buildStatePatch(state, readAt);
 
   return prisma.notification.update({

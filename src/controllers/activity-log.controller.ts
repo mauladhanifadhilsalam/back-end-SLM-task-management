@@ -79,9 +79,4 @@ async function purgeActivityLogs(req: Request, res: Response) {
   });
 }
 
-export {
-  listActivityLogs,
-  getActivityLogById,
-  removeActivityLog,
-  purgeActivityLogs,
-};
+export { listActivityLogs, getActivityLogById, removeActivityLog, purgeActivityLogs };

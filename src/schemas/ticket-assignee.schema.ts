@@ -8,13 +8,10 @@ const ticketAssigneeQuerySchema = z
     assignedFrom: z.coerce.date().optional(),
     assignedTo: z.coerce.date().optional(),
     sortBy: z.enum(["id", "userId", "assignedAt", "ticketId"]).optional(),
-  }).extend(baseQuerySchema.shape)
+  })
+  .extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
-    if (
-      data.assignedFrom &&
-      data.assignedTo &&
-      data.assignedTo < data.assignedFrom
-    ) {
+    if (data.assignedFrom && data.assignedTo && data.assignedTo < data.assignedFrom) {
       ctx.addIssue({
         code: "custom",
         path: ["assignedTo"],

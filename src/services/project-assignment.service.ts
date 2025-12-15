@@ -1,10 +1,6 @@
 import prisma from "../db/prisma";
 import { ProjectAssignment, Prisma, ProjectRoleType } from "@prisma/client";
-import {
-  buildPaginatedResult,
-  resolvePagination,
-  PaginatedResult,
-} from "../utils/pagination";
+import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import { resolveSorting } from "../utils/sorting";
 import z from "zod";
 import { projectAssignmentQuerySchema } from "../schemas/project-assignment.schema";
@@ -45,8 +41,7 @@ type ProjectAssignmentListItem = Prisma.ProjectAssignmentGetPayload<{
 function buildProjectAssignmentWhere(
   filters: ProjectAssignmentFilters = {},
 ): Prisma.ProjectAssignmentWhereInput {
-  const { projectId, userId, roleInProject, assignedFrom, assignedTo } =
-    filters;
+  const { projectId, userId, roleInProject, assignedFrom, assignedTo } = filters;
 
   const where: Prisma.ProjectAssignmentWhereInput = {
     ...(typeof projectId === "number" ? { projectId } : {}),
@@ -87,9 +82,7 @@ async function findProjectAssignments(
   return buildPaginatedResult(items, total, pagination);
 }
 
-async function findProjectAssignment(
-  where: Prisma.ProjectAssignmentWhereUniqueInput,
-) {
+async function findProjectAssignment(where: Prisma.ProjectAssignmentWhereUniqueInput) {
   return prisma.projectAssignment.findUnique({
     where,
     include: projectAssignmentInclude,

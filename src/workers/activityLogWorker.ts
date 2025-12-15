@@ -2,9 +2,13 @@ import { Worker } from "bullmq";
 import { logActivity } from "../services/activity-log.service";
 import { connection } from "../config/redis";
 
-const activityLogWorker = new Worker("activityLog", async (job) => {
-  await logActivity(job.data);
-}, { connection });
+const activityLogWorker = new Worker(
+  "activityLog",
+  async (job) => {
+    await logActivity(job.data);
+  },
+  { connection },
+);
 
 activityLogWorker.on("completed", async (job) => {
   console.log(`Record activity log job ${job.id} completed`);

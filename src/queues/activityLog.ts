@@ -16,7 +16,14 @@ const activityLogQueue = new Queue("activityLog", {
 
 async function enqueueActivityLog(data: LogActivityInput) {
   const { action, details, occurredAt, targetId, targetType, userId } = data;
-  await activityLogQueue.add("recordActivityLog", { action, details, occurredAt, targetId, targetType, userId });
+  await activityLogQueue.add("recordActivityLog", {
+    action,
+    details,
+    occurredAt,
+    targetId,
+    targetType,
+    userId,
+  });
 }
 
 export { enqueueActivityLog };

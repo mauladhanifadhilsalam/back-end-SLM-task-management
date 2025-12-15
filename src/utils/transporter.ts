@@ -21,6 +21,6 @@ export const transporter = nodemailer.createTransport({
 
 transporter.verify((error, success) => {
   if (error) {
-    console.error('Error with email transporter:', error);
+    console.error("Error with email transporter:", error);
   }
 });

@@ -6,14 +6,9 @@ const router = Router();
 
 const swaggerOptions: SwaggerUiOptions = {
   explorer: true,
-  customCssUrl: "/docs/swagger/custom.css"
-
+  customCssUrl: "/docs/swagger/custom.css",
 };
 
-router.use(
-  "/",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerDocument, swaggerOptions),
-);
+router.use("/", swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 export default router;

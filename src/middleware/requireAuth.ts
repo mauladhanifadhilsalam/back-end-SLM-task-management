@@ -15,16 +15,12 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   const header = req.header("Authorization") || "";
   const [scheme, token] = header.split(" ");
   if (scheme !== "Bearer" || !token) {
-    return res
-      .status(401)
-      .json({ message: "Missing or invalid Authorization header" });
+    return res.status(401).json({ message: "Missing or invalid Authorization header" });
   }
   try {
     const decoded = jwt.verify(token, env.jwtSecret) as any;
     const role = decoded.role as RoleType;
-    const isValidRole = role
-      ? (Object.values(RoleType) as string[]).includes(role)
-      : false;
+    const isValidRole = role ? (Object.values(RoleType) as string[]).includes(role) : false;
 
     if (!isValidRole) {
       return res.status(401).json({ message: "Invalid or expired token" });
