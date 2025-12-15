@@ -89,6 +89,8 @@ type TicketListItem = Prisma.TicketGetPayload<{
   include: typeof ticketInclude;
 }>;
 
+export type TicketWithRelations = TicketListItem;
+
 type ViewerContext = { id: number; role: RoleType };
 
 function buildTicketWhere(filters: TicketFilters = {}) {

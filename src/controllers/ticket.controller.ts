@@ -31,6 +31,11 @@ import {
   recordActivity,
   toActivityDetails,
 } from "../services/activity-log.service";
+import {
+  emitTicketCreated,
+  emitTicketUpdated,
+  emitTicketDeleted,
+} from "../websocket/ticket.events";
 
 function parseIdParam(value: string) {
   const parsed = Number(value);
@@ -177,6 +182,7 @@ async function insertTicket(req: Request, res: Response) {
       assigneeIds: ticket.assignees.map((assignee) => assignee.user.id),
     }),
   });
+  emitTicketCreated(ticket);
   res.status(201).json(ticket);
 }
 
@@ -329,6 +335,7 @@ async function updateTicket(req: Request, res: Response) {
       nextStatus: updated.status,
     }),
   });
+  emitTicketUpdated(updated);
   res.status(200).json(updated);
 }
 
@@ -364,6 +371,7 @@ async function deleteTicketById(req: Request, res: Response) {
       requesterId: deleted.requesterId,
     }),
   });
+  emitTicketDeleted(deleted.id, deleted.projectId);
   res.status(200).json({ message: "Ticket deleted successfully" });
 }
 
