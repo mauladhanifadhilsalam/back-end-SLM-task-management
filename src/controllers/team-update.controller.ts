@@ -87,6 +87,7 @@ async function insertTeamUpdate(req: Request, res: Response) {
     todayWork: parsed.data.todayWork,
     blocker: parsed.data.blocker,
     nextAction: parsed.data.nextAction,
+    status: parsed.data.status,
   });
 
   res.status(201).json(created);
@@ -124,6 +125,7 @@ async function updateTeamUpdate(req: Request, res: Response) {
     todayWork: parsed.data.todayWork,
     blocker: parsed.data.blocker,
     nextAction: parsed.data.nextAction,
+    status: parsed.data.status,
   });
 
   res.status(200).json(updated);

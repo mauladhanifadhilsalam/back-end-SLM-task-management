@@ -87,6 +87,12 @@ enum NotificationState {
   READ
 }
 
+enum TeamUpdateStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  DONE
+}
+
 // ===================== MODELS ===========================
 
 model User {
@@ -312,6 +318,7 @@ model ActivityLog {
 model TeamUpdate {
   id            Int      @id @default(autoincrement())
   userId        Int
+  status        TeamUpdateStatus
   yesterdayWork String
   todayWork     String
   blocker       String

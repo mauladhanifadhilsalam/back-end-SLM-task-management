@@ -1,7 +1,11 @@
+-- CreateEnum
+CREATE TYPE "TeamUpdateStatus" AS ENUM ('NOT_STARTED', 'IN_PROGRESS', 'DONE');
+
 -- CreateTable
 CREATE TABLE "TeamUpdate" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
+    "status" "TeamUpdateStatus" NOT NULL,
     "yesterdayWork" TEXT NOT NULL,
     "todayWork" TEXT NOT NULL,
     "blocker" TEXT NOT NULL,

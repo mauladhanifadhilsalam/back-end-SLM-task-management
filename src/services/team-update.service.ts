@@ -14,7 +14,7 @@ type TeamUpdateSortBy = keyof TeamUpdate;
 
 type NewTeamUpdateInput = Pick<
   Prisma.TeamUpdateCreateInput,
-  "yesterdayWork" | "todayWork" | "blocker" | "nextAction"
+  "yesterdayWork" | "todayWork" | "blocker" | "nextAction" | "status"
 > & {
   userId: number;
 };
@@ -37,10 +37,11 @@ type TeamUpdateListItem = Prisma.TeamUpdateGetPayload<{
 function buildTeamUpdateWhere(
   filters: TeamUpdateFilters = {},
 ): Prisma.TeamUpdateWhereInput {
-  const { userId, createdFrom, createdTo } = filters;
+  const { userId, createdFrom, createdTo, status } = filters;
 
   const where: Prisma.TeamUpdateWhereInput = {
     ...(typeof userId === "number" ? { userId } : {}),
+    ...(status ? { status } : {}),
   };
 
   if (createdFrom || createdTo) {

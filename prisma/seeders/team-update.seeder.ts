@@ -1,4 +1,5 @@
 import prisma from "../../src/db/prisma";
+import { TeamUpdateStatus } from "@prisma/client";
 import { createTeamUpdate } from "../../src/services/team-update.service";
 
 type TeamUpdateSeed = {
@@ -7,6 +8,7 @@ type TeamUpdateSeed = {
   todayWork: string;
   blocker: string;
   nextAction: string;
+  status: TeamUpdateStatus;
 };
 
 const teamUpdateSeeds: TeamUpdateSeed[] = [
@@ -17,6 +19,7 @@ const teamUpdateSeeds: TeamUpdateSeed[] = [
     todayWork: "Implement retry backoff toggles for the new auth gateway.",
     blocker: "Need confirmation from infra about proxy timeout thresholds.",
     nextAction: "Sync with infra after standup to finalize timeouts.",
+    status: TeamUpdateStatus.IN_PROGRESS,
   },
   {
     authorEmail: "legolas@example.com",
@@ -24,6 +27,7 @@ const teamUpdateSeeds: TeamUpdateSeed[] = [
     todayWork: "Expand regression cases and align with QA coverage requests.",
     blocker: "Awaiting QA feedback on the error taxonomy.",
     nextAction: "Draft remaining scenarios once QA replies.",
+    status: TeamUpdateStatus.NOT_STARTED,
   },
   {
     authorEmail: "frodo@example.com",
@@ -31,6 +35,7 @@ const teamUpdateSeeds: TeamUpdateSeed[] = [
     todayWork: "Coordinate with marketing on the FAQ appendix.",
     blocker: "Marketing is verifying legal review timing.",
     nextAction: "Send draft to marketing once legal notes arrive.",
+    status: TeamUpdateStatus.IN_PROGRESS,
   },
   {
     authorEmail: "samwise@example.com",
@@ -38,6 +43,7 @@ const teamUpdateSeeds: TeamUpdateSeed[] = [
     todayWork: "Validate data mapping with analytics team.",
     blocker: "Analytics pipeline schema changes pending approval.",
     nextAction: "Review schema proposal and update checklist.",
+    status: TeamUpdateStatus.NOT_STARTED,
   },
   {
     authorEmail: "aragorn@example.com",
@@ -45,6 +51,7 @@ const teamUpdateSeeds: TeamUpdateSeed[] = [
     todayWork: "Coordinate patch rollout plan for IAM agents.",
     blocker: "Need final approval on deployment window.",
     nextAction: "Confirm window with release manager.",
+    status: TeamUpdateStatus.DONE,
   },
 ];
 
@@ -82,6 +89,7 @@ export default async function seedTeamUpdate() {
       todayWork: seed.todayWork,
       blocker: seed.blocker,
       nextAction: seed.nextAction,
+      status: seed.status,
     });
   }
 }

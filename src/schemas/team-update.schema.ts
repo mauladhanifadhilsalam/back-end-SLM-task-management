@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TeamUpdateStatus } from "@prisma/client";
 import { baseQuerySchema } from "./base.schema";
 
 const teamUpdateSortFields = [
@@ -8,6 +9,7 @@ const teamUpdateSortFields = [
   "todayWork",
   "blocker",
   "nextAction",
+  "status",
   "createdAt",
   "updatedAt",
 ] as const;
@@ -17,6 +19,7 @@ const teamUpdateBaseSchema = z.object({
   todayWork: z.string().trim().min(1),
   blocker: z.string().trim().min(1),
   nextAction: z.string().trim().min(1),
+  status: z.enum(TeamUpdateStatus),
 });
 
 const createTeamUpdateSchema = teamUpdateBaseSchema;
@@ -28,6 +31,7 @@ const teamUpdateQuerySchema = z
     userId: z.coerce.number().int().positive().optional(),
     createdFrom: z.coerce.date().optional(),
     createdTo: z.coerce.date().optional(),
+    status: z.enum(TeamUpdateStatus).optional(),
     sortBy: z.enum(teamUpdateSortFields).optional(),
   })
   .extend(baseQuerySchema.shape)
