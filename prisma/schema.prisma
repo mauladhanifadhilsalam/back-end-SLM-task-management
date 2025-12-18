@@ -195,6 +195,7 @@ model Ticket {
   type         TicketType
   title        String
   description  String?
+  actionPlan   String?
   priority     TicketPriority
   status       TicketStatus  @default(TO_DO)
   requesterId  Int
