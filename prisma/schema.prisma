@@ -87,6 +87,12 @@ enum NotificationState {
   READ
 }
 
+enum TeamUpdateStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  DONE
+}
+
 // ===================== MODELS ===========================
 
 model User {
@@ -108,6 +114,7 @@ model User {
   notifications      Notification[]    @relation("NotificationRecipient")
   activityLogs       ActivityLog[]
   refreshToken       RefreshToken?
+  teamUpdates        TeamUpdate[]
 
 }
 
@@ -306,4 +313,18 @@ model ActivityLog {
   @@index([occurredAt])
   @@index([targetType, targetId])
   @@index([userId, occurredAt])
+}
+
+model TeamUpdate {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  status        TeamUpdateStatus
+  yesterdayWork String
+  todayWork     String
+  blocker       String
+  nextAction    String
+  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now())
+
+  developer     User @relation(fields: [userId], references: [id], onDelete: SetNull)
 }

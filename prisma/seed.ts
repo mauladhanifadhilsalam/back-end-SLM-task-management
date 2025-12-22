@@ -5,6 +5,7 @@ import seedProjectAssignment from "./seeders/project-assignment.seeder";
 import seedTicket from "./seeders/ticket.seeder";
 import seedComment from "./seeders/comment.seeder";
 import seedNotification from "./seeders/notification.seeder";
+import seedTeamUpdate from "./seeders/team-update.seeder";
 import seedUser from "./seeders/user.seeder";
 import { refreshDashboard } from "../src/services/dashboard.service";
 
@@ -14,6 +15,7 @@ async function resetSequences() {
     "Notification",
     "Attachment",
     "Comment",
+    "TeamUpdate",
     "TicketAssignee",
     "Ticket",
     "ProjectAssignment",
@@ -38,6 +40,7 @@ async function main() {
   await prisma.notification.deleteMany();
   await prisma.attachment.deleteMany();
   await prisma.comment.deleteMany();
+  await prisma.teamUpdate.deleteMany();
   await prisma.ticketAssignee.deleteMany();
   await prisma.ticket.deleteMany();
   await prisma.projectAssignment.deleteMany();
@@ -54,6 +57,7 @@ async function main() {
   await seedProjectAssignment();
   await seedTicket();
   await seedComment();
+  await seedTeamUpdate();
   await seedNotification();
 
   await refreshDashboard();
