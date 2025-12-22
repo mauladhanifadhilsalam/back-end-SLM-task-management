@@ -12,12 +12,14 @@ import projectRouter from "./routes/project.route";
 import projectPhaseRouter from "./routes/project-phase.route";
 import ticketRouter from "./routes/ticket.route";
 import commentRouter from "./routes/comment.route";
+import teamUpdateRouter from "./routes/team-update.route";
 import ticketAssigneeRouter from "./routes/ticket-assignee.route";
 import projectAssignmentRouter from "./routes/project-assignment.route";
 import attachmentRouter from "./routes/attachment.route";
 import notificationRouter from "./routes/notification.route";
 import activityLogRouter from "./routes/activity-log.route";
 import dashboardRouter from "./routes/dashboard.route";
+import metricsRouter from "./routes/metrics.route";
 
 // Middleware for authentication and role-based access control
 import requireAuth from "./middleware/requireAuth";
@@ -29,6 +31,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import { httpMetricsMiddleware } from "./metrics";
 
 const app = express();
 
@@ -51,6 +54,7 @@ if (env.nodeEnv !== "production") {
 }
 
 // Public routes
+app.use("/metrics", metricsRouter);
 app.use("/auth", authRouter);
 app.get("/health", (_req: Request, res: Response) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
@@ -78,6 +82,7 @@ app.use(
 );
 app.use("/tickets", ticketRouter);
 app.use("/comments", commentRouter);
+app.use("/team-updates", teamUpdateRouter);
 app.use("/ticket-assignees", ticketAssigneeRouter);
 app.use("/attachments", attachmentRouter);
 app.use("/notifications", notificationRouter);
