@@ -26,6 +26,7 @@ type NewTicketInput = {
   type: TicketType;
   title: string;
   description?: string | null;
+  actionPlan?: string | null;
   priority: TicketPriority;
   status?: TicketStatus;
   startDate?: Date | null;
@@ -89,6 +90,8 @@ type TicketListItem = Prisma.TicketGetPayload<{
   include: typeof ticketInclude;
 }>;
 
+export type TicketWithRelations = TicketListItem;
+
 type ViewerContext = { id: number; role: RoleType };
 
 function buildTicketWhere(filters: TicketFilters = {}) {
@@ -132,6 +135,12 @@ function buildTicketWhere(filters: TicketFilters = {}) {
       },
       {
         description: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+      {
+        actionPlan: {
           contains: search,
           mode: "insensitive",
         },

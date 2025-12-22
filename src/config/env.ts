@@ -11,8 +11,12 @@ const env: {
   emailUser: string;
   emailPass: string;
   uploadDir: string;
+  redisTLS?: object;
   redisHost: string;
   redisPort: number;
+  redisPassword?: string;
+  redisUsername?: string;
+  redisDB?: number;
   nodeEnv: string;
   allowedOrigins: string[];
 } = {
@@ -27,6 +31,10 @@ const env: {
   uploadDir: process.env.UPLOAD_DIR || "uploads/",
   redisHost: process.env.REDIS_HOST!,
   redisPort: parseInt(process.env.REDIS_PORT!),
+  redisPassword: process.env.REDIS_PASSWORD || undefined,
+  redisUsername: process.env.REDIS_USERNAME || undefined,
+  redisDB: process.env.REDIS_DB ? parseInt(process.env.REDIS_DB) : undefined,
+  redisTLS: process.env.REDIS_TLS === "true" ? {} : undefined,
   nodeEnv: process.env.NODE_ENV || "development",
   allowedOrigins: process.env.ALLOWED_ORIGINS?.trim().split(",") || ["http://localhost:5173"],
 };
