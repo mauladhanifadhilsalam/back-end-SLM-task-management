@@ -37,6 +37,17 @@ import {
   emitTicketDeleted,
 } from "../websocket/ticket.events";
 
+type TicketDates = { startDate: Date | null; dueDate: Date | null };
+
+function withTicketDuration<T extends TicketDates>(ticket: T) {
+  const duration =
+    ticket.startDate && ticket.dueDate
+      ? (ticket.dueDate.getTime() - ticket.startDate.getTime()) / 1000 / 60 / 60 / 24
+      : null;
+
+  return { ...ticket, duration };
+}
+
 function parseIdParam(value: string) {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) {
@@ -58,7 +69,7 @@ async function getAllTickets(req: Request, res: Response) {
     }
 
     const result = await findTickets(parsed.data, viewer);
-    res.status(200).json(result);
+    res.status(200).json({...result, data: result.data.map((data) => withTicketDuration(data))});
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
@@ -85,7 +96,7 @@ async function getTicketById(req: Request, res: Response) {
       return res.status(403).json({ message: "Insufficient permissions" });
     }
 
-    res.status(200).json(ticket);
+    res.status(200).json(withTicketDuration(ticket));
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
