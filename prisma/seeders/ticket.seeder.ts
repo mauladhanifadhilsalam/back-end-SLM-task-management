@@ -9,6 +9,7 @@ type TicketSeed = {
   type: TicketType;
   title: string;
   description?: string;
+  actionPlan?: string | null;
   priority: TicketPriority;
   status?: TicketStatus;
   startDate?: string;
@@ -24,6 +25,7 @@ const ticketSeeds: TicketSeed[] = [
     title: "Stabilize SSO callback failures",
     description:
       "Users intermittently receive 502s on SSO callback. Collect proxy logs and add retry with exponential backoff.",
+    actionPlan: "Collect proxy logs, add retry/backoff, and validate error rates.",
     priority: TicketPriority.CRITICAL,
     status: TicketStatus.IN_PROGRESS,
     startDate: "2025-01-15",
@@ -37,6 +39,7 @@ const ticketSeeds: TicketSeed[] = [
     title: "Finalize loyalty SDK contract tests",
     description:
       "Write integration tests for the loyalty SDK contract ahead of the Interface phase.",
+    actionPlan: null,
     priority: TicketPriority.HIGH,
     status: TicketStatus.NEW,
     startDate: "2025-02-10",
@@ -48,7 +51,9 @@ const ticketSeeds: TicketSeed[] = [
     assigneeEmails: ["legolas@example.com"],
     type: TicketType.ISSUE,
     title: "Rotate TLS certificates across sensor gateway",
-    description: "Coordinate a zero-downtime TLS certificate rotation for all gateway nodes.",
+    description:
+      "Coordinate a zero-downtime TLS certificate rotation for all gateway nodes.",
+    actionPlan: "Inventory nodes, schedule rotation, and verify monitoring.",
     priority: TicketPriority.MEDIUM,
     status: TicketStatus.TO_DO,
     startDate: "2025-03-03",
@@ -60,7 +65,9 @@ const ticketSeeds: TicketSeed[] = [
     assigneeEmails: ["frodo@example.com", "samwise@example.com"],
     type: TicketType.TASK,
     title: "Draft customer launch communications",
-    description: "Produce launch briefing kit for marketing ahead of the client summit.",
+    description:
+      "Produce launch briefing kit for marketing ahead of the client summit.",
+    actionPlan: null,
     priority: TicketPriority.LOW,
     status: TicketStatus.NEW,
     startDate: "2025-03-01",
@@ -74,6 +81,7 @@ const ticketSeeds: TicketSeed[] = [
     title: "Patch audit logging gaps in IAM agents",
     description:
       "Harden audit coverage on identity microservices and backfill missing metrics in the SIEM pipeline.",
+    actionPlan: "Audit services, add missing events, and validate in SIEM.",
     priority: TicketPriority.HIGH,
     status: TicketStatus.IN_PROGRESS,
     startDate: "2025-03-04",
@@ -87,6 +95,7 @@ const ticketSeeds: TicketSeed[] = [
     title: "Optimize storefront render pipeline",
     description:
       "Profile hydration bottlenecks across the web storefront, split critical CSS, and cache upstream GraphQL aggregates.",
+    actionPlan: null,
     priority: TicketPriority.MEDIUM,
     status: TicketStatus.IN_REVIEW,
     startDate: "2025-03-10",
@@ -100,6 +109,7 @@ const ticketSeeds: TicketSeed[] = [
     title: "Calibrate telemetry watchdog thresholds",
     description:
       "Run load tests against sensor gateways and tune watchdog thresholds to curb noisy paging.",
+    actionPlan: null,
     priority: TicketPriority.MEDIUM,
     status: TicketStatus.IN_PROGRESS,
     startDate: "2025-03-08",
@@ -113,6 +123,7 @@ const ticketSeeds: TicketSeed[] = [
     title: "Hardening rollout for trusted device enrollment",
     description:
       "Deploy updated trusted device enrollment flows with device fingerprint fallback and enforce policy in SAML bridge.",
+    actionPlan: "Deploy updates, add fallback, and enforce SAML policy.",
     priority: TicketPriority.CRITICAL,
     status: TicketStatus.IN_REVIEW,
     startDate: "2025-03-06",
@@ -126,6 +137,7 @@ const ticketSeeds: TicketSeed[] = [
     title: "Author loyalty rewards migration playbook",
     description:
       "Document step-by-step loyalty data migration, validation checklists, and regression test matrix for marketing handoff.",
+    actionPlan: null,
     priority: TicketPriority.HIGH,
     status: TicketStatus.TO_DO,
     startDate: "2025-03-12",
@@ -190,6 +202,7 @@ export default async function seedTicket() {
       type: seed.type,
       title: seed.title,
       description: seed.description,
+      actionPlan: seed.actionPlan,
       priority: seed.priority ?? undefined,
       status: seed.status,
       startDate: seed.startDate ? new Date(seed.startDate) : undefined,
