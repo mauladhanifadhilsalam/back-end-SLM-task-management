@@ -1,10 +1,6 @@
 import prisma from "../db/prisma";
 import { Prisma, TeamUpdate } from "@prisma/client";
-import {
-  buildPaginatedResult,
-  resolvePagination,
-  PaginatedResult,
-} from "../utils/pagination";
+import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import { resolveSorting } from "../utils/sorting";
 import { z } from "zod";
 import { teamUpdateQuerySchema } from "../schemas/team-update.schema";
@@ -34,9 +30,7 @@ type TeamUpdateListItem = Prisma.TeamUpdateGetPayload<{
   include: typeof teamUpdateInclude;
 }>;
 
-function buildTeamUpdateWhere(
-  filters: TeamUpdateFilters = {},
-): Prisma.TeamUpdateWhereInput {
+function buildTeamUpdateWhere(filters: TeamUpdateFilters = {}): Prisma.TeamUpdateWhereInput {
   const { userId, createdFrom, createdTo, status } = filters;
 
   const where: Prisma.TeamUpdateWhereInput = {
@@ -105,10 +99,4 @@ async function deleteTeamUpdate(id: number) {
   });
 }
 
-export {
-  findTeamUpdates,
-  findTeamUpdate,
-  createTeamUpdate,
-  editTeamUpdate,
-  deleteTeamUpdate,
-};
+export { findTeamUpdates, findTeamUpdate, createTeamUpdate, editTeamUpdate, deleteTeamUpdate };

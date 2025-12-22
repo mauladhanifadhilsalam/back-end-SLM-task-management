@@ -51,8 +51,7 @@ const ticketSeeds: TicketSeed[] = [
     assigneeEmails: ["legolas@example.com"],
     type: TicketType.ISSUE,
     title: "Rotate TLS certificates across sensor gateway",
-    description:
-      "Coordinate a zero-downtime TLS certificate rotation for all gateway nodes.",
+    description: "Coordinate a zero-downtime TLS certificate rotation for all gateway nodes.",
     actionPlan: "Inventory nodes, schedule rotation, and verify monitoring.",
     priority: TicketPriority.MEDIUM,
     status: TicketStatus.TO_DO,
@@ -65,8 +64,7 @@ const ticketSeeds: TicketSeed[] = [
     assigneeEmails: ["frodo@example.com", "samwise@example.com"],
     type: TicketType.TASK,
     title: "Draft customer launch communications",
-    description:
-      "Produce launch briefing kit for marketing ahead of the client summit.",
+    description: "Produce launch briefing kit for marketing ahead of the client summit.",
     actionPlan: null,
     priority: TicketPriority.LOW,
     status: TicketStatus.NEW,

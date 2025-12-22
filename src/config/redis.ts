@@ -8,5 +8,5 @@ export const connection = new IORedis({
   host: env.redisHost,
   port: env.redisPort,
   db: env.redisDB,
-  maxRetriesPerRequest: null
+  maxRetriesPerRequest: null,
 });

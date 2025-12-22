@@ -33,7 +33,6 @@ import helmet from "helmet";
 import morgan from "morgan";
 import { httpMetricsMiddleware } from "./metrics";
 
-
 const app = express();
 
 // Middleware

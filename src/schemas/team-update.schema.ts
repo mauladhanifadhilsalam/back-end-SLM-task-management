@@ -45,8 +45,4 @@ const teamUpdateQuerySchema = z
     }
   });
 
-export {
-  createTeamUpdateSchema,
-  updateTeamUpdateSchema,
-  teamUpdateQuerySchema,
-};
+export { createTeamUpdateSchema, updateTeamUpdateSchema, teamUpdateQuerySchema };

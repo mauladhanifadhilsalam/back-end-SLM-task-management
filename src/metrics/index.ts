@@ -1,10 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import {
-  collectDefaultMetrics,
-  Counter,
-  Histogram,
-  Registry,
-} from "prom-client";
+import { collectDefaultMetrics, Counter, Histogram, Registry } from "prom-client";
 
 const registry = new Registry();
 
@@ -43,11 +38,7 @@ function resolveRouteLabel(req: Request) {
   return req.originalUrl || "unknown";
 }
 
-function httpMetricsMiddleware(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+function httpMetricsMiddleware(req: Request, res: Response, next: NextFunction) {
   const endTimer = httpRequestDurationSeconds.startTimer();
 
   res.on("finish", () => {

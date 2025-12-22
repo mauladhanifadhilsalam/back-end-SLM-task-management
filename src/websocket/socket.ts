@@ -1,9 +1,5 @@
 import { Server as HttpServer } from "http";
-import {
-  Server as SocketIOServer,
-  Socket,
-  DefaultEventsMap,
-} from "socket.io";
+import { Server as SocketIOServer, Socket, DefaultEventsMap } from "socket.io";
 import jwt from "jsonwebtoken";
 import { RoleType } from "@prisma/client";
 import env from "../config/env";
@@ -17,14 +13,8 @@ type SocketData = {
   user?: SocketUser;
 };
 
-let io:
-  | SocketIOServer<
-      DefaultEventsMap,
-      DefaultEventsMap,
-      DefaultEventsMap,
-      SocketData
-    >
-  | null = null;
+let io: SocketIOServer<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, SocketData> | null =
+  null;
 
 function extractToken(socket: Socket) {
   const authHeader = socket.handshake.headers["authorization"];
@@ -54,9 +44,7 @@ function authenticateSocket(socket: Socket, next: (err?: Error) => void) {
     if (!decoded?.role) {
       return next(new Error("Invalid token"));
     }
-    const isValidRole = (Object.values(RoleType) as string[]).includes(
-      decoded.role,
-    );
+    const isValidRole = (Object.values(RoleType) as string[]).includes(decoded.role);
     if (!isValidRole || decoded.sub === undefined) {
       return next(new Error("Invalid token"));
     }
@@ -76,17 +64,15 @@ export function projectRoom(projectId: number) {
 }
 
 export function initSocketServer(server: HttpServer) {
-  io = new SocketIOServer<
-    DefaultEventsMap,
-    DefaultEventsMap,
-    DefaultEventsMap,
-    SocketData
-  >(server, {
-    cors: {
-      origin: env.allowedOrigins,
-      credentials: true,
+  io = new SocketIOServer<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, SocketData>(
+    server,
+    {
+      cors: {
+        origin: env.allowedOrigins,
+        credentials: true,
+      },
     },
-  });
+  );
 
   io.use(authenticateSocket);
 
@@ -97,21 +83,13 @@ export function initSocketServer(server: HttpServer) {
     }
 
     socket.on("watchProject", (projectId: unknown) => {
-      if (
-        typeof projectId === "number" &&
-        Number.isInteger(projectId) &&
-        projectId > 0
-      ) {
+      if (typeof projectId === "number" && Number.isInteger(projectId) && projectId > 0) {
         socket.join(projectRoom(projectId));
       }
     });
 
     socket.on("unwatchProject", (projectId: unknown) => {
-      if (
-        typeof projectId === "number" &&
-        Number.isInteger(projectId) &&
-        projectId > 0
-      ) {
+      if (typeof projectId === "number" && Number.isInteger(projectId) && projectId > 0) {
         socket.leave(projectRoom(projectId));
       }
     });

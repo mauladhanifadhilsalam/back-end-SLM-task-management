@@ -24,10 +24,7 @@ import {
   updateTicketSchema,
 } from "../schemas/ticket.schema";
 import { ActivityTargetType } from "@prisma/client";
-import {
-  recordActivity,
-  toActivityDetails,
-} from "../services/activity-log.service";
+import { recordActivity, toActivityDetails } from "../services/activity-log.service";
 import {
   emitTicketCreated,
   emitTicketUpdated,
@@ -66,7 +63,7 @@ async function getAllTickets(req: Request, res: Response) {
     }
 
     const result = await findTickets(parsed.data, viewer);
-    res.status(200).json({...result, data: result.data.map((data) => withTicketDuration(data))});
+    res.status(200).json({ ...result, data: result.data.map((data) => withTicketDuration(data)) });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }

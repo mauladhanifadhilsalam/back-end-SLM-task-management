@@ -11,6 +11,7 @@ SLM Project Management exposes Prometheus-compatible metrics so you can observe 
 ## Prometheus
 
 ### Local Quickstart
+
 1. Download Prometheus from [prometheus.io/download](https://prometheus.io/download/).
 2. Extract the archive and edit `prometheus.yml`:
 
@@ -31,7 +32,6 @@ SLM Project Management exposes Prometheus-compatible metrics so you can observe 
    ```
 
 3. Start Prometheus:
-
    - **Windows (PowerShell)**:
      ```powershell
      .\prometheus.exe --config.file=prometheus.yml
@@ -47,6 +47,7 @@ SLM Project Management exposes Prometheus-compatible metrics so you can observe 
    - `process_resident_memory_bytes` (memory usage)
 
 ### Production Notes
+
 - Run Prometheus (or a managed equivalent) within your infrastructure. Replace `localhost:3000` with the API’s host/port.
 - Secure `/metrics`:
   - Restrict inbound access (security groups, firewall rules, service mesh)

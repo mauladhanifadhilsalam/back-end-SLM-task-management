@@ -14,8 +14,7 @@ type TeamUpdateSeed = {
 const teamUpdateSeeds: TeamUpdateSeed[] = [
   {
     authorEmail: "gandalf@yahoo.com",
-    yesterdayWork:
-      "Instrumented SSO callback tracing and attached logs to the incident ticket.",
+    yesterdayWork: "Instrumented SSO callback tracing and attached logs to the incident ticket.",
     todayWork: "Implement retry backoff toggles for the new auth gateway.",
     blocker: "Need confirmation from infra about proxy timeout thresholds.",
     nextAction: "Sync with infra after standup to finalize timeouts.",
@@ -55,10 +54,7 @@ const teamUpdateSeeds: TeamUpdateSeed[] = [
   },
 ];
 
-async function getUserId(
-  email: string,
-  cache: Map<string, number>,
-): Promise<number> {
+async function getUserId(email: string, cache: Map<string, number>): Promise<number> {
   const cached = cache.get(email);
   if (cached) return cached;
 
@@ -68,9 +64,7 @@ async function getUserId(
   });
 
   if (!user) {
-    throw new Error(
-      `Cannot seed team updates: user with email ${email} not found`,
-    );
+    throw new Error(`Cannot seed team updates: user with email ${email} not found`);
   }
 
   cache.set(email, user.id);
