@@ -31,9 +31,7 @@ function normalizeDuration(
   const trimmed = value.trim();
   const match = trimmed.toLowerCase().match(/^(\d+)([smhd])?$/);
   if (!match) {
-    throw new Error(
-      `Invalid ${label} value "${value}". Use seconds or suffix s/m/h/d.`,
-    );
+    throw new Error(`Invalid ${label} value "${value}". Use seconds or suffix s/m/h/d.`);
   }
   const amount = Number(match[1]);
   const unit = (match[2] ?? "s") as keyof typeof durationMultipliers;
@@ -65,9 +63,7 @@ export function getRefreshTokenExpiryDate() {
   return new Date(Date.now() + refreshTokenExpiresInSeconds * 1000);
 }
 
-export function getRefreshTokenCookieOptions(
-  overrides?: Partial<CookieOptions>,
-): CookieOptions {
+export function getRefreshTokenCookieOptions(overrides?: Partial<CookieOptions>): CookieOptions {
   const base: CookieOptions = {
     httpOnly: true,
     secure: env.nodeEnv === "production",

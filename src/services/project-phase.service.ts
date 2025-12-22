@@ -1,10 +1,6 @@
 import prisma from "../db/prisma";
 import { Prisma, ProjectPhase } from "@prisma/client";
-import {
-  buildPaginatedResult,
-  resolvePagination,
-  PaginatedResult,
-} from "../utils/pagination";
+import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import z from "zod";
 import { projectPhaseQuerySchema } from "../schemas/project-phase.schema";
 import { resolveSorting } from "../utils/sorting";
@@ -78,9 +74,7 @@ async function findProjectPhases(
   return buildPaginatedResult(items, total, pagination);
 }
 
-async function findProjectPhase(
-  where: Prisma.ProjectPhaseWhereUniqueInput,
-) {
+async function findProjectPhase(where: Prisma.ProjectPhaseWhereUniqueInput) {
   return await prisma.projectPhase.findUnique({
     where,
     include: projectPhaseInclude,
@@ -94,10 +88,7 @@ async function createProjectPhase(data: NewProjectPhaseInput) {
   });
 }
 
-async function editProjectPhase(
-  id: number,
-  data: Prisma.ProjectPhaseUncheckedUpdateInput,
-) {
+async function editProjectPhase(id: number, data: Prisma.ProjectPhaseUncheckedUpdateInput) {
   return await prisma.projectPhase.update({
     where: { id },
     data,

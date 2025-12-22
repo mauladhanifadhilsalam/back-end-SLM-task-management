@@ -8,15 +8,8 @@ import {
   deleteAttachment,
 } from "../services/attachment.service";
 import { findTicket } from "../services/ticket.service";
-import {
-  requireViewer,
-  canModifyTicket,
-  isAdmin,
-} from "../utils/permissions";
-import {
-  attachmentQuerySchema,
-  createAttachmentSchema,
-} from "../schemas/attachment.schema";
+import { requireViewer, canModifyTicket, isAdmin } from "../utils/permissions";
+import { attachmentQuerySchema, createAttachmentSchema } from "../schemas/attachment.schema";
 
 function parseIdParam(value: string) {
   const id = Number(value);
@@ -61,9 +54,7 @@ async function getBase64(FilePath: string) {
   return base64;
 }
 
-async function embedBase64<T extends { filePath: string }>(
-  data: T[],
-) {
+async function embedBase64<T extends { filePath: string }>(data: T[]) {
   return Promise.all(
     data.map(async (attachment) => {
       const base64 = await getBase64(attachment.filePath);
@@ -85,16 +76,12 @@ async function getAttachments(req: Request, res: Response) {
 
   if (!parsed.data.ticketId) {
     if (!isAdmin(viewer)) {
-      return res
-        .status(403)
-        .json({ message: "You are not allowed to access all attachments" });
+      return res.status(403).json({ message: "You are not allowed to access all attachments" });
     }
 
     const attachments = await findAttachments(parsed.data);
     const base64Attachments = await embedBase64(attachments.data);
-    return res
-      .status(200)
-      .json({ ...attachments, data: base64Attachments });
+    return res.status(200).json({ ...attachments, data: base64Attachments });
   }
 
   const ticket = await findTicket({ id: parsed.data.ticketId });
@@ -141,10 +128,7 @@ async function addAttachment(req: Request, res: Response) {
   }
 
   const uploadsDir = path.join(process.cwd());
-  const relativePath = path
-    .relative(uploadsDir, file.path)
-    .split(path.sep)
-    .join("/");
+  const relativePath = path.relative(uploadsDir, file.path).split(path.sep).join("/");
 
   const attachment = await createAttachment({
     ticketId: ticket.id,

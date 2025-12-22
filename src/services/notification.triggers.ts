@@ -1,7 +1,4 @@
-import {
-  NotificationTargetType,
-  TicketStatus,
-} from "@prisma/client";
+import { NotificationTargetType, TicketStatus } from "@prisma/client";
 import type { TicketWithRelations } from "../utils/permissions";
 import { dispatchNotification } from "./notification.dispatcher";
 import capitalizeWord from "../utils/capitalizeWord";
@@ -33,10 +30,7 @@ type NotificationActor = {
   fullName: string;
 };
 
-const completionStatuses = new Set<TicketStatus>([
-  TicketStatus.DONE,
-  TicketStatus.CLOSED,
-]);
+const completionStatuses = new Set<TicketStatus>([TicketStatus.DONE, TicketStatus.CLOSED]);
 
 function formatRole(role?: string) {
   if (!role) return "project member";
@@ -50,14 +44,9 @@ function formatActorName(actor?: NotificationActor | null) {
   return actor?.fullName ?? "Someone";
 }
 
-function buildProjectSubject(
-  projectName: string | null | undefined,
-  detail: string,
-) {
+function buildProjectSubject(projectName: string | null | undefined, detail: string) {
   const normalized = projectName?.trim();
-  return normalized && normalized.length
-    ? `[${normalized}] ${detail}`
-    : detail;
+  return normalized && normalized.length ? `[${normalized}] ${detail}` : detail;
 }
 
 async function notifyProjectAssignments(
@@ -80,8 +69,7 @@ async function notifyProjectAssignments(
         recipientId: assignment.user.id,
         targetType: NotificationTargetType.PROJECT,
         targetId: project.id,
-        subject:
-          `You are assigned to project "${project.name}"`,
+        subject: `You are assigned to project "${project.name}"`,
         message: `${actorName} assigned you to "${project.name}" as ${formatRole(
           assignment.roleInProject,
         )}.`,
@@ -106,9 +94,7 @@ async function notifyTicketAssignees(
 
   await Promise.all(
     uniqueAssigneeIds.map(async (userId) => {
-      const assignee = ticket.assignees.find(
-        (assignment) => assignment.user.id === userId,
-      );
+      const assignee = ticket.assignees.find((assignment) => assignment.user.id === userId);
       if (!assignee) {
         return;
       }
@@ -179,9 +165,7 @@ async function notifyTicketRequesterComment(comment: CommentWithTicket) {
       `${capitalizeWord(ticket.type)} #${ticket.id}`,
     ),
     message: comment.message,
-    from: comment.user.email
-      ? `${comment.user.fullName} <${comment.user.email}>`
-      : undefined,
+    from: comment.user.email ? `${comment.user.fullName} <${comment.user.email}>` : undefined,
     replyTo: comment.user.email ?? undefined,
   });
 }
@@ -195,5 +179,5 @@ export {
 export type {
   CommentWithTicket as CommentNotificationPayload,
   NotificationActor,
-  ProjectWithAssignments
+  ProjectWithAssignments,
 };

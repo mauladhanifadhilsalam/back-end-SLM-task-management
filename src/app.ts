@@ -42,16 +42,17 @@ app.use(helmet());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({
-  origin: env.allowedOrigins,
-  credentials: true
-}));
-app.use(httpMetricsMiddleware);
+app.use(
+  cors({
+    origin: env.allowedOrigins,
+    credentials: true,
+  }),
+);
 
 // Documentation route
 if (env.nodeEnv !== "production") {
-   app.use("/docs", express.static("docs"), docsRouter);
- }
+  app.use("/docs", express.static("docs"), docsRouter);
+}
 
 // Public routes
 app.use("/metrics", metricsRouter);
@@ -70,8 +71,16 @@ app.use(
   projectOwnerRouter,
 );
 app.use("/projects", projectRouter);
-app.use("/project-phases", requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]), projectPhaseRouter);
-app.use("/project-assignments", requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]), projectAssignmentRouter);
+app.use(
+  "/project-phases",
+  requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]),
+  projectPhaseRouter,
+);
+app.use(
+  "/project-assignments",
+  requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]),
+  projectAssignmentRouter,
+);
 app.use("/tickets", ticketRouter);
 app.use("/comments", commentRouter);
 app.use("/team-updates", teamUpdateRouter);
@@ -86,7 +95,5 @@ app.use("/dashboard", dashboardRouter);
 app.get("/", (_req: Request, res: Response) => {
   res.json({ message: "Welcome to SLM Project Management API" });
 });
-
-
 
 export default app;

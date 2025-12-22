@@ -25,8 +25,7 @@ const emailWorker = new Worker(
 
     const subject = notification.subject ?? "Notification";
     const text = notification.emailText ?? notification.message;
-    const from =
-      notification.emailFrom ?? `SLM Project Management <${env.emailUser}>`;
+    const from = notification.emailFrom ?? `SLM Project Management <${env.emailUser}>`;
     const replyTo = notification.emailReplyTo ?? undefined;
 
     try {
@@ -44,8 +43,7 @@ const emailWorker = new Worker(
         emailError: null,
       });
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown email error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown email error";
 
       await editNotification(notification.id, {
         status: NotifyStatusType.FAILED,

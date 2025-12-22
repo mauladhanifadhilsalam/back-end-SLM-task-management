@@ -1,10 +1,6 @@
 import prisma from "../db/prisma";
 import { Prisma, RoleType, ProjectStatus, Project } from "@prisma/client";
-import {
-  buildPaginatedResult,
-  resolvePagination,
-  PaginatedResult,
-} from "../utils/pagination";
+import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import z from "zod";
 import { projectQuerySchema } from "../schemas/project.schema";
 import { resolveSorting } from "../utils/sorting";
@@ -52,10 +48,10 @@ const projectInclude = {
           id: true,
           fullName: true,
           email: true,
-        }
-      }
-    }
-  }
+        },
+      },
+    },
+  },
 } satisfies Prisma.ProjectInclude;
 
 type ProjectListItem = Prisma.ProjectGetPayload<{
@@ -92,10 +88,7 @@ function buildViewerProjectWhere(viewer?: ViewerContext) {
     return null;
   }
 
-  if (
-    viewer.role === RoleType.ADMIN ||
-    viewer.role === RoleType.PROJECT_MANAGER
-  ) {
+  if (viewer.role === RoleType.ADMIN || viewer.role === RoleType.PROJECT_MANAGER) {
     return null;
   }
 
@@ -114,9 +107,7 @@ async function findProjects(
   const baseWhere = buildProjectWhere(filters);
   const viewerWhere = buildViewerProjectWhere(viewer);
   const where =
-    viewerWhere && Object.keys(viewerWhere).length
-      ? { AND: [baseWhere, viewerWhere] }
-      : baseWhere;
+    viewerWhere && Object.keys(viewerWhere).length ? { AND: [baseWhere, viewerWhere] } : baseWhere;
   const skip = (pagination.page - 1) * pagination.pageSize;
   const orderBy = resolveSorting<ProjectSortBy>(filters, "createdAt", "desc");
 
@@ -145,9 +136,7 @@ async function findProjectsForReport(
   const baseWhere = buildProjectWhere(filters);
   const viewerWhere = buildViewerProjectWhere(viewer);
   const where =
-    viewerWhere && Object.keys(viewerWhere).length
-      ? { AND: [baseWhere, viewerWhere] }
-      : baseWhere;
+    viewerWhere && Object.keys(viewerWhere).length ? { AND: [baseWhere, viewerWhere] } : baseWhere;
   const orderBy = resolveSorting<ProjectSortBy>(filters, "id", "asc");
 
   return prisma.project.findMany({
@@ -171,10 +160,7 @@ async function createProject(data: NewProjectInput) {
   });
 }
 
-async function editProject(
-  id: number,
-  data: Prisma.ProjectUncheckedUpdateInput,
-) {
+async function editProject(id: number, data: Prisma.ProjectUncheckedUpdateInput) {
   return await prisma.project.update({
     where: { id },
     data,
@@ -201,15 +187,14 @@ async function verifyUsersExist(userIds: number[]) {
     select: { id: true },
   });
 
-  const foundIds = new Set(users.map(u => u.id));
-  const missingUserIds = userIds.filter(id => !foundIds.has(id));
+  const foundIds = new Set(users.map((u) => u.id));
+  const missingUserIds = userIds.filter((id) => !foundIds.has(id));
 
   return {
     allExist: missingUserIds.length === 0,
     missingUserIds,
   };
 }
-
 
 export {
   findProjects,

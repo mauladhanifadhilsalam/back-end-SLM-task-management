@@ -1,10 +1,6 @@
 import prisma from "../db/prisma";
 import { Attachment, Prisma } from "@prisma/client";
-import {
-  buildPaginatedResult,
-  resolvePagination,
-  PaginatedResult,
-} from "../utils/pagination";
+import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import { resolveSorting } from "../utils/sorting";
 import z from "zod";
 import { attachmentQuerySchema } from "../schemas/attachment.schema";

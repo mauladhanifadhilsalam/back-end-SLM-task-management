@@ -10,11 +10,7 @@ async function findUserById(id: number) {
   return await prisma.user.findUnique({ where: { id } });
 }
 
-async function upsertRefreshToken(
-  userId: number,
-  token: string,
-  expiresAt: Date,
-) {
+async function upsertRefreshToken(userId: number, token: string, expiresAt: Date) {
   const tokenHash = hashToken(token);
   return prisma.refreshToken.upsert({
     where: { userId },

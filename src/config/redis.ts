@@ -1,5 +1,5 @@
-import IORedis from 'ioredis';
-import env from './env';
+import IORedis from "ioredis";
+import env from "./env";
 
 export const connection = new IORedis({
   tls: env.redisTLS,

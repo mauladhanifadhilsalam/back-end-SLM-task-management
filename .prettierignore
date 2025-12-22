@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+out/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated files
+*.min.js
+*.min.css
+*.map
+
+# Database / ORM
+prisma/migrations/
+
+# Public / static assets
+public/
+static/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Test snapshots
+**/__snapshots__/
+
+# Misc
+tmp/
+temp/
+
+# Documentation
+docs/

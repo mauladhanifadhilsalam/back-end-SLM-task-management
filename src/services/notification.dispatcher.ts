@@ -1,8 +1,4 @@
-import {
-  NotificationState,
-  NotificationTargetType,
-  NotifyStatusType,
-} from "@prisma/client";
+import { NotificationState, NotificationTargetType, NotifyStatusType } from "@prisma/client";
 import { enqueueEmailNotification } from "../queues/email";
 import {
   createNotification,
@@ -75,21 +71,15 @@ async function resendNotificationEmail(
     throw new Error("Only failed notifications can be resent");
   }
 
-  const subject =
-    overrides.subject ?? notification.subject ?? null;
+  const subject = overrides.subject ?? notification.subject ?? null;
   if (!subject) {
     throw new Error("Subject is required to resend the email");
   }
 
-  const text =
-    overrides.text ??
-    notification.emailText ??
-    notification.message;
+  const text = overrides.text ?? notification.emailText ?? notification.message;
 
-  const from =
-    overrides.from ?? notification.emailFrom ?? undefined;
-  const replyTo =
-    overrides.replyTo ?? notification.emailReplyTo ?? undefined;
+  const from = overrides.from ?? notification.emailFrom ?? undefined;
+  const replyTo = overrides.replyTo ?? notification.emailReplyTo ?? undefined;
 
   const recipientEmail = notification.recipient.email;
   if (!recipientEmail) {

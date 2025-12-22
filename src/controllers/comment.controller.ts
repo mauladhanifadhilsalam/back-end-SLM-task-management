@@ -8,20 +8,12 @@ import {
   deleteComment,
 } from "../services/comment.service";
 import { findTicket } from "../services/ticket.service";
-import {
-  Viewer,
-  TicketWithRelations,
-  requireViewer,
-  isAdmin,
-} from "../utils/permissions";
+import { Viewer, TicketWithRelations, requireViewer, isAdmin } from "../utils/permissions";
 import {
   notifyTicketRequesterComment,
   CommentNotificationPayload,
 } from "../services/notification.triggers";
-import {
-  recordActivity,
-  toActivityDetails,
-} from "../services/activity-log.service";
+import { recordActivity, toActivityDetails } from "../services/activity-log.service";
 import {
   commentQuerySchema,
   createCommentSchema,
@@ -39,8 +31,7 @@ function parseIdParam(raw?: string) {
 
 function canManageOwnComment(viewer: Viewer, authorId: number) {
   const allowedRole =
-    viewer.role === RoleType.PROJECT_MANAGER ||
-    viewer.role === RoleType.DEVELOPER;
+    viewer.role === RoleType.PROJECT_MANAGER || viewer.role === RoleType.DEVELOPER;
   return allowedRole && viewer.id === authorId;
 }
 
@@ -173,11 +164,9 @@ async function updateComment(req: Request, res: Response) {
   }
 
   if (!isAdmin(viewer) && !canManageOwnComment(viewer, existing.userId)) {
-    return res
-      .status(403)
-      .json({
-        message: "Only admins or eligible authors can modify this comment",
-      });
+    return res.status(403).json({
+      message: "Only admins or eligible authors can modify this comment",
+    });
   }
 
   const updated = await editComment(commentId, {
@@ -212,11 +201,9 @@ async function deleteCommentById(req: Request, res: Response) {
   }
 
   if (!isAdmin(viewer) && !canManageOwnComment(viewer, existing.userId)) {
-    return res
-      .status(403)
-      .json({
-        message: "Only admins or eligible authors can delete this comment",
-      });
+    return res.status(403).json({
+      message: "Only admins or eligible authors can delete this comment",
+    });
   }
 
   const deleted = await deleteComment(commentId);
@@ -232,10 +219,4 @@ async function deleteCommentById(req: Request, res: Response) {
   res.status(200).json({ message: "Comment deleted successfully" });
 }
 
-export {
-  getComments,
-  getCommentById,
-  insertComment,
-  updateComment,
-  deleteCommentById,
-};
+export { getComments, getCommentById, insertComment, updateComment, deleteCommentById };

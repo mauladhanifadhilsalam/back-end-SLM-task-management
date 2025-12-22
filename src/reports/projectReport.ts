@@ -9,20 +9,7 @@ type GenerateProjectReportOptions = {
 
 const colors = colorsJson.projectReport;
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const BASE_FONT = {
   name: "Montserrat",
@@ -80,9 +67,7 @@ function pickAssignments(project: ProjectWithRelations) {
     (assignment) => assignment.roleInProject === ProjectRoleType.TECH_LEAD,
   );
   const developerNames = project.assignments
-    .filter(
-      (assignment) => assignment.roleInProject !== ProjectRoleType.TECH_LEAD,
-    )
+    .filter((assignment) => assignment.roleInProject !== ProjectRoleType.TECH_LEAD)
     .map((assignment) => toFirstName(assignment.user?.fullName))
     .filter(Boolean);
 
@@ -92,11 +77,7 @@ function pickAssignments(project: ProjectWithRelations) {
   };
 }
 
-function monthIndexesWithinYear(
-  startDate: Date,
-  endDate: Date,
-  year: number,
-): number[] {
+function monthIndexesWithinYear(startDate: Date, endDate: Date, year: number): number[] {
   if (endDate < startDate) return [];
 
   const startYear = startDate.getFullYear();
@@ -109,20 +90,12 @@ function monthIndexesWithinYear(
   const fromMonth = startYear < year ? 0 : startDate.getMonth();
   const toMonth = endYear > year ? 11 : endDate.getMonth();
 
-  return Array.from(
-    { length: toMonth - fromMonth + 1 },
-    (_, idx) => fromMonth + idx,
-  );
+  return Array.from({ length: toMonth - fromMonth + 1 }, (_, idx) => fromMonth + idx);
 }
 
-function applyPhaseFill(
-  row: ExcelJS.Row,
-  phases: ProjectWithRelations["phases"],
-  year: number,
-) {
+function applyPhaseFill(row: ExcelJS.Row, phases: ProjectWithRelations["phases"], year: number) {
   const sortedPhases = [...phases].sort(
-    (a, b) =>
-      toShortDate(a.startDate).getTime() - toShortDate(b.startDate).getTime(),
+    (a, b) => toShortDate(a.startDate).getTime() - toShortDate(b.startDate).getTime(),
   );
 
   sortedPhases.forEach((phase, index) => {
@@ -205,8 +178,8 @@ async function generateProjectReport(
   worksheet.properties.defaultRowHeight = 18;
 
   worksheet.columns = [
-    { width: 4 },  // padding
-    { width: 5 },  // No
+    { width: 4 }, // padding
+    { width: 5 }, // No
     { width: 18 }, // Category
     { width: 16 }, // ID #
     { width: 50 }, // Project Name
@@ -277,8 +250,7 @@ async function generateProjectReport(
       return;
     }
     const isMonthColumn =
-      columnIndex >= MONTH_COLUMN_START &&
-      columnIndex < MONTH_COLUMN_START + MONTHS.length;
+      columnIndex >= MONTH_COLUMN_START && columnIndex < MONTH_COLUMN_START + MONTHS.length;
 
     if (isMonthColumn) {
       if (columnIndex === MONTH_COLUMN_START) {
@@ -296,12 +268,7 @@ async function generateProjectReport(
       monthCell.value = MONTHS[columnIndex - MONTH_COLUMN_START];
       monthCell.alignment = { horizontal: "center", vertical: "middle" };
     } else {
-      worksheet.mergeCells(
-        topHeaderRow.number,
-        columnIndex,
-        monthHeaderRow.number,
-        columnIndex,
-      );
+      worksheet.mergeCells(topHeaderRow.number, columnIndex, monthHeaderRow.number, columnIndex);
       const cell = worksheet.getCell(topHeaderRow.number, columnIndex);
       cell.value = value;
       cell.alignment = { horizontal: "center", vertical: "middle" };

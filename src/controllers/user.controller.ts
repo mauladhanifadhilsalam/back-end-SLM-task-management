@@ -8,17 +8,10 @@ import {
   deleteUser,
   editPassword,
 } from "../services/user.service";
-import {
-  userSchema,
-  changePasswordSchema,
-  userQuerySchema,
-} from "../schemas/user.schema";
+import { userSchema, changePasswordSchema, userQuerySchema } from "../schemas/user.schema";
 import { ActivityTargetType } from "@prisma/client";
 import { requireViewer } from "../utils/permissions";
-import {
-  recordActivity,
-  toActivityDetails,
-} from "../services/activity-log.service";
+import { recordActivity, toActivityDetails } from "../services/activity-log.service";
 import { findUserById } from "../services/auth.service";
 
 async function getAllUsers(req: Request, res: Response) {
@@ -89,8 +82,7 @@ async function updateUser(req: Request, res: Response) {
 
   if (email && email !== user.email) {
     const existing = await findUser({ email });
-    if (existing)
-      return res.status(409).json({ message: "Email already used" });
+    if (existing) return res.status(409).json({ message: "Email already used" });
   }
 
   // Prisma ignores undefined values
@@ -166,9 +158,7 @@ async function changePassword(req: Request, res: Response) {
   const isPasswordSame = await verifyPassword(newPassword, user.passwordHash);
 
   if (isPasswordSame) {
-    return res
-      .status(400)
-      .json({ message: "New password cannot be the same as the old one" });
+    return res.status(400).json({ message: "New password cannot be the same as the old one" });
   }
 
   const passwordHash = await hashPassword(newPassword);
@@ -187,11 +177,4 @@ async function changePassword(req: Request, res: Response) {
   res.status(200).send({ message: "Password changed successfully" });
 }
 
-export {
-  getAllUsers,
-  getUserById,
-  insertUser,
-  updateUser,
-  deleteUserById,
-  changePassword,
-};
+export { getAllUsers, getUserById, insertUser, updateUser, deleteUserById, changePassword };

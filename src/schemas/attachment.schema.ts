@@ -17,7 +17,8 @@ const attachmentQuerySchema = z
     uploadedFrom: z.coerce.date().optional(),
     uploadedTo: z.coerce.date().optional(),
     sortBy: z.enum(attachmentSortFields).optional(),
-  }).extend(baseQuerySchema.shape)
+  })
+  .extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (data.uploadedFrom && data.uploadedTo && data.uploadedTo < data.uploadedFrom) {
       ctx.addIssue({

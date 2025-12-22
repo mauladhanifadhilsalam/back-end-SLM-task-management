@@ -1,10 +1,6 @@
 import prisma from "../db/prisma";
 import { Prisma, TicketAssignee } from "@prisma/client";
-import {
-  buildPaginatedResult,
-  resolvePagination,
-  PaginatedResult,
-} from "../utils/pagination";
+import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import z from "zod";
 import { ticketAssigneeQuerySchema } from "../schemas/ticket-assignee.schema";
 import { resolveSorting } from "../utils/sorting";
@@ -86,9 +82,7 @@ async function findTicketAssignees(
   return buildPaginatedResult(items, total, pagination);
 }
 
-async function findTicketAssignee(
-  where: Prisma.TicketAssigneeWhereUniqueInput,
-) {
+async function findTicketAssignee(where: Prisma.TicketAssigneeWhereUniqueInput) {
   return await prisma.ticketAssignee.findUnique({
     where,
     include: ticketAssigneeInclude,
@@ -108,10 +102,5 @@ async function deleteTicketAssignee(id: number) {
   });
 }
 
-export {
-  findTicketAssignees,
-  findTicketAssignee,
-  createTicketAssignee,
-  deleteTicketAssignee,
-};
+export { findTicketAssignees, findTicketAssignee, createTicketAssignee, deleteTicketAssignee };
 export type { TicketAssigneeFilters, NewTicketAssigneeInput };

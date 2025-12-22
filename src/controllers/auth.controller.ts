@@ -17,10 +17,7 @@ import {
 import env from "../config/env";
 import { loginSchema } from "../schemas/auth.schema";
 import { ActivityTargetType } from "@prisma/client";
-import {
-  recordActivity,
-  toActivityDetails,
-} from "../services/activity-log.service";
+import { recordActivity, toActivityDetails } from "../services/activity-log.service";
 
 async function login(req: Request, res: Response) {
   const parsed = loginSchema.safeParse(req.body);
@@ -83,11 +80,7 @@ async function refreshAccessToken(req: Request, res: Response) {
   });
 
   const rotatedRefresh = generateRefreshToken();
-  await upsertRefreshToken(
-    stored.user.id,
-    rotatedRefresh,
-    getRefreshTokenExpiryDate(),
-  );
+  await upsertRefreshToken(stored.user.id, rotatedRefresh, getRefreshTokenExpiryDate());
   setRefreshTokenCookie(res, rotatedRefresh);
 
   res.json(buildAuthResponse({ token: accessToken, role: stored.user.role }));
@@ -121,27 +114,14 @@ function extractRefreshToken(req: Request) {
 }
 
 function setRefreshTokenCookie(res: Response, token: string) {
-  res.cookie(
-    env.refreshTokenCookieName,
-    token,
-    getRefreshTokenCookieOptions(),
-  );
+  res.cookie(env.refreshTokenCookieName, token, getRefreshTokenCookieOptions());
 }
 
 function clearRefreshTokenCookie(res: Response) {
-  res.clearCookie(
-    env.refreshTokenCookieName,
-    getRefreshTokenCookieOptions({ maxAge: 0 }),
-  );
+  res.clearCookie(env.refreshTokenCookieName, getRefreshTokenCookieOptions({ maxAge: 0 }));
 }
 
-function buildAuthResponse({
-  token,
-  role,
-}: {
-  token: string;
-  role: string;
-}) {
+function buildAuthResponse({ token, role }: { token: string; role: string }) {
   return {
     token,
     token_type: "Bearer",

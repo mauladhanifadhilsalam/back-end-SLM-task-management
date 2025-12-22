@@ -4,7 +4,6 @@ import { findProjectOwner } from "../../src/services/project-owner.service";
 
 export default async function seedProject() {
   const projects = [
-
     {
       ownerEmail: "koji@example.com",
       name: "Project Kintsugi — Sensor Grid & Ops Intelligence",
@@ -127,24 +126,25 @@ export default async function seedProject() {
 
   await Promise.all(
     projects.map(async (proj) => {
-    const owner = await findProjectOwner({ email: proj.ownerEmail });
-    if (!owner) return;
+      const owner = await findProjectOwner({ email: proj.ownerEmail });
+      if (!owner) return;
 
-    await createProject({
-      name: proj.name,
-      categories: proj.categories,
-      ownerId: owner.id,
-      startDate: new Date(proj.startDate),
-      endDate: new Date(proj.endDate),
-      status: proj.status,
-      notes: proj.notes,
-      phases: {
-        create: proj.phases.map((p) => ({
-          name: p.name,
-          startDate: new Date(p.startDate),
-          endDate: new Date(p.endDate),
-        })),
-      },
-    });
-  }));
+      await createProject({
+        name: proj.name,
+        categories: proj.categories,
+        ownerId: owner.id,
+        startDate: new Date(proj.startDate),
+        endDate: new Date(proj.endDate),
+        status: proj.status,
+        notes: proj.notes,
+        phases: {
+          create: proj.phases.map((p) => ({
+            name: p.name,
+            startDate: new Date(p.startDate),
+            endDate: new Date(p.endDate),
+          })),
+        },
+      });
+    }),
+  );
 }

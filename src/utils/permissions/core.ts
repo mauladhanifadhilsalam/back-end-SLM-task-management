@@ -40,11 +40,7 @@ function isProjectManager(viewer: Viewer) {
   return viewer.role === RoleType.PROJECT_MANAGER;
 }
 
-function runRules<State>(
-  rules: PermissionRule<State>[],
-  viewer: Viewer,
-  state: State,
-) {
+function runRules<State>(rules: PermissionRule<State>[], viewer: Viewer, state: State) {
   if (!rules.length) {
     return false;
   }

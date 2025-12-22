@@ -17,10 +17,7 @@ import {
 import { notifyProjectAssignments } from "../services/notification.triggers";
 import { requireViewer, isAdmin, isProjectManager } from "../utils/permissions";
 import { ActivityTargetType } from "@prisma/client";
-import {
-  recordActivity,
-  toActivityDetails,
-} from "../services/activity-log.service";
+import { recordActivity, toActivityDetails } from "../services/activity-log.service";
 import { findAnyUser } from "../services/user.service";
 import { generateProjectReport } from "../reports/projectReport";
 
@@ -75,19 +72,19 @@ async function insertProject(req: Request, res: Response) {
   const parsed = createProjectSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.format());
 
-  const { ownerId, categories, startDate, endDate, phases, assignments, ...rest } =
-    parsed.data;
+  const { ownerId, categories, startDate, endDate, phases, assignments, ...rest } = parsed.data;
 
   const owner = await findProjectOwner({ id: ownerId });
-  if (!owner)
-    return res.status(404).json({ message: "Project owner not found" });
+  if (!owner) return res.status(404).json({ message: "Project owner not found" });
 
   if (assignments) {
-    const {allExist, missingUserIds} = await verifyUsersExist(assignments.map(a => a.userId));
+    const { allExist, missingUserIds } = await verifyUsersExist(assignments.map((a) => a.userId));
     if (!allExist) {
-      return res.status(404).json({ message: {
-        missing: missingUserIds.map(id => `User with ID ${id} not found`)
-      }});
+      return res.status(404).json({
+        message: {
+          missing: missingUserIds.map((id) => `User with ID ${id} not found`),
+        },
+      });
     }
   }
 
@@ -111,7 +108,7 @@ async function insertProject(req: Request, res: Response) {
       ? {
           assignments: {
             createMany: {
-              data: assignments.map(a => ({
+              data: assignments.map((a) => ({
                 userId: a.userId,
                 roleInProject: a.roleInProject,
               })),
@@ -124,9 +121,7 @@ async function insertProject(req: Request, res: Response) {
   });
 
   const actor = await findAnyUser(viewer.id);
-  const notificationActor = actor
-    ? { id: actor.id, fullName: actor.fullName }
-    : undefined;
+  const notificationActor = actor ? { id: actor.id, fullName: actor.fullName } : undefined;
   await notifyProjectAssignments(project, notificationActor);
   await recordActivity({
     userId: viewer.id,
@@ -164,8 +159,7 @@ async function updateProject(req: Request, res: Response) {
 
   if (ownerId !== undefined && ownerId !== existing.ownerId) {
     const owner = await findProjectOwner({ id: ownerId });
-    if (!owner)
-      return res.status(404).json({ message: "Project owner not found" });
+    if (!owner) return res.status(404).json({ message: "Project owner not found" });
   }
 
   const nextStart = startDate ?? existing.startDate;
@@ -218,7 +212,7 @@ async function deleteProjectById(req: Request, res: Response) {
     targetId: project.id,
     details: toActivityDetails({
       name: project.name,
-      ownerId: project.ownerId
+      ownerId: project.ownerId,
     }),
   });
   res.status(200).send({ message: "Project deleted successfully" });
@@ -234,13 +228,9 @@ async function downloadProjectReport(req: Request, res: Response) {
     return res.status(403).json({ message: "Insufficient permissions" });
   }
 
-  const yearParam = Array.isArray(req.query.year)
-    ? req.query.year[0]
-    : req.query.year;
+  const yearParam = Array.isArray(req.query.year) ? req.query.year[0] : req.query.year;
   const year =
-    typeof yearParam === "string" && yearParam.trim().length
-      ? Number(yearParam)
-      : undefined;
+    typeof yearParam === "string" && yearParam.trim().length ? Number(yearParam) : undefined;
 
   if (year !== undefined && (Number.isNaN(year) || year < 1900 || year > 2500)) {
     return res.status(400).json({ message: "Invalid year parameter" });
@@ -251,8 +241,7 @@ async function downloadProjectReport(req: Request, res: Response) {
     return res.status(400).json(parsedFilters.error.format());
   }
 
-  const { page: _page, pageSize: _pageSize, ...reportFilters } =
-    parsedFilters.data;
+  const { page: _page, pageSize: _pageSize, ...reportFilters } = parsedFilters.data;
 
   try {
     const projects = await findProjectsForReport(reportFilters, viewer);

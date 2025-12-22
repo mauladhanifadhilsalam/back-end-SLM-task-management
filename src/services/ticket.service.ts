@@ -1,17 +1,6 @@
 import prisma from "../db/prisma";
-import {
-  Prisma,
-  RoleType,
-  Ticket,
-  TicketPriority,
-  TicketStatus,
-  TicketType,
-} from "@prisma/client";
-import {
-  buildPaginatedResult,
-  resolvePagination,
-  PaginatedResult,
-} from "../utils/pagination";
+import { Prisma, RoleType, Ticket, TicketPriority, TicketStatus, TicketType } from "@prisma/client";
+import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import z from "zod";
 import { ticketQuerySchema } from "../schemas/ticket.schema";
 import { resolveSorting } from "../utils/sorting";
@@ -35,10 +24,7 @@ type NewTicketInput = {
 };
 
 type UpdateTicketInput = Partial<
-  Omit<
-    NewTicketInput,
-    "assigneeIds" | "projectId" | "requesterId" | "type" | "title"
-  >
+  Omit<NewTicketInput, "assigneeIds" | "projectId" | "requesterId" | "type" | "title">
 > & {
   projectId?: number;
   requesterId?: number;
@@ -173,10 +159,7 @@ function buildViewerTicketWhere(viewer?: ViewerContext) {
     return null;
   }
 
-  if (
-    viewer.role === RoleType.ADMIN ||
-    viewer.role === RoleType.PROJECT_MANAGER
-  ) {
+  if (viewer.role === RoleType.ADMIN || viewer.role === RoleType.PROJECT_MANAGER) {
     return null;
   }
 
@@ -209,9 +192,7 @@ async function findTickets(
   const baseWhere = buildTicketWhere(filters);
   const viewerWhere = buildViewerTicketWhere(viewer);
   const where =
-    viewerWhere && Object.keys(viewerWhere).length
-      ? { AND: [baseWhere, viewerWhere] }
-      : baseWhere;
+    viewerWhere && Object.keys(viewerWhere).length ? { AND: [baseWhere, viewerWhere] } : baseWhere;
   const orderBy = resolveSorting<TicketSortBy>(filters, "id", "desc");
   const skip = (pagination.page - 1) * pagination.pageSize;
 
@@ -254,9 +235,7 @@ async function findAssignableUsers(ids: number[]) {
 
 async function createTicket(data: NewTicketInput) {
   const { assigneeIds, ...rest } = data;
-  const uniqueAssigneeIds = assigneeIds
-    ? Array.from(new Set(assigneeIds))
-    : undefined;
+  const uniqueAssigneeIds = assigneeIds ? Array.from(new Set(assigneeIds)) : undefined;
 
   const ticket = await prisma.ticket.create({
     data: {
@@ -281,9 +260,7 @@ async function createTicket(data: NewTicketInput) {
 
 async function editTicket(id: number, data: UpdateTicketInput) {
   const { assigneeIds, ...rest } = data;
-  const uniqueAssigneeIds = assigneeIds
-    ? Array.from(new Set(assigneeIds))
-    : undefined;
+  const uniqueAssigneeIds = assigneeIds ? Array.from(new Set(assigneeIds)) : undefined;
 
   const ticket = await prisma.ticket.update({
     where: { id },
@@ -324,28 +301,25 @@ async function deleteTicket(id: number) {
   return ticket;
 }
 
-
 export async function recalculateCompletion(projectId: number) {
-  return prisma.$transaction(
-    async (tx) => {
-      const [total, done] = await Promise.all([
-        tx.ticket.count({ where: { projectId, type: TicketType.TASK } }),
-        tx.ticket.count({
-          where: { projectId, type: TicketType.TASK, status: TicketStatus.DONE },
-        }),
-      ]);
+  return prisma.$transaction(async (tx) => {
+    const [total, done] = await Promise.all([
+      tx.ticket.count({ where: { projectId, type: TicketType.TASK } }),
+      tx.ticket.count({
+        where: { projectId, type: TicketType.TASK, status: TicketStatus.DONE },
+      }),
+    ]);
 
-      if (total === 0) return 0;
+    if (total === 0) return 0;
 
-      const percentage = (done / total) * 100;
-      const completion = Math.round(percentage * 100) / 100;
+    const percentage = (done / total) * 100;
+    const completion = Math.round(percentage * 100) / 100;
 
-      return tx.project.update({
-        where: { id: projectId },
-        data: { completion },
-      });
-    },
-  );
+    return tx.project.update({
+      where: { id: projectId },
+      data: { completion },
+    });
+  });
 }
 
 export {
