@@ -26,6 +26,7 @@ type NewTicketInput = {
   type: TicketType;
   title: string;
   description?: string | null;
+  actionPlan?: string | null;
   priority: TicketPriority;
   status?: TicketStatus;
   startDate?: Date | null;
@@ -134,6 +135,12 @@ function buildTicketWhere(filters: TicketFilters = {}) {
       },
       {
         description: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+      {
+        actionPlan: {
           contains: search,
           mode: "insensitive",
         },
