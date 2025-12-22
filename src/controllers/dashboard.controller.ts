@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import {
-    findAllDeveloperDashboards,
+  findAllDeveloperDashboards,
   findDeveloperDashboard,
   findProjectManagerDashboard,
 } from "../services/dashboard.service";

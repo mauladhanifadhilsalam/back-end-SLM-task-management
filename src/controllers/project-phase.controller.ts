@@ -14,10 +14,7 @@ import {
 } from "../schemas/project-phase.schema";
 import { requireViewer } from "../utils/permissions";
 import { ActivityTargetType } from "@prisma/client";
-import {
-  recordActivity,
-  toActivityDetails,
-} from "../services/activity-log.service";
+import { recordActivity, toActivityDetails } from "../services/activity-log.service";
 
 async function getAllProjectPhases(req: Request, res: Response) {
   try {
@@ -37,8 +34,7 @@ async function getProjectPhaseById(req: Request, res: Response) {
   try {
     const { id } = req.params;
     const phase = await findProjectPhase({ id: Number(id) });
-    if (!phase)
-      return res.status(404).json({ message: "Project phase not found" });
+    if (!phase) return res.status(404).json({ message: "Project phase not found" });
     res.status(200).json(phase);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
@@ -87,8 +83,7 @@ async function updateProjectPhase(req: Request, res: Response) {
   const phaseId = Number(id);
 
   const existing = await findProjectPhase({ id: phaseId });
-  if (!existing)
-    return res.status(404).json({ message: "Project phase not found" });
+  if (!existing) return res.status(404).json({ message: "Project phase not found" });
 
   const parsed = updateProjectPhaseSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.format());
@@ -104,9 +99,7 @@ async function updateProjectPhase(req: Request, res: Response) {
   const nextEnd = endDate ?? existing.endDate;
 
   if (nextEnd < nextStart) {
-    return res
-      .status(400)
-      .json({ message: "End date must be on or after start date" });
+    return res.status(400).json({ message: "End date must be on or after start date" });
   }
 
   const updated = await editProjectPhase(phaseId, {
@@ -138,8 +131,7 @@ async function deleteProjectPhaseById(req: Request, res: Response) {
   const { id } = req.params;
 
   const phase = await findProjectPhase({ id: Number(id) });
-  if (!phase)
-    return res.status(404).json({ message: "Project phase not found" });
+  if (!phase) return res.status(404).json({ message: "Project phase not found" });
 
   await deleteProjectPhase(phase.id);
   await recordActivity({

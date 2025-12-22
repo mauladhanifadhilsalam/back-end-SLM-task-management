@@ -20,7 +20,8 @@ const activityLogQuerySchema = z
     from: z.coerce.date().optional(),
     to: z.coerce.date().optional(),
     sortBy: z.enum(activityLogSortFields).optional(),
-  }).extend(baseQuerySchema.shape)
+  })
+  .extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (data.from && data.to && data.to < data.from) {
       ctx.addIssue({

@@ -2,10 +2,7 @@ import prisma from "../db/prisma";
 import { ActivityLog, ActivityTargetType, Prisma } from "@prisma/client";
 import { refreshDashboard } from "./dashboard.service";
 import { enqueueActivityLog } from "../queues/activityLog";
-import {
-  buildPaginatedResult,
-  resolvePagination,
-} from "../utils/pagination";
+import { buildPaginatedResult, resolvePagination } from "../utils/pagination";
 import { resolveSorting } from "../utils/sorting";
 import { activityLogQuerySchema } from "../schemas/activity-log.schema";
 import { z } from "zod";
@@ -38,9 +35,7 @@ const activityLogInclude = {
   },
 } satisfies Prisma.ActivityLogInclude;
 
-function buildActivityLogWhere(
-  filters: ActivityLogFilters,
-): Prisma.ActivityLogWhereInput {
+function buildActivityLogWhere(filters: ActivityLogFilters): Prisma.ActivityLogWhereInput {
   const where: Prisma.ActivityLogWhereInput = {};
 
   if (filters.targetType) {

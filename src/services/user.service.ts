@@ -1,19 +1,11 @@
 import prisma from "../db/prisma";
 import { Prisma, RoleType, User } from "@prisma/client";
-import {
-  buildPaginatedResult,
-  resolvePagination,
-  PaginatedResult,
-} from "../utils/pagination";
+import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import z from "zod";
 import { userQuerySchema } from "../schemas/user.schema";
 import { resolveSorting } from "../utils/sorting";
 
-type NewUserInput = Pick<
-  Prisma.UserCreateInput,
-  "fullName" | "role" | "email" | "passwordHash"
->;
-
+type NewUserInput = Pick<Prisma.UserCreateInput, "fullName" | "role" | "email" | "passwordHash">;
 
 type ManageableRole = Extract<RoleType, "PROJECT_MANAGER" | "DEVELOPER">;
 
@@ -32,9 +24,7 @@ function buildUserWhere(filters: UserFilters = {}): Prisma.UserWhereInput {
             in: manageableRoles,
           },
         }),
-    ...(typeof filters.isActive === "boolean"
-      ? { isActive: filters.isActive }
-      : {}),
+    ...(typeof filters.isActive === "boolean" ? { isActive: filters.isActive } : {}),
   };
 
   if (filters.search) {
@@ -57,9 +47,7 @@ function buildUserWhere(filters: UserFilters = {}): Prisma.UserWhereInput {
   return where;
 }
 
-async function findUsers(
-  filters: UserFilters = {},
-): Promise<PaginatedResult<User>> {
+async function findUsers(filters: UserFilters = {}): Promise<PaginatedResult<User>> {
   const pagination = resolvePagination(filters);
   const where = buildUserWhere(filters);
   const orderBy = resolveSorting<UserSortBy>(filters, "createdAt", "desc");
@@ -101,12 +89,7 @@ async function findAnyUser(id: number) {
   });
 }
 
-async function createUser({
-  fullName,
-  role,
-  email,
-  passwordHash,
-}: NewUserInput) {
+async function createUser({ fullName, role, email, passwordHash }: NewUserInput) {
   return await prisma.user.create({
     data: { fullName, role, email, passwordHash },
     select: {
@@ -145,5 +128,5 @@ export {
   deleteUser,
   editPassword,
   findAnyUser,
-  UserSortBy
+  UserSortBy,
 };

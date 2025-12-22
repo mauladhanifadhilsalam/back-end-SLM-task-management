@@ -1,18 +1,9 @@
 import { Request } from "express";
 import { RoleType, TicketType } from "@prisma/client";
 import type { findTicket } from "../../services/ticket.service";
-import {
-  Viewer,
-  PermissionRule,
-  isAdmin,
-  isDeveloper,
-  isProjectManager,
-  runRules,
-} from "./core";
+import { Viewer, PermissionRule, isAdmin, isDeveloper, isProjectManager, runRules } from "./core";
 
-type TicketWithRelations = NonNullable<
-  Awaited<ReturnType<typeof findTicket>>
->;
+type TicketWithRelations = NonNullable<Awaited<ReturnType<typeof findTicket>>>;
 
 type TicketState = {
   type: TicketType | null;
@@ -29,23 +20,17 @@ type TicketStateOverrides = {
 };
 
 function dedupeIds(ids: number[] = []) {
-  return Array.from(new Set(ids)).filter(
-    (id) => Number.isInteger(id) && id > 0,
-  );
+  return Array.from(new Set(ids)).filter((id) => Number.isInteger(id) && id > 0);
 }
 
-function buildState(
-  ticket?: TicketWithRelations,
-  overrides?: TicketStateOverrides,
-): TicketState {
+function buildState(ticket?: TicketWithRelations, overrides?: TicketStateOverrides): TicketState {
   const base: TicketState = ticket
     ? {
         type: ticket.type,
         requesterId: ticket.requesterId,
         assigneeIds: ticket.assignees.map((assignee) => assignee.user.id),
         projectMemberIds: dedupeIds(
-          ticket.project?.assignments?.map((assignment) => assignment.userId) ??
-            [],
+          ticket.project?.assignments?.map((assignment) => assignment.userId) ?? [],
         ),
       }
     : {
@@ -56,9 +41,7 @@ function buildState(
       };
 
   const overrideAssigneeIds =
-    overrides && overrides.assigneeIds !== undefined
-      ? dedupeIds(overrides.assigneeIds)
-      : undefined;
+    overrides && overrides.assigneeIds !== undefined ? dedupeIds(overrides.assigneeIds) : undefined;
   const overrideProjectMemberIds =
     overrides && overrides.projectMemberIds !== undefined
       ? dedupeIds(overrides.projectMemberIds)
@@ -72,8 +55,7 @@ function buildState(
   };
 }
 
-const viewerIsAdmin: PermissionRule<TicketState> = ({ viewer }) =>
-  isAdmin(viewer);
+const viewerIsAdmin: PermissionRule<TicketState> = ({ viewer }) => isAdmin(viewer);
 
 const viewerIsRequester: PermissionRule<TicketState> = ({ viewer, state }) =>
   state.requesterId === viewer.id;
@@ -81,31 +63,23 @@ const viewerIsRequester: PermissionRule<TicketState> = ({ viewer, state }) =>
 const viewerIsAssignee: PermissionRule<TicketState> = ({ viewer, state }) =>
   state.assigneeIds.includes(viewer.id);
 
-const viewerIsProjectManagerRule: PermissionRule<TicketState> = ({
-  viewer,
-}) => isProjectManager(viewer);
+const viewerIsProjectManagerRule: PermissionRule<TicketState> = ({ viewer }) =>
+  isProjectManager(viewer);
 
-const viewerIsProjectMember: PermissionRule<TicketState> = ({
-  viewer,
-  state,
-}) => state.projectMemberIds.includes(viewer.id);
+const viewerIsProjectMember: PermissionRule<TicketState> = ({ viewer, state }) =>
+  state.projectMemberIds.includes(viewer.id);
 
 const viewerIsParticipant: PermissionRule<TicketState> = (ctx) =>
   viewerIsRequester(ctx) || viewerIsAssignee(ctx);
 
-const developerSeesTasks: PermissionRule<TicketState> = ({
-  viewer,
-  state,
-}) =>
+const developerSeesTasks: PermissionRule<TicketState> = ({ viewer, state }) =>
   isDeveloper(viewer) &&
   state.type === TicketType.TASK &&
   state.projectMemberIds.includes(viewer.id);
 
 const developerEditsTasks = developerSeesTasks;
 
-const developerEditsIssuesWhenInvolved: PermissionRule<TicketState> = (
-  ctx,
-) =>
+const developerEditsIssuesWhenInvolved: PermissionRule<TicketState> = (ctx) =>
   isDeveloper(ctx.viewer) &&
   ctx.state.projectMemberIds.includes(ctx.viewer.id) &&
   ctx.state.type === TicketType.ISSUE &&
@@ -161,9 +135,4 @@ function canModifyTicketState(
   });
 }
 
-export {
-  TicketWithRelations,
-  canViewTicket,
-  canModifyTicket,
-  canModifyTicketState,
-};
+export { TicketWithRelations, canViewTicket, canModifyTicket, canModifyTicketState };

@@ -1,11 +1,7 @@
 import prisma from "../db/prisma";
 import { Comment, Prisma } from "@prisma/client";
 import { ticketInclude } from "./ticket.service";
-import {
-  buildPaginatedResult,
-  resolvePagination,
-  PaginatedResult,
-} from "../utils/pagination";
+import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import { resolveSorting } from "../utils/sorting";
 import z from "zod";
 import { commentQuerySchema } from "../schemas/comment.schema";

@@ -8,7 +8,7 @@ services:
       - db
       - redis
     ports:
-      - "3000:3000"     # expose API on the host for manual testing
+      - "3000:3000" # expose API on the host for manual testing
     env_file:
       - .env
     environment:
@@ -50,7 +50,7 @@ services:
       POSTGRES_PASSWORD: mypassword
       POSTGRES_DB: project_management
     ports:
-      - "5432:5432"     # allow local tools (psql, GUI clients) to reach Postgres
+      - "5432:5432" # allow local tools (psql, GUI clients) to reach Postgres
     volumes:
       - db-data:/var/lib/postgresql/data
 

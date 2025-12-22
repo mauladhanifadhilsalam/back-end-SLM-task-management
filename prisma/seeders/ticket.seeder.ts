@@ -1,8 +1,4 @@
-import {
-  TicketPriority,
-  TicketStatus,
-  TicketType,
-} from "@prisma/client";
+import { TicketPriority, TicketStatus, TicketType } from "@prisma/client";
 import prisma from "../../src/db/prisma";
 import { createTicket } from "../../src/services/ticket.service";
 
@@ -149,10 +145,7 @@ const ticketSeeds: TicketSeed[] = [
   },
 ];
 
-async function getUserId(
-  email: string,
-  cache: Map<string, number>,
-): Promise<number> {
+async function getUserId(email: string, cache: Map<string, number>): Promise<number> {
   const cached = cache.get(email);
   if (cached) return cached;
 
@@ -169,10 +162,7 @@ async function getUserId(
   return user.id;
 }
 
-async function getProjectId(
-  ownerEmail: string,
-  cache: Map<string, number>,
-): Promise<number> {
+async function getProjectId(ownerEmail: string, cache: Map<string, number>): Promise<number> {
   const cached = cache.get(ownerEmail);
   if (cached) return cached;
 
@@ -186,9 +176,7 @@ async function getProjectId(
   });
 
   if (!project) {
-    throw new Error(
-      `Cannot seed tickets: project for owner ${ownerEmail} not found`,
-    );
+    throw new Error(`Cannot seed tickets: project for owner ${ownerEmail} not found`);
   }
 
   cache.set(ownerEmail, project.id);
@@ -204,9 +192,7 @@ export default async function seedTicket() {
     const requesterId = await getUserId(seed.requesterEmail, userCache);
     const assigneeIds = [
       ...new Set(
-        await Promise.all(
-          seed.assigneeEmails.map((email) => getUserId(email, userCache)),
-        ),
+        await Promise.all(seed.assigneeEmails.map((email) => getUserId(email, userCache))),
       ),
     ];
 

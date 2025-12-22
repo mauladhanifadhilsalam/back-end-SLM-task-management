@@ -5,13 +5,6 @@
     "white": "FFFFFFFF",
     "grid": "FF0F243E",
     "text": "FFFFFFFF",
-    "phasePalette": [
-      "FFB7D7A8",
-      "FF9BC2E6",
-      "FFB4A7D6",
-      "FFEA9999",
-      "FFF9CB9C",
-      "FFCFE2F3"
-    ]
+    "phasePalette": ["FFB7D7A8", "FF9BC2E6", "FFB4A7D6", "FFEA9999", "FFF9CB9C", "FFCFE2F3"]
   }
 }

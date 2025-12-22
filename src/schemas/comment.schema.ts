@@ -13,9 +13,7 @@ const createCommentSchema = z
 
 const updateCommentSchema = messageSchema;
 
-const commentSortFields = [
-  "message", "ticketId", "id", "userId", "createdAt"
-] as const;
+const commentSortFields = ["message", "ticketId", "id", "userId", "createdAt"] as const;
 
 const commentQuerySchema = z
   .object({
@@ -24,7 +22,8 @@ const commentQuerySchema = z
     createdFrom: z.coerce.date().optional(),
     createdTo: z.coerce.date().optional(),
     sortBy: z.enum(commentSortFields).optional(),
-  }).extend(baseQuerySchema.shape)
+  })
+  .extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (data.createdFrom && data.createdTo && data.createdTo < data.createdFrom) {
       ctx.addIssue({

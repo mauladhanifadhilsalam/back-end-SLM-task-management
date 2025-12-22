@@ -17,14 +17,11 @@ import {
   canModifyTicketState,
   canModifyTicket,
 } from "../utils/permissions";
-import {
-  notifyTicketAssignees,
-  notifyTicketCompletion,
-} from "../services/notification.triggers";
+import { notifyTicketAssignees, notifyTicketCompletion } from "../services/notification.triggers";
 import {
   ticketQuerySchema,
   createTicketSchema,
-  updateTicketSchema
+  updateTicketSchema,
 } from "../schemas/ticket.schema";
 import { ActivityTargetType } from "@prisma/client";
 import {
@@ -118,17 +115,9 @@ async function insertTicket(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
-  const {
-    projectId,
-    requesterId,
-    assigneeIds,
-    startDate,
-    dueDate,
-    ...rest
-  } = parsed.data;
+  const { projectId, requesterId, assigneeIds, startDate, dueDate, ...rest } = parsed.data;
 
-  const effectiveRequesterId =
-    isAdmin(viewer) && requesterId ? requesterId : viewer.id;
+  const effectiveRequesterId = isAdmin(viewer) && requesterId ? requesterId : viewer.id;
 
   const project = await findProject({ id: projectId });
   if (!project) {
@@ -148,16 +137,12 @@ async function insertTicket(req: Request, res: Response) {
   }
 
   const uniqueAssigneeIds =
-    assigneeIds && assigneeIds.length
-      ? Array.from(new Set(assigneeIds))
-      : undefined;
+    assigneeIds && assigneeIds.length ? Array.from(new Set(assigneeIds)) : undefined;
 
   if (uniqueAssigneeIds && uniqueAssigneeIds.length) {
     const assignees = await findAssignableUsers(uniqueAssigneeIds);
     if (assignees.length !== uniqueAssigneeIds.length) {
-      return res
-        .status(404)
-        .json({ message: "One or more assignees not found" });
+      return res.status(404).json({ message: "One or more assignees not found" });
     }
     const missingProjectMembers = uniqueAssigneeIds.filter(
       (assigneeId) => !projectMemberIds.includes(assigneeId),
@@ -228,14 +213,7 @@ async function updateTicket(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
-  const {
-    projectId,
-    requesterId,
-    assigneeIds,
-    startDate,
-    dueDate,
-    ...rest
-  } = parsed.data;
+  const { projectId, requesterId, assigneeIds, startDate, dueDate, ...rest } = parsed.data;
 
   if (projectId !== undefined && projectId !== existing.projectId) {
     const project = await findProject({ id: projectId });
@@ -246,9 +224,7 @@ async function updateTicket(req: Request, res: Response) {
 
   if (requesterId !== undefined && requesterId !== existing.requesterId) {
     if (!isAdmin(viewer)) {
-      return res
-        .status(403)
-        .json({ message: "Only admins can change the requester" });
+      return res.status(403).json({ message: "Only admins can change the requester" });
     }
 
     const requester = await findUser({ id: requesterId });
@@ -263,9 +239,7 @@ async function updateTicket(req: Request, res: Response) {
     if (uniqueAssigneeIds.length) {
       const assignees = await findAssignableUsers(uniqueAssigneeIds);
       if (assignees.length !== uniqueAssigneeIds.length) {
-        return res
-          .status(404)
-          .json({ message: "One or more assignees not found" });
+        return res.status(404).json({ message: "One or more assignees not found" });
       }
       const missingProjectMembers = uniqueAssigneeIds.filter(
         (assigneeId) => !projectMemberIds.includes(assigneeId),
@@ -279,46 +253,25 @@ async function updateTicket(req: Request, res: Response) {
     }
   }
 
-  const nextRequesterId =
-    requesterId !== undefined ? requesterId : existing.requesterId;
-  const existingAssigneeIds = existing.assignees.map(
-    (assignee) => assignee.user.id,
-  );
-  const nextAssigneeIds =
-    uniqueAssigneeIds !== undefined ? uniqueAssigneeIds : existingAssigneeIds;
+  const nextRequesterId = requesterId !== undefined ? requesterId : existing.requesterId;
+  const existingAssigneeIds = existing.assignees.map((assignee) => assignee.user.id);
+  const nextAssigneeIds = uniqueAssigneeIds !== undefined ? uniqueAssigneeIds : existingAssigneeIds;
   const addedAssigneeIds =
     uniqueAssigneeIds !== undefined
-      ? uniqueAssigneeIds.filter(
-          (assigneeId) => !existingAssigneeIds.includes(assigneeId),
-        )
+      ? uniqueAssigneeIds.filter((assigneeId) => !existingAssigneeIds.includes(assigneeId))
       : [];
 
   const nextType = parsed.data.type ?? existing.type;
 
-  if (
-    !canModifyTicketState(
-      nextType,
-      nextRequesterId,
-      nextAssigneeIds,
-      projectMemberIds,
-      viewer,
-    )
-  ) {
+  if (!canModifyTicketState(nextType, nextRequesterId, nextAssigneeIds, projectMemberIds, viewer)) {
     return res.status(403).json({ message: "Insufficient permissions" });
   }
 
-  const nextStart =
-    startDate !== undefined ? startDate : existing.startDate ?? null;
-  const nextDue = dueDate !== undefined ? dueDate : existing.dueDate ?? null;
+  const nextStart = startDate !== undefined ? startDate : (existing.startDate ?? null);
+  const nextDue = dueDate !== undefined ? dueDate : (existing.dueDate ?? null);
 
-  if (
-    nextStart instanceof Date &&
-    nextDue instanceof Date &&
-    nextDue < nextStart
-  ) {
-    return res
-      .status(400)
-      .json({ message: "Due date must be on or after start date" });
+  if (nextStart instanceof Date && nextDue instanceof Date && nextDue < nextStart) {
+    return res.status(400).json({ message: "Due date must be on or after start date" });
   }
 
   const updated = await editTicket(id, {
@@ -386,10 +339,4 @@ async function deleteTicketById(req: Request, res: Response) {
   res.status(200).json({ message: "Ticket deleted successfully" });
 }
 
-export {
-  getAllTickets,
-  getTicketById,
-  insertTicket,
-  updateTicket,
-  deleteTicketById,
-};
+export { getAllTickets, getTicketById, insertTicket, updateTicket, deleteTicketById };

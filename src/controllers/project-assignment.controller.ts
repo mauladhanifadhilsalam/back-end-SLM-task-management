@@ -13,10 +13,7 @@ import {
 import { requireViewer, isAdmin } from "../utils/permissions";
 import { notifyProjectAssignments } from "../services/notification.triggers";
 import { ActivityTargetType } from "@prisma/client";
-import {
-  recordActivity,
-  toActivityDetails,
-} from "../services/activity-log.service";
+import { recordActivity, toActivityDetails } from "../services/activity-log.service";
 import { findAnyUser } from "../services/user.service";
 
 function parseIdParam(value: string) {
@@ -82,9 +79,7 @@ async function addProjectAssignment(req: Request, res: Response) {
   }
 
   const existingAssignment = project.assignments.find(
-    (assignment) =>
-      assignment.user?.id === userId &&
-      assignment.roleInProject === roleInProject,
+    (assignment) => assignment.user?.id === userId && assignment.roleInProject === roleInProject,
   );
   if (existingAssignment) {
     return res.status(409).json({
@@ -96,9 +91,7 @@ async function addProjectAssignment(req: Request, res: Response) {
   if (!allExist) {
     return res.status(404).json({
       message: {
-        missing: missingUserIds.map(
-          (id) => `User with ID ${id} not found`,
-        ),
+        missing: missingUserIds.map((id) => `User with ID ${id} not found`),
       },
     });
   }
@@ -145,9 +138,7 @@ async function removeProjectAssignment(req: Request, res: Response) {
 
   const id = parseIdParam(req.params.id);
   if (!id) {
-    return res
-      .status(400)
-      .json({ message: "Invalid project assignment identifier" });
+    return res.status(400).json({ message: "Invalid project assignment identifier" });
   }
 
   const assignment = await findProjectAssignment({ id });
@@ -171,8 +162,4 @@ async function removeProjectAssignment(req: Request, res: Response) {
   res.status(200).json({ message: "Project assignment removed successfully" });
 }
 
-export {
-  getProjectAssignments,
-  addProjectAssignment,
-  removeProjectAssignment,
-};
+export { getProjectAssignments, addProjectAssignment, removeProjectAssignment };

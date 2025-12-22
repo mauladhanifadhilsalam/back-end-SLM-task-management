@@ -35,8 +35,7 @@ const commentSeeds: CommentSeed[] = [
   {
     ticketTitle: "Draft customer launch communications",
     authorEmail: "samwise@example.com",
-    message:
-      "I'll take the FAQ appendix and push a commit tonight so we keep the schedule.",
+    message: "I'll take the FAQ appendix and push a commit tonight so we keep the schedule.",
   },
   {
     ticketTitle: "Hardening rollout for trusted device enrollment",
@@ -52,10 +51,7 @@ const commentSeeds: CommentSeed[] = [
   },
 ];
 
-async function getUserId(
-  email: string,
-  cache: Map<string, number>,
-): Promise<number> {
+async function getUserId(email: string, cache: Map<string, number>): Promise<number> {
   const cached = cache.get(email);
   if (cached) return cached;
 
@@ -72,10 +68,7 @@ async function getUserId(
   return user.id;
 }
 
-async function getTicketId(
-  title: string,
-  cache: Map<string, number>,
-): Promise<number> {
+async function getTicketId(title: string, cache: Map<string, number>): Promise<number> {
   const cached = cache.get(title);
   if (cached) return cached;
 

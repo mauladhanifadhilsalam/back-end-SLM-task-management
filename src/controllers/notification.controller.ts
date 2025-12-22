@@ -66,9 +66,7 @@ async function getNotifications(req: Request, res: Response) {
   }
 
   const filters = parsed.data;
-  const effectiveFilters = isAdmin(viewer)
-    ? filters
-    : { ...filters, recipientId: viewer.id };
+  const effectiveFilters = isAdmin(viewer) ? filters : { ...filters, recipientId: viewer.id };
 
   const notifications = await findNotifications(effectiveFilters);
   res.status(200).json(notifications);
@@ -104,9 +102,7 @@ async function insertNotification(req: Request, res: Response) {
   }
 
   if (!canManageNotifications(viewer)) {
-    return res
-      .status(403)
-      .json({ message: "Only admins can create notifications" });
+    return res.status(403).json({ message: "Only admins can create notifications" });
   }
 
   const parsed = createNotificationSchema.safeParse(req.body);
@@ -131,9 +127,7 @@ async function updateNotification(req: Request, res: Response) {
   }
 
   if (!canManageNotifications(viewer)) {
-    return res
-      .status(403)
-      .json({ message: "Only admins can update notifications" });
+    return res.status(403).json({ message: "Only admins can update notifications" });
   }
 
   const notificationId = parseIdParam(req.params.id);
@@ -169,9 +163,7 @@ async function deleteNotificationById(req: Request, res: Response) {
   }
 
   if (!canManageNotifications(viewer)) {
-    return res
-      .status(403)
-      .json({ message: "Only admins can delete notifications" });
+    return res.status(403).json({ message: "Only admins can delete notifications" });
   }
 
   const notificationId = parseIdParam(req.params.id);
@@ -209,16 +201,11 @@ async function updateNotificationState(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
-  if (
-    !canUpdateNotificationState(existing, viewer, parsed.data.state)
-  ) {
+  if (!canUpdateNotificationState(existing, viewer, parsed.data.state)) {
     return res.status(403).json({ message: "Insufficient permissions" });
   }
 
-  const updated = await setNotificationState(
-    notificationId,
-    parsed.data.state,
-  );
+  const updated = await setNotificationState(notificationId, parsed.data.state);
   res.status(200).json(updated);
 }
 
@@ -229,9 +216,7 @@ async function resendNotification(req: Request, res: Response) {
   }
 
   if (!canManageNotifications(viewer)) {
-    return res
-      .status(403)
-      .json({ message: "Only admins can resend notifications" });
+    return res.status(403).json({ message: "Only admins can resend notifications" });
   }
 
   const notificationId = parseIdParam(req.params.id);
@@ -245,9 +230,7 @@ async function resendNotification(req: Request, res: Response) {
   }
 
   if (notification.status !== NotifyStatusType.FAILED) {
-    return res
-      .status(409)
-      .json({ message: "Only failed email notifications can be resent" });
+    return res.status(409).json({ message: "Only failed email notifications can be resent" });
   }
 
   const parsed = resendNotificationSchema.safeParse(req.body ?? {});
@@ -266,8 +249,7 @@ async function resendNotification(req: Request, res: Response) {
     const updated = await resendNotificationEmail(notification, parsed.data);
     return res.status(202).json(updated);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unable to resend notification";
+    const message = error instanceof Error ? error.message : "Unable to resend notification";
     return res.status(400).json({ message });
   }
 }

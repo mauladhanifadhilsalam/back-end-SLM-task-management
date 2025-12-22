@@ -27,17 +27,15 @@ const createProjectPhaseSchema = z
     }
   });
 
-const updateProjectPhaseSchema = createProjectPhaseSchema.partial().superRefine(
-  (data, ctx) => {
-    if (data.startDate && data.endDate && data.endDate < data.startDate) {
-      ctx.addIssue({
-        code: "custom",
-        message: "End date must be on or after start date",
-        path: ["endDate"],
-      });
-    }
-  },
-);
+const updateProjectPhaseSchema = createProjectPhaseSchema.partial().superRefine((data, ctx) => {
+  if (data.startDate && data.endDate && data.endDate < data.startDate) {
+    ctx.addIssue({
+      code: "custom",
+      message: "End date must be on or after start date",
+      path: ["endDate"],
+    });
+  }
+});
 
 const projectPhaseQuerySchema = z
   .object({
@@ -46,7 +44,8 @@ const projectPhaseQuerySchema = z
     endBefore: z.coerce.date().optional(),
     activeOnly: z.coerce.boolean().optional(),
     sortBy: z.enum(projectPhaseSortFields).optional(),
-  }).extend(baseQuerySchema.shape)
+  })
+  .extend(baseQuerySchema.shape)
   .superRefine((data, ctx) => {
     if (data.startAfter && data.endBefore && data.endBefore < data.startAfter) {
       ctx.addIssue({
@@ -57,8 +56,4 @@ const projectPhaseQuerySchema = z
     }
   });
 
-export {
-  createProjectPhaseSchema,
-  updateProjectPhaseSchema,
-  projectPhaseQuerySchema,
-};
+export { createProjectPhaseSchema, updateProjectPhaseSchema, projectPhaseQuerySchema };
