@@ -19,6 +19,7 @@ import attachmentRouter from "./routes/attachment.route";
 import notificationRouter from "./routes/notification.route";
 import activityLogRouter from "./routes/activity-log.route";
 import dashboardRouter from "./routes/dashboard.route";
+import metricsRouter from "./routes/metrics.route";
 
 // Middleware for authentication and role-based access control
 import requireAuth from "./middleware/requireAuth";
@@ -30,6 +31,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import { httpMetricsMiddleware } from "./metrics";
+
 
 const app = express();
 
@@ -52,6 +55,7 @@ if (env.nodeEnv !== "production") {
 }
 
 // Public routes
+app.use("/metrics", metricsRouter);
 app.use("/auth", authRouter);
 app.get("/health", (_req: Request, res: Response) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
