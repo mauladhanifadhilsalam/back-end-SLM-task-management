@@ -1,0 +1,32 @@
+import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
+import { registerAuthPaths } from "./auth";
+import { registerUserPaths } from "./users";
+import { registerProjectOwnerPaths } from "./projectOwners";
+import { registerProjectPhasePaths } from "./projectPhases";
+import { registerProjectPaths } from "./projects";
+import { registerTicketPaths } from "./tickets";
+import { registerCommentPaths } from "./comments";
+import { registerAttachmentPaths } from "./attachments";
+import { registerProjectAssignmentPaths } from "./projectAssignments";
+import { registerTicketAssigneePaths } from "./ticketAssignees";
+import { registerNotificationPaths } from "./notifications";
+import { registerActivityLogPaths } from "./activityLogs";
+import { registerDashboardPaths } from "./dashboard";
+
+function registerOpenApiPaths(registry: OpenAPIRegistry) {
+  registerAuthPaths(registry);
+  registerUserPaths(registry);
+  registerProjectOwnerPaths(registry);
+  registerProjectPhasePaths(registry);
+  registerProjectPaths(registry);
+  registerTicketPaths(registry);
+  registerCommentPaths(registry);
+  registerAttachmentPaths(registry);
+  registerProjectAssignmentPaths(registry);
+  registerTicketAssigneePaths(registry);
+  registerNotificationPaths(registry);
+  registerActivityLogPaths(registry);
+  registerDashboardPaths(registry);
+}
+
+export { registerOpenApiPaths };
