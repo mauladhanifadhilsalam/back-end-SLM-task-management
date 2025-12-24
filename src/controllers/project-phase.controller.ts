@@ -25,7 +25,7 @@ async function getAllProjectPhases(req: Request, res: Response) {
 
     const phases = await findProjectPhases(parsed.data);
     res.status(200).json(phases);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Internal server error" });
   }
 }
@@ -36,7 +36,7 @@ async function getProjectPhaseById(req: Request, res: Response) {
     const phase = await findProjectPhase({ id: Number(id) });
     if (!phase) return res.status(404).json({ message: "Project phase not found" });
     res.status(200).json(phase);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Internal server error" });
   }
 }

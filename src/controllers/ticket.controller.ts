@@ -64,7 +64,7 @@ async function getAllTickets(req: Request, res: Response) {
 
     const result = await findTickets(parsed.data, viewer);
     res.status(200).json({ ...result, data: result.data.map((data) => withTicketDuration(data)) });
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Internal server error" });
   }
 }
@@ -91,7 +91,7 @@ async function getTicketById(req: Request, res: Response) {
     }
 
     res.status(200).json(withTicketDuration(ticket));
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Internal server error" });
   }
 }
@@ -105,8 +105,6 @@ async function insertTicket(req: Request, res: Response) {
   const notificationActor = viewerProfile
     ? { id: viewerProfile.id, fullName: viewerProfile.fullName }
     : undefined;
-  const actor = await findAnyUser(viewer.id);
-
   const parsed = createTicketSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json(parsed.error.format());

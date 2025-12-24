@@ -13,7 +13,7 @@ type NewProjectOwnerInput = Pick<
 type ProjectOwnerFilters = z.infer<typeof projectOwnerQuerySchema>;
 type ProjectOwnerSortBy = keyof ProjectOwner;
 
-type ProjectOwnerListItem = Prisma.ProjectOwnerGetPayload<{}>;
+type ProjectOwnerListItem = ProjectOwner;
 
 async function findProjectOwners(
   filters: ProjectOwnerFilters = {},

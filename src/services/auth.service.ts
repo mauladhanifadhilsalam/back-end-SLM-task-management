@@ -30,7 +30,7 @@ async function findRefreshTokenWithUser(token: string) {
 async function deleteRefreshTokenByUserId(userId: number) {
   try {
     await prisma.refreshToken.delete({ where: { userId } });
-  } catch (_error) {
+  } catch {
     // ignore if token already removed
   }
 }

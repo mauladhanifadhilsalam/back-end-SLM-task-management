@@ -19,7 +19,7 @@ export const transporter = nodemailer.createTransport({
   },
 } as SMTPTransport.Options);
 
-transporter.verify((error, success) => {
+transporter.verify((error) => {
   if (error) {
     console.error("Error with email transporter:", error);
   }

@@ -1,5 +1,5 @@
 import prisma from "../db/prisma";
-import { Prisma, RoleType, ProjectStatus, Project } from "@prisma/client";
+import { Prisma, RoleType, Project } from "@prisma/client";
 import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import z from "zod";
 import { projectQuerySchema } from "../schemas/project.schema";

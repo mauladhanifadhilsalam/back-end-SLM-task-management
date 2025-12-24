@@ -1,5 +1,4 @@
-import { Request } from "express";
-import { RoleType, TicketType } from "@prisma/client";
+import { TicketType } from "@prisma/client";
 import type { findTicket } from "../../services/ticket.service";
 import { Viewer, PermissionRule, isAdmin, isDeveloper, isProjectManager, runRules } from "./core";
 
