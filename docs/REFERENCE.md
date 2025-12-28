@@ -2,6 +2,24 @@
 
 > This document focuses on **HTTP endpoints**. High-level concepts, architecture, and domain
 
+## Contents
+
+- [Authentication](#authentication)
+- [Health & Root](#health--root)
+- [Auth](#auth)
+- [Users](#users)
+- [Project Owners](#project-owners)
+- [Projects](#projects)
+- [Project Phases](#project-phases)
+- [Project Assignments](#project-assignments)
+- [Tickets](#tickets)
+- [Ticket Assignees](#ticket-assignees)
+- [Comments](#comments)
+- [Attachments](#attachments)
+- [Notifications](#notifications)
+- [Dashboard](#dashboard)
+- [Activity Logs](#activity-logs)
+
 ## Authentication
 
 - All protected endpoints use **Bearer JWT** auth.
@@ -1616,6 +1634,98 @@ Authorization: Bearer <token>
 - `401 Unauthorized` – Missing or invalid token.
 
 - `403 Forbidden` – Authenticated but not allowed to perform this action.
+
+---
+
+## Dashboard
+
+### Developer Dashboard
+
+`GET /dashboard/developer`
+
+Requires `DEVELOPER` role. Returns the developer dashboard metrics.
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+GET {baseUrl}/dashboard/developer
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ƒ?" Successful operation.
+
+- `401 Unauthorized` ƒ?" Missing or invalid token.
+
+- `403 Forbidden` ƒ?" Authenticated but not allowed to perform this action.
+
+- `404 Not Found` ƒ?" Dashboard not found.
+
+---
+
+### Project Manager Dashboard
+
+`GET /dashboard/project-manager`
+
+Requires `PROJECT_MANAGER` role. Returns the project manager dashboard metrics.
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+GET {baseUrl}/dashboard/project-manager
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ƒ?" Successful operation.
+
+- `401 Unauthorized` ƒ?" Missing or invalid token.
+
+- `403 Forbidden` ƒ?" Authenticated but not allowed to perform this action.
+
+- `404 Not Found` ƒ?" Dashboard not found.
+
+---
+
+### Developer Stats (Project Manager)
+
+`GET /dashboard/project-manager/dev-stat`
+
+Requires `PROJECT_MANAGER` role. Returns developer dashboard rows for project managers.
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+GET {baseUrl}/dashboard/project-manager/dev-stat
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ƒ?" Successful operation.
+
+- `401 Unauthorized` ƒ?" Missing or invalid token.
+
+- `403 Forbidden` ƒ?" Authenticated but not allowed to perform this action.
+
+- `404 Not Found` ƒ?" Dashboards not found.
 
 ---
 
