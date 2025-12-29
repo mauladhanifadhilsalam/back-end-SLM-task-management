@@ -12,6 +12,7 @@ REST API for the SLM Project Management System. The service centralises authenti
 - [Database & Prisma](#database--prisma)
 - [Authentication & Authorization](#authentication--authorization)
 - [API Surface](#api-surface)
+- [Docs & Clients](#docs--clients)
 - [Seed Data & Sample Credentials](#seed-data--sample-credentials)
 - [Testing & Tooling](#testing--tooling)
 - [Deployment Notes](#deployment-notes)
@@ -25,20 +26,26 @@ REST API for the SLM Project Management System. The service centralises authenti
 - Ticketing with assignees, permissions, comments, attachments (file uploads), and status transitions.
 - Notification center with in-app state, email dispatch via BullMQ/Redis/Nodemailer, and resend support.
 - Activity logging for auditable actions across resources.
-- Developer dashboard powered by a materialized view.
+- Developer + project manager dashboards and exportable reports.
+- Real-time ticket events over Socket.IO.
+- Swagger UI + OpenAPI spec generation for API documentation.
 
 ## Tech Stack
 
-- Node.js 20,
+- Node.js 20
 - TypeScript
 - Express 5
-- Prisma ORM targeting PostgreSQL
+- Prisma ORM
+- PostgreSQL
 - JWT (JSON Web Token)
 - Zod schema validation
-- Redis (currently for BullMQ background jobs)
+- Redis
 - BullMQ for background jobs
 - Nodemailer for email delivery
 - Multer for file uploads
+- Socket.IO
+- Swagger UI + OpenAPI generator
+- Prometheus client metrics
 - Vitest for unit testing
 
 ## Architecture Overview
@@ -46,14 +53,21 @@ REST API for the SLM Project Management System. The service centralises authenti
 ```
 src/
   app.ts            Express app wiring, middleware registration, route mounting
-  server.ts         HTTP bootstrap
+  server.ts         HTTP + Socket.IO bootstrap
+  worker.ts         BullMQ workers entrypoint
   controllers/      HTTP controllers with validation and response handling
   services/         Prisma-backed domain services and business logic
   routes/           Route definitions and role gates per resource
   middleware/       Auth, role enforcement, uploads
   db/prisma.ts      Prisma client singleton
   config/           Env loader, Redis connection
+  schemas/          Zod schemas and OpenAPI metadata
+  openapi/          OpenAPI document builder
+  scripts/          Utility scripts
   queues/           BullMQ queue definitions
+  metrics/          Prometheus middleware and collectors
+  reports/          Export/report builders
+  websocket/        Socket.IO server + ticket events
   workers/          Queue workers (email, activity logs)
   utils/            Shared utilities (JWT, env, permissions, transporter)
 prisma/
@@ -64,6 +78,7 @@ prisma/
 tests/              Vitest specs and helpers
 uploads/            Saved attachments (created at runtime)
 dist/               Compiled JavaScript after `npm run build`
+.husky/             Git hooks (pre-commit, etc.)
 ```
 
 `src/app.ts` mounts public `/health` and `/auth` routes, then enforces authentication globally. Resource routers add per-role checks where required.
@@ -117,19 +132,30 @@ npm start:worker             # run compiled workers
 
 ## Environment Variables
 
-| Key              | Description                                              | Default from `.env.example`                         |
-| ---------------- | -------------------------------------------------------- | --------------------------------------------------- |
-| `DATABASE_URL`   | PostgreSQL connection string used by Prisma              | `postgresql://postgres:password@localhost:5432/...` |
-| `JWT_SECRET`     | Symmetric signing key for JWT tokens                     | `secret`                                            |
-| `JWT_EXPIRES_IN` | Token lifetime (supports durations like `1h` or seconds) | `1h`                                                |
-| `PORT`           | Express listener port (optional)                         | `3000` (set in code if env var missing)             |
-| `EMAIL_HOST`     | SMTP host for outbound notifications                     | `smtp.gmail.com`                                    |
-| `EMAIL_PORT`     | SMTP port                                                | `587`                                               |
-| `EMAIL_USER`     | SMTP username                                            | `user@gmail.com`                                    |
-| `EMAIL_PASS`     | SMTP password or app password                            | `abcdefghijklmnop`                                  |
-| `UPLOAD_DIR`     | Directory for uploaded attachments                       | `uploads/`                                          |
-| `REDIS_HOST`     | Redis hostname                                           | `127.0.0.1`                                         |
-| `REDIS_PORT`     | Redis port                                               | `6379`                                              |
+| Key                         | Description                                              |
+| --------------------------- | -------------------------------------------------------- |
+| `NODE_ENV`                  | Runtime environment name                                 |
+| `PORT`                      | Express listener port (optional)                         |
+| `APP_URL`                   | Base URL used in notifications                           |
+| `DATABASE_URL`              | PostgreSQL connection string used by Prisma              |
+| `JWT_SECRET`                | Symmetric signing key for JWT tokens                     |
+| `JWT_EXPIRES_IN`            | Token lifetime (supports durations like `1h` or seconds) |
+| `REFRESH_TOKEN_SECRET`      | Symmetric signing key for refresh tokens                 |
+| `REFRESH_TOKEN_EXPIRES_IN`  | Refresh token lifetime                                   |
+| `REFRESH_TOKEN_COOKIE_NAME` | Cookie name for refresh token                            |
+| `EMAIL_HOST`                | SMTP host for outbound notifications                     |
+| `EMAIL_PORT`                | SMTP port                                                |
+| `EMAIL_USER`                | SMTP username                                            |
+| `EMAIL_PASS`                | SMTP password or app password                            |
+| `EMAIL_FROM`                | Default sender address                                   |
+| `UPLOAD_DIR`                | Directory for uploaded attachments                       |
+| `REDIS_HOST`                | Redis hostname                                           |
+| `REDIS_PORT`                | Redis port                                               |
+| `REDIS_USERNAME`            | Redis username                                           |
+| `REDIS_PASSWORD`            | Redis password                                           |
+| `REDIS_DB`                  | Redis database index                                     |
+| `REDIS_TLS`                 | Enable Redis TLS (`true`/`false`)                        |
+| `ALLOWED_ORIGINS`           | CORS allowlist (comma-separated)                         |
 
 ## Database & Prisma
 
@@ -138,42 +164,64 @@ Primary models: User, ProjectOwner, Project (categories JSONB, completion), Proj
 ## Authentication & Authorization
 
 - **Login**: `POST /auth/login` with email + password returns a Bearer token (`token_type: "Bearer"`) and `expires_in`.
+- **Refresh**: `POST /auth/refresh` issues a new access token.
+- **Logout**: `POST /auth/logout` clears the refresh token cookie.
 - **Profile**: `GET /auth/profile` returns the authenticated user.
 - **Global**: `/health` and `/auth/login` are public; everything else requires a valid token.
 
-| Resource                                                     | Role Access (as implemented)                                                                               |
-| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| `/` (welcome)                                                | Any authenticated user                                                                                     |
-| `/users/change-password`                                     | Any authenticated user                                                                                     |
-| `/users` list                                                | `ADMIN`, `PROJECT_MANAGER`                                                                                 |
-| `/users` CRUD (id routes)                                    | `ADMIN`                                                                                                    |
-| `/project-owners` CRUD                                       | `ADMIN`, `PROJECT_MANAGER`                                                                                 |
-| `/projects` (all routes)                                     | Any authenticated user (controllers restrict visibility to assigned users unless admin/PM)                 |
-| `/project-phases` CRUD                                       | `ADMIN`, `PROJECT_MANAGER`                                                                                 |
-| `/project-assignments` CRUD                                  | `ADMIN`, `PROJECT_MANAGER`                                                                                 |
-| `/tickets`, `/ticket-assignees`, `/comments`, `/attachments` | Any authenticated user; controller-level permission helpers enforce project membership and ownership rules |
-| `/notifications` list/state                                  | Any authenticated user (admins can see all); create/update/delete/resend are admin-only                    |
-| `/activity-logs`                                             | `ADMIN`                                                                                                    |
-| `/dashboard/developer`                                       | `DEVELOPER`                                                                                                |
+| Resource                                                            | Role Access (as implemented)                                                                               |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `/` (welcome)                                                       | Any authenticated user                                                                                     |
+| `/users/change-password`                                            | Any authenticated user                                                                                     |
+| `/users` list                                                       | `ADMIN`, `PROJECT_MANAGER`                                                                                 |
+| `/users` CRUD (id routes)                                           | `ADMIN`                                                                                                    |
+| `/project-owners` CRUD                                              | `ADMIN`, `PROJECT_MANAGER`                                                                                 |
+| `/projects` (all routes)                                            | Any authenticated user (controllers restrict visibility to assigned users unless admin/PM)                 |
+| `/project-phases` CRUD                                              | `ADMIN`, `PROJECT_MANAGER`                                                                                 |
+| `/project-assignments` CRUD                                         | `ADMIN`, `PROJECT_MANAGER`                                                                                 |
+| `/tickets`, `/ticket-assignees`, `/comments`, `/attachments`        | Any authenticated user; controller-level permission helpers enforce project membership and ownership rules |
+| `/notifications` list/state                                         | Any authenticated user (admins can see all); create/update/delete/resend are admin-only                    |
+| `/activity-logs`                                                    | `ADMIN`                                                                                                    |
+| `/dashboard/developer`                                              | `DEVELOPER`                                                                                                |
+| `/dashboard/project-manager`, `/dashboard/project-manager/dev-stat` | `PROJECT_MANAGER`                                                                                          |
 
 Unauthorized requests return `401` for missing/invalid tokens or `403` for insufficient role/permissions.
 
 ## API Surface
 
-- **Auth**: `POST /auth/login`, `GET /auth/profile`
-- **Users**: `POST /users/change-password`, admin/PM list, admin CRUD by id
-- **Project Owners**: CRUD (admin/PM)
-- **Projects**: list/detail with phases and assignments; create/update/delete; visibility limited for non-admin/PM
-- **Project Phases**: CRUD (admin/PM)
-- **Project Assignments**: list by project (required for non-admin), create/delete (admin/PM)
-- **Tickets**: filterable list, detail, create/update/delete with granular permission checks; completion recalculation for tasks
-- **Ticket Assignees**: list by ticket, add/remove assignees with project membership validation
-- **Comments**: list by ticket, create, update/delete with author-or-admin rules
-- **Attachments**: list (base64 payload), upload file (`multipart/form-data` field `file`), delete with owner/admin ticket permissions
-- **Notifications**: list (admin sees all, others only their own), get by id, set state, admin create/update/delete/resend
-- **Activity Logs**: list with pagination/filters, get by id, delete/purge (admin)
-- **Dashboard**: `GET /dashboard/developer` for developer-centric stats
-- **Metrics**: `GET /metrics` exposes Prometheus-compatible runtime metrics
+High-level grouping only; see `docs/REFERENCE.md` or the Swagger UI for full request/response details.
+
+| Area                | Base path              | Notes                                    |
+| ------------------- | ---------------------- | ---------------------------------------- |
+| Health & root       | `/health`, `/`         | Service status and authenticated welcome |
+| Auth                | `/auth`                | Login, refresh, logout, profile          |
+| Users               | `/users`               | Account management and password change   |
+| Project owners      | `/project-owners`      | Owner contacts and company records       |
+| Projects            | `/projects`            | Project records, status, and metadata    |
+| Project phases      | `/project-phases`      | Timeline phases for projects             |
+| Project assignments | `/project-assignments` | Assign people to projects                |
+| Tickets             | `/tickets`             | Task and issue tracking                  |
+| Ticket assignees    | `/ticket-assignees`    | Manage ticket assignee list              |
+| Comments            | `/comments`            | Discussion on tickets                    |
+| Attachments         | `/attachments`         | Ticket file uploads and downloads        |
+| Team updates        | `/team-updates`        | Team status updates                      |
+| Notifications       | `/notifications`       | In-app and email notifications           |
+| Activity logs       | `/activity-logs`       | Audit trail entries                      |
+| Dashboards          | `/dashboard/*`         | Developer and manager reporting          |
+| Metrics             | `/metrics`             | Prometheus-compatible metrics            |
+
+## Docs & Clients
+
+- Endpoint reference: `docs/REFERENCE.md`
+- Swagger UI (non-production only): `GET /docs`
+- OpenAPI spec: `docs/swagger/SLM-project-management-api.spec.json`
+- API client collections: `docs/postman/` and `docs/bruno/`
+
+Generate the OpenAPI spec:
+
+```bash
+npm run generate:openapi
+```
 
 ## Seed Data & Sample Credentials
 
