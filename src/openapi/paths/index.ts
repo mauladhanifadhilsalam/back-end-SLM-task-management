@@ -12,6 +12,7 @@ import { registerTicketAssigneePaths } from "./ticketAssignees";
 import { registerNotificationPaths } from "./notifications";
 import { registerActivityLogPaths } from "./activityLogs";
 import { registerDashboardPaths } from "./dashboard";
+import { registerTeamUpdatePaths } from "./teamUpdates";
 
 function registerOpenApiPaths(registry: OpenAPIRegistry) {
   registerAuthPaths(registry);
@@ -27,6 +28,7 @@ function registerOpenApiPaths(registry: OpenAPIRegistry) {
   registerNotificationPaths(registry);
   registerActivityLogPaths(registry);
   registerDashboardPaths(registry);
+  registerTeamUpdatePaths(registry);
 }
 
 export { registerOpenApiPaths };

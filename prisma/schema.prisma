@@ -163,6 +163,7 @@ model Project {
   assignments   ProjectAssignment[]
   phases        ProjectPhase[]
   tickets       Ticket[]
+  teamUpdates   TeamUpdate[]
 
   @@index([ownerId])
 }
@@ -319,13 +320,17 @@ model ActivityLog {
 model TeamUpdate {
   id            Int      @id @default(autoincrement())
   userId        Int
+  projectId     Int
   status        TeamUpdateStatus
-  yesterdayWork String
+  yesterdayWork String?
   todayWork     String
-  blocker       String
-  nextAction    String
+  blocker       String?
+  nextAction    String?
   updatedAt     DateTime @updatedAt
   createdAt     DateTime @default(now())
 
-  developer     User @relation(fields: [userId], references: [id], onDelete: SetNull)
+  developer     User    @relation(fields: [userId], references: [id], onDelete: Restrict)
+  project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
 }
