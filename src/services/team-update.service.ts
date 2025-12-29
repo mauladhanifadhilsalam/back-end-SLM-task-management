@@ -13,6 +13,7 @@ type NewTeamUpdateInput = Pick<
   "yesterdayWork" | "todayWork" | "blocker" | "nextAction" | "status"
 > & {
   userId: number;
+  projectId: number;
 };
 
 const teamUpdateInclude = {
@@ -31,10 +32,11 @@ type TeamUpdateListItem = Prisma.TeamUpdateGetPayload<{
 }>;
 
 function buildTeamUpdateWhere(filters: TeamUpdateFilters = {}): Prisma.TeamUpdateWhereInput {
-  const { userId, createdFrom, createdTo, status } = filters;
+  const { userId, projectId, createdFrom, createdTo, status } = filters;
 
   const where: Prisma.TeamUpdateWhereInput = {
     ...(typeof userId === "number" ? { userId } : {}),
+    ...(typeof projectId === "number" ? { projectId } : {}),
     ...(status ? { status } : {}),
   };
 

@@ -83,6 +83,7 @@ async function insertTeamUpdate(req: Request, res: Response) {
 
   const created = await createTeamUpdate({
     userId: viewer.id,
+    projectId: parsed.data.projectId,
     yesterdayWork: parsed.data.yesterdayWork,
     todayWork: parsed.data.todayWork,
     blocker: parsed.data.blocker,
