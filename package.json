@@ -11,6 +11,8 @@
     "start:worker": "node dist/worker.js",
     "test": "vitest",
     "format": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "postinstall": "prisma generate",
     "generate:openapi": "ts-node src/scripts/generate-openapi.ts",
     "prepare": "husky"
@@ -52,6 +54,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
@@ -61,13 +64,17 @@
     "@types/node": "^24.7.1",
     "@types/nodemailer": "^7.0.3",
     "@types/swagger-ui-express": "^4.1.8",
+    "eslint": "^9.39.2",
+    "globals": "^16.5.0",
     "husky": "^9.1.7",
+    "jiti": "^2.6.1",
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
     "prisma": "^6.17.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.0",
     "vitest": "^3.2.4"
   }
 }

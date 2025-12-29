@@ -23,7 +23,7 @@ async function getAllUsers(req: Request, res: Response) {
 
     const users = await findUsers(parsed.data);
     res.status(200).json(users);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Internal server error" });
   }
 }
@@ -34,7 +34,7 @@ async function getUserById(req: Request, res: Response) {
     const user = await findUser({ id: Number(id) });
     if (!user) return res.status(404).json({ message: "User not found" });
     res.status(200).json(user);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Internal server error" });
   }
 }

@@ -20,7 +20,7 @@ async function getAllProjectOwners(req: Request, res: Response) {
 
     const users = await findProjectOwners(parsed.data);
     res.status(200).json(users);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Internal server error" });
   }
 }
@@ -31,7 +31,7 @@ async function getProjectOwnerById(req: Request, res: Response) {
     const owner = await findProjectOwner({ id: Number(id) });
     if (!owner) return res.status(404).json({ message: "Project owner not found" });
     res.status(200).json(owner);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Internal server error" });
   }
 }

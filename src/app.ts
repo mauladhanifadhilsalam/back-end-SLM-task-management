@@ -47,6 +47,7 @@ app.use(
     credentials: true,
   }),
 );
+app.use(httpMetricsMiddleware);
 
 // Documentation route
 if (env.nodeEnv !== "production") {

@@ -35,7 +35,7 @@ async function getAllProjects(req: Request, res: Response) {
 
     const projects = await findProjects(parsed.data, viewer);
     res.status(200).json(projects);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Internal server error" });
   }
 }
@@ -58,7 +58,7 @@ async function getProjectById(req: Request, res: Response) {
       return res.status(403).json({ message: "Insufficient permissions" });
     }
     res.status(200).json(project);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Internal server error" });
   }
 }
@@ -241,7 +241,9 @@ async function downloadProjectReport(req: Request, res: Response) {
     return res.status(400).json(parsedFilters.error.format());
   }
 
-  const { page: _page, pageSize: _pageSize, ...reportFilters } = parsedFilters.data;
+  const { page, pageSize, ...reportFilters } = parsedFilters.data;
+  void page;
+  void pageSize;
 
   try {
     const projects = await findProjectsForReport(reportFilters, viewer);
@@ -257,7 +259,7 @@ async function downloadProjectReport(req: Request, res: Response) {
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     await workbook.xlsx.write(res);
     res.end();
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Unable to generate project report" });
   }
 }

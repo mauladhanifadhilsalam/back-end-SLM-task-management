@@ -27,7 +27,9 @@ async function discardUploadedFile(file?: Express.Multer.File | null) {
 
   try {
     await fs.unlink(file.path);
-  } catch {}
+  } catch {
+    // Ignore cleanup failures for temporary uploads.
+  }
 }
 
 function resolveStoredPath(filePath: string) {
@@ -45,7 +47,9 @@ async function removeStoredFile(filePath?: string | null) {
 
   try {
     await fs.unlink(resolveStoredPath(filePath));
-  } catch {}
+  } catch {
+    // Ignore cleanup failures for missing or already-removed files.
+  }
 }
 
 async function getBase64(FilePath: string) {

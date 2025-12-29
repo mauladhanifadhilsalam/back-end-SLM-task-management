@@ -16,7 +16,7 @@ type NewAttachmentInput = Pick<
   userId: number;
 };
 
-type AttachmentListItem = Prisma.AttachmentGetPayload<{}>;
+type AttachmentListItem = Attachment;
 
 async function findAttachments(
   filters: AttachmentFilters = {},
