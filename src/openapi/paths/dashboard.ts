@@ -1,5 +1,7 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
+import { z } from "zod";
 import {
+  dailyCadenceEntrySchema,
   developerDashboardListSchema,
   projectManagerDashboardSchema,
 } from "../../schemas/dashboard.schema";
@@ -60,6 +62,33 @@ function registerDashboardPaths(registry: OpenAPIRegistry) {
       401: { description: "Unauthorized." },
       403: { description: "Forbidden for non-project-managers." },
       404: { description: "Dashboards not found." },
+    },
+  });
+
+  const projectIdParamSchema = z.object({
+    projectId: z.coerce.number().int().positive(),
+  });
+
+  registry.registerPath({
+    method: "get",
+    path: "/dashboard/project-manager/daily-cadence/{projectId}",
+    tags: ["Dashboard"],
+    summary: "Daily cadence dashboard",
+    description: "Requires `RoleType.PROJECT_MANAGER`.",
+    request: {
+      params: projectIdParamSchema,
+    },
+    responses: {
+      200: {
+        description: "Daily cadence data found.",
+        content: {
+          "application/json": { schema: dailyCadenceEntrySchema },
+        },
+      },
+      400: { description: "Invalid project id." },
+      401: { description: "Unauthorized." },
+      403: { description: "Forbidden for non-project-managers." },
+      404: { description: "Daily cadence not found." },
     },
   });
 }

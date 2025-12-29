@@ -109,8 +109,39 @@ const projectManagerDashboardSchema = registerSchema(
     .openapi({ description: "Metrics surfaced on the project manager dashboard." }),
 );
 
+const dailyCadenceHistoryEntrySchema = z.object({
+  date: z.string(),
+  totalIssues: z.number().int().nonnegative(),
+  note: z.string(),
+});
+
+const dailyCadenceEntrySchema = registerSchema(
+  "DailyCadenceEntry",
+  z
+    .object({
+      projectId: z.number().int().positive(),
+      date: z.string(),
+      progress: z.string(),
+      remainingProgress: z.string(),
+      totalDevelopersInvolved: z.number().int().nonnegative(),
+      totalModules: z.number().int().nonnegative(),
+      totalIssues: z.number().int().nonnegative(),
+      history: z.array(dailyCadenceHistoryEntrySchema),
+    })
+    .openapi({ description: "Daily cadence metrics per project." }),
+);
+
+const dailyCadenceListSchema = registerSchema(
+  "DailyCadenceList",
+  z.array(dailyCadenceEntrySchema).openapi({
+    description: "Array of daily cadence rows for all projects.",
+  }),
+);
+
 export {
   developerDashboardEntrySchema,
   developerDashboardListSchema,
   projectManagerDashboardSchema,
+  dailyCadenceEntrySchema,
+  dailyCadenceListSchema,
 };
