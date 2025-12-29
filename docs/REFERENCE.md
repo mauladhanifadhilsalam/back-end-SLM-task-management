@@ -17,6 +17,7 @@
 - [Comments](#comments)
 - [Attachments](#attachments)
 - [Notifications](#notifications)
+- [Team Updates](#team-updates)
 - [Dashboard](#dashboard)
 - [Activity Logs](#activity-logs)
 
@@ -970,6 +971,22 @@ Admins can override `requesterId`; other roles default to the viewer. Assignees 
 
 - **Auth:** required (Bearer JWT)
 
+**Body Fields**
+
+| Name          | Type          |
+| ------------- | ------------- |
+| `projectId`   | integer       |
+| `requesterId` | integer       |
+| `type`        | string (enum) |
+| `title`       | string        |
+| `description` | string        |
+| `actionPlan`  | string        |
+| `priority`    | string (enum) |
+| `status`      | string (enum) |
+| `startDate`   | string (ISO date) |
+| `dueDate`     | string (ISO date) |
+| `assigneeIds` | integer[]     |
+
 **Example Request**
 
 ```http
@@ -1053,6 +1070,22 @@ Authorization: Bearer <token>
 Only admins/project managers/requesters/assignees (or developers on their own tasks) can update. Admins alone can change the requester.
 
 - **Auth:** required (Bearer JWT)
+
+**Body Fields**
+
+| Name          | Type          |
+| ------------- | ------------- |
+| `projectId`   | integer       |
+| `requesterId` | integer       |
+| `type`        | string (enum) |
+| `title`       | string        |
+| `description` | string        |
+| `actionPlan`  | string        |
+| `priority`    | string (enum) |
+| `status`      | string (enum) |
+| `startDate`   | string (ISO date) |
+| `dueDate`     | string (ISO date) |
+| `assigneeIds` | integer[]     |
 
 **Example Request**
 
@@ -1634,6 +1667,164 @@ Authorization: Bearer <token>
 - `401 Unauthorized` – Missing or invalid token.
 
 - `403 Forbidden` – Authenticated but not allowed to perform this action.
+
+---
+
+## Team Updates
+
+### List Team Updates
+
+`GET /team-updates`
+
+- **Auth:** required (Bearer JWT)
+
+**Query Parameters**
+
+| Name          | Type              |
+| ------------- | ----------------- |
+| `projectId`   | integer           |
+| `userId`      | integer           |
+| `status`      | string (enum)     |
+| `createdFrom` | string (ISO date) |
+| `createdTo`   | string (ISO date) |
+| `page`        | integer           |
+| `pageSize`    | integer           |
+| `sortOrder`   | string (ISO date) |
+| `sortBy`      | string (enum)     |
+
+**Example Request**
+
+```http
+
+GET {baseUrl}/team-updates?projectId=1&userId=1&status=IN_PROGRESS&createdFrom=2024-01-01&createdTo=2024-12-31&page=1&pageSize=20&sortOrder=asc&sortBy=createdAt
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ƒ?" Successful operation.
+
+- `400 Bad Request` ƒ?" Validation error.
+
+- `401 Unauthorized` ƒ?" Missing or invalid token.
+
+---
+
+### Create Team Update
+
+`POST /team-updates`
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+POST {baseUrl}/team-updates
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `201 Created` ƒ?" Successful operation.
+
+- `400 Bad Request` ƒ?" Validation error.
+
+- `401 Unauthorized` ƒ?" Missing or invalid token.
+
+- `404 Not Found` ƒ?" Project not found.
+
+---
+
+### Delete Team Update
+
+`DELETE /team-updates/:id`
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+DELETE {baseUrl}/team-updates/:id
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ƒ?" Successful operation.
+
+- `400 Bad Request` ƒ?" Validation error.
+
+- `401 Unauthorized` ƒ?" Missing or invalid token.
+
+- `403 Forbidden` ƒ?" Authenticated but not allowed to perform this action.
+
+- `404 Not Found` ƒ?" Team update not found.
+
+---
+
+### Get Team Update By Id
+
+`GET /team-updates/:id`
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+GET {baseUrl}/team-updates/:id
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ƒ?" Successful operation.
+
+- `400 Bad Request` ƒ?" Validation error.
+
+- `401 Unauthorized` ƒ?" Missing or invalid token.
+
+- `404 Not Found` ƒ?" Team update not found.
+
+---
+
+### Update Team Update
+
+`PATCH /team-updates/:id`
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+PATCH {baseUrl}/team-updates/:id
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ƒ?" Successful operation.
+
+- `400 Bad Request` ƒ?" Validation error.
+
+- `401 Unauthorized` ƒ?" Missing or invalid token.
+
+- `403 Forbidden` ƒ?" Authenticated but not allowed to perform this action.
+
+- `404 Not Found` ƒ?" Team update not found.
 
 ---
 

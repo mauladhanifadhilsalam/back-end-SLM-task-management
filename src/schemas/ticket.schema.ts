@@ -141,6 +141,7 @@ const ticketResponseSchema = registerSchema(
       type: z.enum(TicketType),
       title: z.string(),
       description: z.string().nullable().optional(),
+      actionPlan: z.string().nullable().optional(),
       priority: z.enum(TicketPriority),
       status: z.enum(TicketStatus),
       startDate: z.string().datetime().nullable(),
