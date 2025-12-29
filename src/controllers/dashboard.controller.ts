@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   findAllDeveloperDashboards,
   findDeveloperDashboard,
+  findDailyCadence,
   findProjectManagerDashboard,
 } from "../services/dashboard.service";
 
@@ -52,4 +53,29 @@ async function getProjectManagerDashboard(req: Request, res: Response) {
   }
 }
 
-export { getDeveloperDashboard, getAllDeveloperDashboards, getProjectManagerDashboard };
+async function getDailyCadence(req: Request, res: Response) {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  try {
+    const projectId = Number(req.params.projectId);
+    if (!Number.isInteger(projectId) || projectId <= 0) {
+      return res.status(400).json({ message: "Invalid project id" });
+    }
+    const cadence = await findDailyCadence(projectId);
+    if (!cadence || cadence.length === 0) {
+      return res.status(404).json({ message: "Daily cadence not found" });
+    }
+    return res.status(200).json(cadence[0]);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+export {
+  getDeveloperDashboard,
+  getAllDeveloperDashboards,
+  getProjectManagerDashboard,
+  getDailyCadence,
+};

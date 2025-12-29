@@ -83,6 +83,21 @@ type ProjectManagerDashboard = [
   },
 ];
 
+type DailyCadenceEntry = {
+  projectId: number;
+  date: Date;
+  progress: string;
+  remainingProgress: string;
+  totalDevelopersInvolved: number;
+  totalModules: number;
+  totalIssues: number;
+  history: {
+    date: Date;
+    totalIssues: number;
+    note: string;
+  }[];
+};
+
 async function findDeveloperDashboard(userId: number): Promise<DeveloperDashboard> {
   return await prisma.$queryRaw`SELECT * FROM developer_dashboard WHERE "userId" = ${userId} LIMIT 1`;
 }
@@ -95,15 +110,21 @@ async function findProjectManagerDashboard(userId: number): Promise<ProjectManag
   return await prisma.$queryRaw`SELECT * FROM project_manager_dashboard WHERE "userId" = ${userId} LIMIT 1`;
 }
 
+async function findDailyCadence(projectId: number): Promise<DailyCadenceEntry[]> {
+  return await prisma.$queryRaw`SELECT * FROM daily_cadence WHERE "projectId" = ${projectId} LIMIT 1`;
+}
+
 async function refreshDashboard() {
   return await prisma.$transaction([
     prisma.$executeRaw`REFRESH MATERIALIZED VIEW developer_dashboard`,
     prisma.$executeRaw`REFRESH MATERIALIZED VIEW project_manager_dashboard`,
+    prisma.$executeRaw`REFRESH MATERIALIZED VIEW daily_cadence`,
   ]);
 }
 export {
   findDeveloperDashboard,
   findAllDeveloperDashboards,
   findProjectManagerDashboard,
+  findDailyCadence,
   refreshDashboard,
 };
