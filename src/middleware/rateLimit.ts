@@ -1,10 +1,11 @@
 import { Request } from "express";
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator as rateLimitIpKeyGenerator } from "express-rate-limit";
 import env from "../config/env";
 
-const ipKeyGenerator = (req: Request) => req.ip || req.socket.remoteAddress || "unknown";
+const getRequestIp = (req: Request) => req.ip || req.socket.remoteAddress || "0.0.0.0";
+const ipKeyGenerator = (req: Request) => rateLimitIpKeyGenerator(getRequestIp(req));
 const userKeyGenerator = (req: Request) =>
-  req.user?.sub ? `user:${req.user.sub}` : `ip:${ipKeyGenerator(req)}`;
+  req.user?.sub ? `user:${req.user.sub}` : `ip:${rateLimitIpKeyGenerator(getRequestIp(req))}`;
 
 const baseRateLimitOptions = {
   standardHeaders: true,
