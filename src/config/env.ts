@@ -19,6 +19,12 @@ const env: {
   redisDB?: number;
   nodeEnv: string;
   allowedOrigins: string[];
+  rateLimitPublicWindowMs: number;
+  rateLimitPublicMax: number;
+  rateLimitLoginWindowMs: number;
+  rateLimitLoginMax: number;
+  rateLimitAuthWindowMs: number;
+  rateLimitAuthMax: number;
 } = {
   jwtSecret: process.env.JWT_SECRET || "secret",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "1h",
@@ -37,6 +43,12 @@ const env: {
   redisTLS: process.env.REDIS_TLS === "true" ? {} : undefined,
   nodeEnv: process.env.NODE_ENV || "development",
   allowedOrigins: process.env.ALLOWED_ORIGINS?.trim().split(",") || ["http://localhost:5173"],
+  rateLimitPublicWindowMs: parseInt(process.env.RATE_LIMIT_PUBLIC_WINDOW_MS || "60000"),
+  rateLimitPublicMax: parseInt(process.env.RATE_LIMIT_PUBLIC_MAX || "120"),
+  rateLimitLoginWindowMs: parseInt(process.env.RATE_LIMIT_LOGIN_WINDOW_MS || "900000"),
+  rateLimitLoginMax: parseInt(process.env.RATE_LIMIT_LOGIN_MAX || "10"),
+  rateLimitAuthWindowMs: parseInt(process.env.RATE_LIMIT_AUTH_WINDOW_MS || "60000"),
+  rateLimitAuthMax: parseInt(process.env.RATE_LIMIT_AUTH_MAX || "300"),
 };
 
 export default env;
