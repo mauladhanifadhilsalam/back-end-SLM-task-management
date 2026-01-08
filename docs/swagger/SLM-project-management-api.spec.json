@@ -1170,6 +1170,267 @@
         ],
         "description": "Project resource with owner, phases, and assignments."
       },
+      "ProjectUpdateCreateInput": {
+        "type": "object",
+        "properties": {
+          "phaseId": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "participant": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1
+          },
+          "objective": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1
+          },
+          "progressHighlight": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1
+          },
+          "teamMood": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1
+          },
+          "projectId": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        },
+        "required": [
+          "phaseId",
+          "participant",
+          "objective",
+          "progressHighlight",
+          "teamMood",
+          "projectId"
+        ],
+        "description": "Payload for POST /project-updates."
+      },
+      "ProjectUpdateUpdateInput": {
+        "type": "object",
+        "properties": {
+          "phaseId": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "participant": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1
+          },
+          "objective": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1
+          },
+          "progressHighlight": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1
+          },
+          "teamMood": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1
+          }
+        },
+        "description": "Payload for PATCH /project-updates/{id}."
+      },
+      "ProjectUpdateQuery": {
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "phaseId": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "facilitatorId": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "createdFrom": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "createdTo": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "id",
+              "projectId",
+              "phaseId",
+              "facilitatorId",
+              "participant",
+              "objective",
+              "progressHighlight",
+              "teamMood",
+              "createdAt",
+              "updatedAt"
+            ]
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 100
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          }
+        },
+        "description": "Filters accepted by GET /project-updates."
+      },
+      "ProjectUpdateResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "projectId": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "phaseId": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "facilitatorId": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "participant": {
+            "type": "string",
+            "nullable": true
+          },
+          "objective": {
+            "type": "string",
+            "nullable": true
+          },
+          "progressHighlight": {
+            "type": "string",
+            "nullable": true
+          },
+          "teamMood": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "facilitator": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "fullName": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string",
+                "format": "email"
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "ADMIN",
+                  "PROJECT_MANAGER",
+                  "DEVELOPER"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "fullName",
+              "email",
+              "role"
+            ]
+          },
+          "phase": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "name": {
+                "type": "string"
+              },
+              "startDate": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "endDate": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "startDate",
+              "endDate"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "projectId",
+          "phaseId",
+          "facilitatorId",
+          "participant",
+          "objective",
+          "progressHighlight",
+          "teamMood",
+          "createdAt",
+          "updatedAt",
+          "facilitator",
+          "phase"
+        ],
+        "description": "Project update resource returned by the API."
+      },
       "TicketQuery": {
         "type": "object",
         "properties": {
@@ -3838,6 +4099,140 @@
           "unreadNotificationsCount"
         ],
         "description": "Metrics surfaced on the project manager dashboard."
+      },
+      "DailyCadenceEntry": {
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "date": {
+            "type": "string"
+          },
+          "progress": {
+            "type": "string"
+          },
+          "remainingProgress": {
+            "type": "string"
+          },
+          "totalDevelopersInvolved": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "totalModules": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "totalIssues": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string"
+                },
+                "totalIssues": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "note": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "date",
+                "totalIssues",
+                "note"
+              ]
+            }
+          }
+        },
+        "required": [
+          "projectId",
+          "date",
+          "progress",
+          "remainingProgress",
+          "totalDevelopersInvolved",
+          "totalModules",
+          "totalIssues",
+          "history"
+        ],
+        "description": "Daily cadence metrics per project."
+      },
+      "DailyCadenceList": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "date": {
+              "type": "string"
+            },
+            "progress": {
+              "type": "string"
+            },
+            "remainingProgress": {
+              "type": "string"
+            },
+            "totalDevelopersInvolved": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "totalModules": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "totalIssues": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "history": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string"
+                  },
+                  "totalIssues": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "date",
+                  "totalIssues",
+                  "note"
+                ]
+              }
+            }
+          },
+          "required": [
+            "projectId",
+            "date",
+            "progress",
+            "remainingProgress",
+            "totalDevelopersInvolved",
+            "totalModules",
+            "totalIssues",
+            "history"
+          ],
+          "description": "Daily cadence metrics per project."
+        },
+        "description": "Array of daily cadence rows for all projects."
       },
       "TeamUpdateCreateInput": {
         "type": "object",
@@ -7588,6 +7983,914 @@
           },
           "500": {
             "description": "Unable to generate the report."
+          }
+        }
+      }
+    },
+    "/project-updates": {
+      "get": {
+        "tags": [
+          "Project Updates"
+        ],
+        "summary": "List project updates",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": false,
+            "name": "projectId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": false,
+            "name": "phaseId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": false,
+            "name": "facilitatorId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "format": "date"
+            },
+            "required": false,
+            "name": "createdFrom",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "format": "date"
+            },
+            "required": false,
+            "name": "createdTo",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "projectId",
+                "phaseId",
+                "facilitatorId",
+                "participant",
+                "objective",
+                "progressHighlight",
+                "teamMood",
+                "createdAt",
+                "updatedAt"
+              ]
+            },
+            "required": false,
+            "name": "sortBy",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 100
+            },
+            "required": false,
+            "name": "pageSize",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "required": false,
+            "name": "sortOrder",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project updates fetched successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "projectId": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "phaseId": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "facilitatorId": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "participant": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "objective": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "progressHighlight": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "teamMood": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "facilitator": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "exclusiveMinimum": true
+                              },
+                              "fullName": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "type": "string",
+                                "format": "email"
+                              },
+                              "role": {
+                                "type": "string",
+                                "enum": [
+                                  "ADMIN",
+                                  "PROJECT_MANAGER",
+                                  "DEVELOPER"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "fullName",
+                              "email",
+                              "role"
+                            ]
+                          },
+                          "phase": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "exclusiveMinimum": true
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "startDate": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "endDate": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "startDate",
+                              "endDate"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "projectId",
+                          "phaseId",
+                          "facilitatorId",
+                          "participant",
+                          "objective",
+                          "progressHighlight",
+                          "teamMood",
+                          "createdAt",
+                          "updatedAt",
+                          "facilitator",
+                          "phase"
+                        ],
+                        "description": "Project update resource returned by the API."
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "page": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "exclusiveMinimum": true
+                        },
+                        "pageSize": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "exclusiveMinimum": true
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "hasNextPage": {
+                          "type": "boolean"
+                        },
+                        "hasPrevPage": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "page",
+                        "pageSize",
+                        "totalPages",
+                        "hasNextPage",
+                        "hasPrevPage"
+                      ],
+                      "description": "Pagination details for list endpoints."
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "pagination"
+                  ],
+                  "description": "Standard shape returned by list endpoints. The `data` array items depend on the API route."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters."
+          },
+          "401": {
+            "description": "Unauthorized."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Project Updates"
+        ],
+        "summary": "Create a project update",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "phaseId": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "participant": {
+                    "type": "string",
+                    "nullable": true,
+                    "minLength": 1
+                  },
+                  "objective": {
+                    "type": "string",
+                    "nullable": true,
+                    "minLength": 1
+                  },
+                  "progressHighlight": {
+                    "type": "string",
+                    "nullable": true,
+                    "minLength": 1
+                  },
+                  "teamMood": {
+                    "type": "string",
+                    "nullable": true,
+                    "minLength": 1
+                  },
+                  "projectId": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": [
+                  "phaseId",
+                  "participant",
+                  "objective",
+                  "progressHighlight",
+                  "teamMood",
+                  "projectId"
+                ],
+                "description": "Payload for POST /project-updates."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Project update created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "projectId": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "phaseId": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "facilitatorId": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "participant": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "objective": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "progressHighlight": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "teamMood": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "facilitator": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "exclusiveMinimum": true
+                        },
+                        "fullName": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "ADMIN",
+                            "PROJECT_MANAGER",
+                            "DEVELOPER"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "fullName",
+                        "email",
+                        "role"
+                      ]
+                    },
+                    "phase": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "exclusiveMinimum": true
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "startDate": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "endDate": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "startDate",
+                        "endDate"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "projectId",
+                    "phaseId",
+                    "facilitatorId",
+                    "participant",
+                    "objective",
+                    "progressHighlight",
+                    "teamMood",
+                    "createdAt",
+                    "updatedAt",
+                    "facilitator",
+                    "phase"
+                  ],
+                  "description": "Project update resource returned by the API."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "404": {
+            "description": "Project or phase not found."
+          }
+        }
+      }
+    },
+    "/project-updates/{id}": {
+      "get": {
+        "tags": [
+          "Project Updates"
+        ],
+        "summary": "Fetch a project update by id",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project update found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "projectId": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "phaseId": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "facilitatorId": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "participant": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "objective": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "progressHighlight": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "teamMood": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "facilitator": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "exclusiveMinimum": true
+                        },
+                        "fullName": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "ADMIN",
+                            "PROJECT_MANAGER",
+                            "DEVELOPER"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "fullName",
+                        "email",
+                        "role"
+                      ]
+                    },
+                    "phase": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "exclusiveMinimum": true
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "startDate": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "endDate": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "startDate",
+                        "endDate"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "projectId",
+                    "phaseId",
+                    "facilitatorId",
+                    "participant",
+                    "objective",
+                    "progressHighlight",
+                    "teamMood",
+                    "createdAt",
+                    "updatedAt",
+                    "facilitator",
+                    "phase"
+                  ],
+                  "description": "Project update resource returned by the API."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "404": {
+            "description": "Project update not found."
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Project Updates"
+        ],
+        "summary": "Update a project update",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "phaseId": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "participant": {
+                    "type": "string",
+                    "nullable": true,
+                    "minLength": 1
+                  },
+                  "objective": {
+                    "type": "string",
+                    "nullable": true,
+                    "minLength": 1
+                  },
+                  "progressHighlight": {
+                    "type": "string",
+                    "nullable": true,
+                    "minLength": 1
+                  },
+                  "teamMood": {
+                    "type": "string",
+                    "nullable": true,
+                    "minLength": 1
+                  }
+                },
+                "description": "Payload for PATCH /project-updates/{id}."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project update updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "projectId": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "phaseId": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "facilitatorId": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "participant": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "objective": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "progressHighlight": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "teamMood": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "facilitator": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "exclusiveMinimum": true
+                        },
+                        "fullName": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "ADMIN",
+                            "PROJECT_MANAGER",
+                            "DEVELOPER"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "fullName",
+                        "email",
+                        "role"
+                      ]
+                    },
+                    "phase": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "exclusiveMinimum": true
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "startDate": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "endDate": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "startDate",
+                        "endDate"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "projectId",
+                    "phaseId",
+                    "facilitatorId",
+                    "participant",
+                    "objective",
+                    "progressHighlight",
+                    "teamMood",
+                    "createdAt",
+                    "updatedAt",
+                    "facilitator",
+                    "phase"
+                  ],
+                  "description": "Project update resource returned by the API."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Insufficient permissions."
+          },
+          "404": {
+            "description": "Project update not found."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Project Updates"
+        ],
+        "summary": "Delete a project update",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project update deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "description": "Generic message wrapper used for success or error states."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Insufficient permissions."
+          },
+          "404": {
+            "description": "Project update not found."
           }
         }
       }
@@ -14757,6 +16060,113 @@
           },
           "404": {
             "description": "Dashboards not found."
+          }
+        }
+      }
+    },
+    "/dashboard/project-manager/daily-cadence/{projectId}": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Daily cadence dashboard",
+        "description": "Requires `RoleType.PROJECT_MANAGER`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daily cadence data found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "projectId": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "date": {
+                      "type": "string"
+                    },
+                    "progress": {
+                      "type": "string"
+                    },
+                    "remainingProgress": {
+                      "type": "string"
+                    },
+                    "totalDevelopersInvolved": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "totalModules": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "totalIssues": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "history": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string"
+                          },
+                          "totalIssues": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "note": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "date",
+                          "totalIssues",
+                          "note"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "projectId",
+                    "date",
+                    "progress",
+                    "remainingProgress",
+                    "totalDevelopersInvolved",
+                    "totalModules",
+                    "totalIssues",
+                    "history"
+                  ],
+                  "description": "Daily cadence metrics per project."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid project id."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Forbidden for non-project-managers."
+          },
+          "404": {
+            "description": "Daily cadence not found."
           }
         }
       }

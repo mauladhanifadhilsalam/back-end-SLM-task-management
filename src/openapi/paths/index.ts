@@ -4,6 +4,7 @@ import { registerUserPaths } from "./users";
 import { registerProjectOwnerPaths } from "./projectOwners";
 import { registerProjectPhasePaths } from "./projectPhases";
 import { registerProjectPaths } from "./projects";
+import { registerProjectUpdatePaths } from "./projectUpdates";
 import { registerTicketPaths } from "./tickets";
 import { registerCommentPaths } from "./comments";
 import { registerAttachmentPaths } from "./attachments";
@@ -20,6 +21,7 @@ function registerOpenApiPaths(registry: OpenAPIRegistry) {
   registerProjectOwnerPaths(registry);
   registerProjectPhasePaths(registry);
   registerProjectPaths(registry);
+  registerProjectUpdatePaths(registry);
   registerTicketPaths(registry);
   registerCommentPaths(registry);
   registerAttachmentPaths(registry);

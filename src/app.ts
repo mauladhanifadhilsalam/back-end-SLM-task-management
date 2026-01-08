@@ -10,6 +10,7 @@ import userRouter from "./routes/user.route";
 import projectOwnerRouter from "./routes/project-owner.route";
 import projectRouter from "./routes/project.route";
 import projectPhaseRouter from "./routes/project-phase.route";
+import projectUpdateRouter from "./routes/project-update.route";
 import ticketRouter from "./routes/ticket.route";
 import commentRouter from "./routes/comment.route";
 import teamUpdateRouter from "./routes/team-update.route";
@@ -71,6 +72,11 @@ app.use(
   projectOwnerRouter,
 );
 app.use("/projects", projectRouter);
+app.use(
+  "/project-updates",
+  requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]),
+  projectUpdateRouter,
+);
 app.use(
   "/project-phases",
   requireRole([RoleType.ADMIN, RoleType.PROJECT_MANAGER]),

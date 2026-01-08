@@ -12,6 +12,7 @@
 - [Projects](#projects)
 - [Project Phases](#project-phases)
 - [Project Assignments](#project-assignments)
+- [Project Updates](#project-updates)
 - [Tickets](#tickets)
 - [Ticket Assignees](#ticket-assignees)
 - [Comments](#comments)
@@ -911,6 +912,186 @@ Authorization: Bearer <token>
 - `401 Unauthorized` – Missing or invalid token.
 
 - `403 Forbidden` – Authenticated but not allowed to perform this action.
+
+---
+
+
+## Project Updates
+
+### List Project Updates
+
+`GET /project-updates`
+
+- **Auth:** required (Bearer JWT)
+
+**Query Parameters**
+
+| Name            | Type              |
+| --------------- | ----------------- |
+| `projectId`     | integer           |
+| `phaseId`       | integer           |
+| `facilitatorId` | integer           |
+| `createdFrom`   | string (ISO date) |
+| `createdTo`     | string (ISO date) |
+| `page`          | integer           |
+| `pageSize`      | integer           |
+| `sortOrder`     | string (ISO date) |
+| `sortBy`        | string (enum)     |
+
+**Example Request**
+
+```http
+
+GET {baseUrl}/project-updates?projectId=1&phaseId=1&facilitatorId=2&createdFrom=2025-01-01&createdTo=2025-12-31&page=1&pageSize=20&sortOrder=asc&sortBy=createdAt
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ??" Successful operation.
+
+- `400 Bad Request` ??" Validation error.
+
+- `401 Unauthorized` ??" Missing or invalid token.
+
+---
+
+### Create Project Update
+
+`POST /project-updates`
+
+- **Auth:** required (Bearer JWT)
+
+**Body Fields**
+
+| Name                | Type              |
+| ------------------- | ----------------- |
+| `projectId`         | integer           |
+| `phaseId`           | integer           |
+| `reportDate`        | string (ISO date) |
+| `participant`       | string            |
+| `objective`         | string            |
+| `progressHighlight` | string            |
+| `teamMood`          | string            |
+
+**Example Request**
+
+```http
+
+POST {baseUrl}/project-updates
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `201 Created` ??" Successful operation.
+
+- `400 Bad Request` ??" Validation error.
+
+- `401 Unauthorized` ??" Missing or invalid token.
+
+---
+
+### Delete Project Update
+
+`DELETE /project-updates/:id`
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+DELETE {baseUrl}/project-updates/:id
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ??" Successful operation.
+
+- `400 Bad Request` ??" Validation error.
+
+- `401 Unauthorized` ??" Missing or invalid token.
+
+- `403 Forbidden` ??" Authenticated but not allowed to perform this action.
+
+- `404 Not Found` ??" Project update not found.
+
+---
+
+### Get Project Update By Id
+
+`GET /project-updates/:id`
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+GET {baseUrl}/project-updates/:id
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ??" Successful operation.
+
+- `400 Bad Request` ??" Validation error.
+
+- `401 Unauthorized` ??" Missing or invalid token.
+
+- `404 Not Found` ??" Project update not found.
+
+---
+
+### Update Project Update
+
+`PATCH /project-updates/:id`
+
+- **Auth:** required (Bearer JWT)
+
+**Body Fields**
+
+| Name                | Type              |
+| ------------------- | ----------------- |
+| `phaseId`           | integer           |
+| `reportDate`        | string (ISO date) |
+| `participant`       | string            |
+| `objective`         | string            |
+| `progressHighlight` | string            |
+| `teamMood`          | string            |
+
+**Example Request**
+
+```http
+
+PATCH {baseUrl}/project-updates/:id
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ??" Successful operation.
+
+- `400 Bad Request` ??" Validation error.
+
+- `401 Unauthorized` ??" Missing or invalid token.
+
+- `403 Forbidden` ??" Authenticated but not allowed to perform this action.
+
+- `404 Not Found` ??" Project update not found.
 
 ---
 
