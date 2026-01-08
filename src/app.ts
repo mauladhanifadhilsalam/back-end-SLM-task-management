@@ -25,6 +25,7 @@ import metricsRouter from "./routes/metrics.route";
 // Middleware for authentication and role-based access control
 import requireAuth from "./middleware/requireAuth";
 import requireRole from "./middleware/requireRole";
+import { authenticatedRateLimiter, publicRateLimiter } from "./middleware/rateLimit";
 
 // Third-party middleware utilities
 import env from "./config/env";
@@ -56,14 +57,15 @@ if (env.nodeEnv !== "production") {
 }
 
 // Public routes
-app.use("/metrics", metricsRouter);
-app.use("/auth", authRouter);
+app.use("/metrics", publicRateLimiter, metricsRouter);
+app.use("/auth", publicRateLimiter, authRouter);
 app.get("/health", (_req: Request, res: Response) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
 // Protected routes
 app.use(requireAuth);
+app.use(authenticatedRateLimiter);
 
 app.use("/users", userRouter);
 app.use(
