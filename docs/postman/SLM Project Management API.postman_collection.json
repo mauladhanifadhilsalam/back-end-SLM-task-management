@@ -1043,6 +1043,356 @@
       "description": "ADMIN or PROJECT_MANAGER (mount-level guard)."
     },
     {
+      "name": "Project Updates",
+      "item": [
+        {
+          "name": "List Project Updates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project-updates?projectId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-updates"
+              ],
+              "query": [
+                {
+                  "key": "projectId",
+                  "value": "1"
+                },
+                {
+                  "key": "phaseId",
+                  "value": "1"
+                },
+                {
+                  "key": "facilitatorId",
+                  "value": "2"
+                },
+                {
+                  "key": "createdFrom",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "createdTo",
+                  "value": "2025-12-31"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Project Update By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project-updates/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-updates",
+                ":id"
+              ]
+            },
+            "variable": [
+              {
+                "key": "id"
+              }
+            ]
+          },
+          "response": []
+        },
+        {
+          "name": "Create Project Update",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": 1,\n  \"phaseId\": 1,\n  \"reportDate\": \"2025-02-05\",\n  \"participant\": \"DevOps, QA, Release/Delivery Managers\",\n  \"objective\": \"Align on MFA rollout blockers for legacy ERP.\",\n  \"progressHighlight\": \"Identified the reverse proxy rule changes needed.\",\n  \"teamMood\": \"Cautiously optimistic.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/project-updates",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-updates"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Project Update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reportDate\": \"2025-02-06\",\n  \"progressHighlight\": \"Finalized the rollout checklist.\",\n  \"teamMood\": \"Focused.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/project-updates/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-updates",
+                ":id"
+              ]
+            },
+            "variable": [
+              {
+                "key": "id"
+              }
+            ]
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Project Update",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project-updates/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project-updates",
+                ":id"
+              ]
+            },
+            "variable": [
+              {
+                "key": "id"
+              }
+            ]
+          },
+          "response": []
+        }
+      ],
+      "description": "Authenticated users can access; only admins or the facilitator can modify or delete."
+    },
+    {
+      "name": "Team Updates",
+      "item": [
+        {
+          "name": "List Team Updates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/team-updates?projectId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "team-updates"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "3"
+                },
+                {
+                  "key": "projectId",
+                  "value": "1"
+                },
+                {
+                  "key": "createdFrom",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "createdTo",
+                  "value": "2025-12-31"
+                },
+                {
+                  "key": "status",
+                  "value": "IN_PROGRESS"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Team Update By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/team-updates/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "team-updates",
+                ":id"
+              ]
+            },
+            "variable": [
+              {
+                "key": "id"
+              }
+            ]
+          },
+          "response": []
+        },
+        {
+          "name": "Create Team Update",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": 1,\n  \"yesterdayWork\": \"Reviewed retry logic for auth gateway.\",\n  \"todayWork\": \"Implement backoff toggles and update docs.\",\n  \"blocker\": \"Awaiting infra timeout confirmation.\",\n  \"nextAction\": \"Sync with infra team after standup.\",\n  \"status\": \"IN_PROGRESS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/team-updates",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "team-updates"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Team Update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"todayWork\": \"Implemented backoff toggles and updated docs.\",\n  \"status\": \"DONE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/team-updates/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "team-updates",
+                ":id"
+              ]
+            },
+            "variable": [
+              {
+                "key": "id"
+              }
+            ]
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Team Update",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/team-updates/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "team-updates",
+                ":id"
+              ]
+            },
+            "variable": [
+              {
+                "key": "id"
+              }
+            ]
+          },
+          "response": []
+        }
+      ],
+      "description": "Authenticated users can access; only admins or the update author can modify or delete."
+    },
+    {
       "name": "Project Assignments",
       "item": [
         {
