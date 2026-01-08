@@ -7,11 +7,34 @@ const ipKeyGenerator = (req: Request) => rateLimitIpKeyGenerator(getRequestIp(re
 const userKeyGenerator = (req: Request) =>
   req.user?.sub ? `user:${req.user.sub}` : `ip:${rateLimitIpKeyGenerator(getRequestIp(req))}`;
 
+const allowlist = new Set(env.rateLimitAllowlist);
+const allowlistNormalized = new Set(
+  env.rateLimitAllowlist.flatMap((ip) => {
+    try {
+      return [rateLimitIpKeyGenerator(ip)];
+    } catch {
+      return [];
+    }
+  }),
+);
+
+const isAllowlisted = (req: Request) => {
+  const requestIp = getRequestIp(req);
+  if (allowlist.has(requestIp)) {
+    return true;
+  }
+  try {
+    return allowlistNormalized.has(rateLimitIpKeyGenerator(requestIp));
+  } catch {
+    return false;
+  }
+};
+
 const baseRateLimitOptions = {
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: "Too many requests, please try again later." },
-  skip: () => env.nodeEnv === "test",
+  skip: (req: Request) => env.nodeEnv === "test" || isAllowlisted(req),
 };
 
 export const publicRateLimiter = rateLimit({

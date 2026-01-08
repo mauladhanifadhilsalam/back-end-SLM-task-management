@@ -19,6 +19,7 @@ const env: {
   redisDB?: number;
   nodeEnv: string;
   allowedOrigins: string[];
+  rateLimitAllowlist: string[];
   rateLimitPublicWindowMs: number;
   rateLimitPublicMax: number;
   rateLimitLoginWindowMs: number;
@@ -43,6 +44,10 @@ const env: {
   redisTLS: process.env.REDIS_TLS === "true" ? {} : undefined,
   nodeEnv: process.env.NODE_ENV || "development",
   allowedOrigins: process.env.ALLOWED_ORIGINS?.trim().split(",") || ["http://localhost:5173"],
+  rateLimitAllowlist:
+    process.env.RATE_LIMIT_ALLOWLIST?.split(",")
+      .map((ip) => ip.trim())
+      .filter(Boolean) || [],
   rateLimitPublicWindowMs: parseInt(process.env.RATE_LIMIT_PUBLIC_WINDOW_MS || "60000"),
   rateLimitPublicMax: parseInt(process.env.RATE_LIMIT_PUBLIC_MAX || "120"),
   rateLimitLoginWindowMs: parseInt(process.env.RATE_LIMIT_LOGIN_WINDOW_MS || "900000"),
