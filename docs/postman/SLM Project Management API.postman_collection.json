@@ -2545,6 +2545,37 @@
           "response": []
         },
         {
+          "name": "Daily Cadence (Project Manager)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/project-manager/daily-cadence/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "project-manager",
+                "daily-cadence",
+                "1"
+              ]
+            },
+            "variable": [
+              {
+                "key": "projectId"
+              }
+            ]
+          },
+          "response": [],
+          "variable": [
+            {
+              "key": "projectId",
+              "value": "1"
+            }
+          ]
+        },
+        {
           "name": "Developer Dashboard",
           "request": {
             "method": "GET",

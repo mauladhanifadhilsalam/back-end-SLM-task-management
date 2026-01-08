@@ -2071,7 +2071,7 @@ Authorization: Bearer <token>
 
 ---
 
-### Developer Stats (Project Manager)
+
 
 `GET /dashboard/project-manager/dev-stat`
 
@@ -2098,6 +2098,39 @@ Authorization: Bearer <token>
 - `403 Forbidden` ƒ?" Authenticated but not allowed to perform this action.
 
 - `404 Not Found` ƒ?" Dashboards not found.
+
+---
+
+
+### Daily Cadence (Project Manager)
+
+`GET /dashboard/project-manager/daily-cadence/:projectId`
+
+Requires `PROJECT_MANAGER` role. Returns daily cadence metrics for the specified project.
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+GET {baseUrl}/dashboard/project-manager/daily-cadence/:projectId
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` - Successful operation.
+
+- `400 Bad Request` - Invalid project id.
+
+- `401 Unauthorized` - Missing or invalid token.
+
+- `403 Forbidden` - Authenticated but not allowed to perform this action.
+
+- `404 Not Found` - Daily cadence not found.
 
 ---
 
