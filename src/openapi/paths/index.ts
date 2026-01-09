@@ -9,6 +9,7 @@ import { registerTicketPaths } from "./tickets";
 import { registerCommentPaths } from "./comments";
 import { registerAttachmentPaths } from "./attachments";
 import { registerProjectAssignmentPaths } from "./projectAssignments";
+import { registerProjectRolePaths } from "./projectRoles";
 import { registerTicketAssigneePaths } from "./ticketAssignees";
 import { registerNotificationPaths } from "./notifications";
 import { registerActivityLogPaths } from "./activityLogs";
@@ -26,6 +27,7 @@ function registerOpenApiPaths(registry: OpenAPIRegistry) {
   registerCommentPaths(registry);
   registerAttachmentPaths(registry);
   registerProjectAssignmentPaths(registry);
+  registerProjectRolePaths(registry);
   registerTicketAssigneePaths(registry);
   registerNotificationPaths(registry);
   registerActivityLogPaths(registry);
