@@ -5,7 +5,9 @@ import z from "zod";
 import { userQuerySchema } from "../schemas/user.schema";
 import { resolveSorting } from "../utils/sorting";
 
-type NewUserInput = Pick<Prisma.UserCreateInput, "fullName" | "role" | "email" | "passwordHash">;
+type NewUserInput = Pick<Prisma.UserCreateInput, "fullName" | "role" | "email" | "passwordHash"> & {
+  projectRole?: string | null;
+};
 
 type ManageableRole = Extract<RoleType, "PROJECT_MANAGER" | "DEVELOPER">;
 
@@ -89,15 +91,27 @@ async function findAnyUser(id: number) {
   });
 }
 
-async function createUser({ fullName, role, email, passwordHash }: NewUserInput) {
+async function createUser({ fullName, role, email, passwordHash, projectRole }: NewUserInput) {
+  const projectRoleRef =
+    projectRole === undefined || projectRole === null
+      ? undefined
+      : { connect: { code: projectRole } };
+
   return await prisma.user.create({
-    data: { fullName, role, email, passwordHash },
+    data: {
+      fullName,
+      role,
+      email,
+      passwordHash,
+      ...(projectRoleRef ? { projectRoleRef } : {}),
+    },
     select: {
       id: true,
       fullName: true,
       email: true,
       createdAt: true,
       role: true,
+      projectRole: true,
     },
   });
 }

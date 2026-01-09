@@ -52,6 +52,7 @@ async function getUser(req: Request, res: Response) {
     fullName: user.fullName,
     email: user.email,
     role: user.role,
+    projectRole: user.projectRole ?? null,
     isActive: user.isActive,
   });
 }

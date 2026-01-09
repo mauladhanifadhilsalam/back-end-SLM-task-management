@@ -45,6 +45,7 @@ const authProfileResponseSchema = registerSchema(
       fullName: z.string(),
       email: z.email(),
       role: z.nativeEnum(RoleType),
+      projectRole: z.string().nullable(),
       isActive: z.boolean(),
     })
     .openapi({ description: "Authenticated user's basic profile details." }),

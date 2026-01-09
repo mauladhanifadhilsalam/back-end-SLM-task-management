@@ -110,7 +110,6 @@ async function insertProject(req: Request, res: Response) {
             createMany: {
               data: assignments.map((a) => ({
                 userId: a.userId,
-                roleInProject: a.roleInProject,
               })),
               skipDuplicates: true,
             },

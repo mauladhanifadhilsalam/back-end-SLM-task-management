@@ -1,98 +1,79 @@
 import prisma from "../../src/db/prisma";
-import { ProjectRoleType } from "@prisma/client";
 import { createProjectAssignment } from "../../src/services/project-assignment.service";
 
 type ProjectAssignmentSeed = {
   projectOwnerEmail: string;
   userEmail: string;
-  roleInProject: ProjectRoleType;
 };
 
 const projectAssignmentSeeds: ProjectAssignmentSeed[] = [
   {
     projectOwnerEmail: "scott@example.com",
     userEmail: "skywalker@example.com",
-    roleInProject: ProjectRoleType.TECH_LEAD,
   },
   {
     projectOwnerEmail: "scott@example.com",
     userEmail: "gandalf@yahoo.com",
-    roleInProject: ProjectRoleType.BACK_END,
   },
   {
     projectOwnerEmail: "scott@example.com",
     userEmail: "aragorn@example.com",
-    roleInProject: ProjectRoleType.DEVOPS,
   },
   {
     projectOwnerEmail: "scott@example.com",
     userEmail: "legolas@example.com",
-    roleInProject: ProjectRoleType.FRONT_END,
   },
   {
     projectOwnerEmail: "scott@example.com",
     userEmail: "samwise@example.com",
-    roleInProject: ProjectRoleType.BACK_END,
   },
   {
     projectOwnerEmail: "grammont@example.com",
     userEmail: "skywalker@example.com",
-    roleInProject: ProjectRoleType.TECH_LEAD,
   },
   {
     projectOwnerEmail: "grammont@example.com",
     userEmail: "legolas@example.com",
-    roleInProject: ProjectRoleType.FRONT_END,
   },
   {
     projectOwnerEmail: "grammont@example.com",
     userEmail: "frodo@example.com",
-    roleInProject: ProjectRoleType.BACK_END,
   },
   {
     projectOwnerEmail: "grammont@example.com",
     userEmail: "gandalf@yahoo.com",
-    roleInProject: ProjectRoleType.BACK_END,
   },
   {
     projectOwnerEmail: "grammont@example.com",
     userEmail: "samwise@example.com",
-    roleInProject: ProjectRoleType.BACK_END,
   },
   {
     projectOwnerEmail: "grammont@example.com",
     userEmail: "aragorn@example.com",
-    roleInProject: ProjectRoleType.DEVOPS,
   },
   {
     projectOwnerEmail: "grammont@example.com",
     userEmail: "bard@example.com",
-    roleInProject: ProjectRoleType.CLOUD_ENGINEER,
   },
   {
     projectOwnerEmail: "koji@example.com",
     userEmail: "samwise@example.com",
-    roleInProject: ProjectRoleType.BACK_END,
   },
   {
     projectOwnerEmail: "koji@example.com",
     userEmail: "bard@example.com",
-    roleInProject: ProjectRoleType.CLOUD_ENGINEER,
   },
   {
     projectOwnerEmail: "koji@example.com",
     userEmail: "aragorn@example.com",
-    roleInProject: ProjectRoleType.DEVOPS,
   },
   {
     projectOwnerEmail: "koji@example.com",
     userEmail: "legolas@example.com",
-    roleInProject: ProjectRoleType.FRONT_END,
   },
   {
     projectOwnerEmail: "koji@example.com",
     userEmail: "frodo@example.com",
-    roleInProject: ProjectRoleType.BACK_END,
   },
 ];
 
@@ -145,7 +126,6 @@ export default async function seedProjectAssignment() {
     await createProjectAssignment({
       projectId,
       userId,
-      roleInProject: seed.roleInProject,
     });
   }
 }

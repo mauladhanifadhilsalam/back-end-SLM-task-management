@@ -1,15 +1,9 @@
-import { RoleType, ProjectRoleType, ProjectStatus } from "@prisma/client";
+import { RoleType, ProjectStatus } from "@prisma/client";
 import { z } from "zod";
 import { baseQuerySchema } from "./base.schema";
 import { registerSchema } from "../openapi/registry";
 
-const projectAssignmentSortFields = [
-  "id",
-  "projectId",
-  "userId",
-  "roleInProject",
-  "assignedAt",
-] as const;
+const projectAssignmentSortFields = ["id", "projectId", "userId", "assignedAt"] as const;
 
 const projectAssignmentQuerySchema = registerSchema(
   "ProjectAssignmentQuery",
@@ -17,7 +11,6 @@ const projectAssignmentQuerySchema = registerSchema(
     .object({
       projectId: z.coerce.number().int().positive().optional(),
       userId: z.coerce.number().int().positive().optional(),
-      roleInProject: z.enum(ProjectRoleType).optional(),
       assignedFrom: z.coerce.date().optional(),
       assignedTo: z.coerce.date().optional(),
       sortBy: z.enum(projectAssignmentSortFields).optional(),
@@ -41,7 +34,6 @@ const createProjectAssignmentSchema = registerSchema(
     .object({
       projectId: z.number().int().positive(),
       userId: z.number().int().positive(),
-      roleInProject: z.enum(ProjectRoleType),
     })
     .openapi({ description: "Payload for POST /project-assignments." }),
 );
@@ -53,7 +45,6 @@ const projectAssignmentResponseSchema = registerSchema(
       id: z.number().int().positive(),
       projectId: z.number().int().positive(),
       userId: z.number().int().positive(),
-      roleInProject: z.enum(ProjectRoleType),
       assignedAt: z.string().datetime(),
       project: z.object({
         id: z.number().int().positive(),
@@ -67,6 +58,7 @@ const projectAssignmentResponseSchema = registerSchema(
         fullName: z.string(),
         email: z.email(),
         role: z.nativeEnum(RoleType),
+        projectRole: z.string().nullable(),
       }),
     })
     .openapi({ description: "Project assignment record with related entities." }),

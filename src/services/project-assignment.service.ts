@@ -1,5 +1,5 @@
 import prisma from "../db/prisma";
-import { ProjectAssignment, Prisma, ProjectRoleType } from "@prisma/client";
+import { ProjectAssignment, Prisma } from "@prisma/client";
 import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import { resolveSorting } from "../utils/sorting";
 import z from "zod";
@@ -11,7 +11,6 @@ type ProjectAssignmentSortBy = keyof ProjectAssignment;
 type NewProjectAssignmentInput = {
   projectId: number;
   userId: number;
-  roleInProject: ProjectRoleType;
 };
 
 const projectAssignmentInclude = {
@@ -21,6 +20,7 @@ const projectAssignmentInclude = {
       fullName: true,
       email: true,
       role: true,
+      projectRole: true,
     },
   },
   project: {
@@ -41,12 +41,11 @@ type ProjectAssignmentListItem = Prisma.ProjectAssignmentGetPayload<{
 function buildProjectAssignmentWhere(
   filters: ProjectAssignmentFilters = {},
 ): Prisma.ProjectAssignmentWhereInput {
-  const { projectId, userId, roleInProject, assignedFrom, assignedTo } = filters;
+  const { projectId, userId, assignedFrom, assignedTo } = filters;
 
   const where: Prisma.ProjectAssignmentWhereInput = {
     ...(typeof projectId === "number" ? { projectId } : {}),
     ...(typeof userId === "number" ? { userId } : {}),
-    ...(roleInProject ? { roleInProject } : {}),
   };
 
   if (assignedFrom || assignedTo) {

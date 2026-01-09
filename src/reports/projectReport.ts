@@ -1,5 +1,4 @@
 import ExcelJS from "exceljs";
-import { ProjectRoleType } from "@prisma/client";
 import type { ProjectWithRelations } from "../services/project.service";
 import colorsJson from "./colors.json";
 
@@ -64,10 +63,10 @@ function toFirstName(fullName?: string | null) {
 
 function pickAssignments(project: ProjectWithRelations) {
   const lead = project.assignments.find(
-    (assignment) => assignment.roleInProject === ProjectRoleType.TECH_LEAD,
+    (assignment) => assignment.user?.projectRole === "TECH_LEAD",
   );
   const developerNames = project.assignments
-    .filter((assignment) => assignment.roleInProject !== ProjectRoleType.TECH_LEAD)
+    .filter((assignment) => assignment.user?.projectRole !== "TECH_LEAD")
     .map((assignment) => toFirstName(assignment.user?.fullName))
     .filter(Boolean);
 
