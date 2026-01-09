@@ -107,6 +107,10 @@
               "DEVELOPER"
             ]
           },
+          "projectRole": {
+            "type": "string",
+            "nullable": true
+          },
           "isActive": {
             "type": "boolean"
           }
@@ -116,6 +120,7 @@
           "fullName",
           "email",
           "role",
+          "projectRole",
           "isActive"
         ],
         "description": "Authenticated user's basic profile details."
@@ -136,6 +141,11 @@
               "PROJECT_MANAGER",
               "DEVELOPER"
             ]
+          },
+          "projectRole": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1
           },
           "password": {
             "type": "string",
@@ -169,6 +179,11 @@
               "PROJECT_MANAGER",
               "DEVELOPER"
             ]
+          },
+          "projectRole": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1
           },
           "password": {
             "type": "string",
@@ -271,6 +286,10 @@
               "DEVELOPER"
             ]
           },
+          "projectRole": {
+            "type": "string",
+            "nullable": true
+          },
           "isActive": {
             "type": "boolean"
           },
@@ -288,6 +307,7 @@
           "fullName",
           "email",
           "role",
+          "projectRole",
           "isActive",
           "createdAt",
           "updatedAt"
@@ -757,23 +777,12 @@
             "type": "integer",
             "minimum": 0,
             "exclusiveMinimum": true
-          },
-          "roleInProject": {
-            "type": "string",
-            "enum": [
-              "TECH_LEAD",
-              "FRONT_END",
-              "BACK_END",
-              "DEVOPS",
-              "CLOUD_ENGINEER"
-            ]
           }
         },
         "required": [
-          "userId",
-          "roleInProject"
+          "userId"
         ],
-        "description": "Associates an existing user to a project with a role."
+        "description": "Associates an existing user to a project."
       },
       "ProjectCreateInput": {
         "type": "object",
@@ -840,23 +849,12 @@
                   "type": "integer",
                   "minimum": 0,
                   "exclusiveMinimum": true
-                },
-                "roleInProject": {
-                  "type": "string",
-                  "enum": [
-                    "TECH_LEAD",
-                    "FRONT_END",
-                    "BACK_END",
-                    "DEVOPS",
-                    "CLOUD_ENGINEER"
-                  ]
                 }
               },
               "required": [
-                "userId",
-                "roleInProject"
+                "userId"
               ],
-              "description": "Associates an existing user to a project with a role."
+              "description": "Associates an existing user to a project."
             }
           },
           "status": {
@@ -1105,16 +1103,6 @@
             "items": {
               "type": "object",
               "properties": {
-                "roleInProject": {
-                  "type": "string",
-                  "enum": [
-                    "TECH_LEAD",
-                    "FRONT_END",
-                    "BACK_END",
-                    "DEVOPS",
-                    "CLOUD_ENGINEER"
-                  ]
-                },
                 "user": {
                   "type": "object",
                   "properties": {
@@ -1137,18 +1125,22 @@
                         "PROJECT_MANAGER",
                         "DEVELOPER"
                       ]
+                    },
+                    "projectRole": {
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
                     "id",
                     "fullName",
                     "email",
-                    "role"
+                    "role",
+                    "projectRole"
                   ]
                 }
               },
               "required": [
-                "roleInProject",
                 "user"
               ]
             }
@@ -1202,6 +1194,11 @@
             "type": "integer",
             "minimum": 0,
             "exclusiveMinimum": true
+          },
+          "reportDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
           }
         },
         "required": [
@@ -1210,7 +1207,8 @@
           "objective",
           "progressHighlight",
           "teamMood",
-          "projectId"
+          "projectId",
+          "reportDate"
         ],
         "description": "Payload for POST /project-updates."
       },
@@ -1241,6 +1239,11 @@
             "type": "string",
             "nullable": true,
             "minLength": 1
+          },
+          "reportDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
           }
         },
         "description": "Payload for PATCH /project-updates/{id}."
@@ -1284,6 +1287,7 @@
               "objective",
               "progressHighlight",
               "teamMood",
+              "reportDate",
               "createdAt",
               "updatedAt"
             ]
@@ -1347,6 +1351,10 @@
           "teamMood": {
             "type": "string",
             "nullable": true
+          },
+          "reportDate": {
+            "type": "string",
+            "format": "date"
           },
           "createdAt": {
             "type": "string",
@@ -1424,6 +1432,7 @@
           "objective",
           "progressHighlight",
           "teamMood",
+          "reportDate",
           "createdAt",
           "updatedAt",
           "facilitator",
@@ -2501,16 +2510,6 @@
             "minimum": 0,
             "exclusiveMinimum": true
           },
-          "roleInProject": {
-            "type": "string",
-            "enum": [
-              "TECH_LEAD",
-              "FRONT_END",
-              "BACK_END",
-              "DEVOPS",
-              "CLOUD_ENGINEER"
-            ]
-          },
           "assignedFrom": {
             "type": "string",
             "nullable": true,
@@ -2527,7 +2526,6 @@
               "id",
               "projectId",
               "userId",
-              "roleInProject",
               "assignedAt"
             ]
           },
@@ -2564,22 +2562,11 @@
             "type": "integer",
             "minimum": 0,
             "exclusiveMinimum": true
-          },
-          "roleInProject": {
-            "type": "string",
-            "enum": [
-              "TECH_LEAD",
-              "FRONT_END",
-              "BACK_END",
-              "DEVOPS",
-              "CLOUD_ENGINEER"
-            ]
           }
         },
         "required": [
           "projectId",
-          "userId",
-          "roleInProject"
+          "userId"
         ],
         "description": "Payload for POST /project-assignments."
       },
@@ -2600,16 +2587,6 @@
             "type": "integer",
             "minimum": 0,
             "exclusiveMinimum": true
-          },
-          "roleInProject": {
-            "type": "string",
-            "enum": [
-              "TECH_LEAD",
-              "FRONT_END",
-              "BACK_END",
-              "DEVOPS",
-              "CLOUD_ENGINEER"
-            ]
           },
           "assignedAt": {
             "type": "string",
@@ -2674,13 +2651,18 @@
                   "PROJECT_MANAGER",
                   "DEVELOPER"
                 ]
+              },
+              "projectRole": {
+                "type": "string",
+                "nullable": true
               }
             },
             "required": [
               "id",
               "fullName",
               "email",
-              "role"
+              "role",
+              "projectRole"
             ]
           }
         },
@@ -2688,12 +2670,101 @@
           "id",
           "projectId",
           "userId",
-          "roleInProject",
           "assignedAt",
           "project",
           "user"
         ],
         "description": "Project assignment record with related entities."
+      },
+      "ProjectRoleCreateInput": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ],
+        "description": "Payload for creating a project role."
+      },
+      "ProjectRoleUpdateInput": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "description": "Payload for updating a project role."
+      },
+      "ProjectRoleQuery": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "id",
+              "code",
+              "name"
+            ]
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 100
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          }
+        },
+        "description": "Query params accepted by GET /project-roles."
+      },
+      "ProjectRoleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name"
+        ],
+        "description": "Project role label returned by the API."
       },
       "TicketAssigneeQuery": {
         "type": "object",
@@ -4696,6 +4767,10 @@
                         "DEVELOPER"
                       ]
                     },
+                    "projectRole": {
+                      "type": "string",
+                      "nullable": true
+                    },
                     "isActive": {
                       "type": "boolean"
                     }
@@ -4705,6 +4780,7 @@
                     "fullName",
                     "email",
                     "role",
+                    "projectRole",
                     "isActive"
                   ],
                   "description": "Authenticated user's basic profile details."
@@ -4840,6 +4916,10 @@
                               "DEVELOPER"
                             ]
                           },
+                          "projectRole": {
+                            "type": "string",
+                            "nullable": true
+                          },
                           "isActive": {
                             "type": "boolean"
                           },
@@ -4857,6 +4937,7 @@
                           "fullName",
                           "email",
                           "role",
+                          "projectRole",
                           "isActive",
                           "createdAt",
                           "updatedAt"
@@ -4949,6 +5030,11 @@
                       "DEVELOPER"
                     ]
                   },
+                  "projectRole": {
+                    "type": "string",
+                    "nullable": true,
+                    "minLength": 1
+                  },
                   "password": {
                     "type": "string",
                     "minLength": 8
@@ -4996,6 +5082,10 @@
                         "DEVELOPER"
                       ]
                     },
+                    "projectRole": {
+                      "type": "string",
+                      "nullable": true
+                    },
                     "isActive": {
                       "type": "boolean"
                     },
@@ -5013,6 +5103,7 @@
                     "fullName",
                     "email",
                     "role",
+                    "projectRole",
                     "isActive",
                     "createdAt",
                     "updatedAt"
@@ -5083,6 +5174,10 @@
                         "DEVELOPER"
                       ]
                     },
+                    "projectRole": {
+                      "type": "string",
+                      "nullable": true
+                    },
                     "isActive": {
                       "type": "boolean"
                     },
@@ -5100,6 +5195,7 @@
                     "fullName",
                     "email",
                     "role",
+                    "projectRole",
                     "isActive",
                     "createdAt",
                     "updatedAt"
@@ -5161,6 +5257,11 @@
                       "DEVELOPER"
                     ]
                   },
+                  "projectRole": {
+                    "type": "string",
+                    "nullable": true,
+                    "minLength": 1
+                  },
                   "password": {
                     "type": "string",
                     "minLength": 8
@@ -5202,6 +5303,10 @@
                         "DEVELOPER"
                       ]
                     },
+                    "projectRole": {
+                      "type": "string",
+                      "nullable": true
+                    },
                     "isActive": {
                       "type": "boolean"
                     },
@@ -5219,6 +5324,7 @@
                     "fullName",
                     "email",
                     "role",
+                    "projectRole",
                     "isActive",
                     "createdAt",
                     "updatedAt"
@@ -6853,16 +6959,6 @@
                             "items": {
                               "type": "object",
                               "properties": {
-                                "roleInProject": {
-                                  "type": "string",
-                                  "enum": [
-                                    "TECH_LEAD",
-                                    "FRONT_END",
-                                    "BACK_END",
-                                    "DEVOPS",
-                                    "CLOUD_ENGINEER"
-                                  ]
-                                },
                                 "user": {
                                   "type": "object",
                                   "properties": {
@@ -6885,18 +6981,22 @@
                                         "PROJECT_MANAGER",
                                         "DEVELOPER"
                                       ]
+                                    },
+                                    "projectRole": {
+                                      "type": "string",
+                                      "nullable": true
                                     }
                                   },
                                   "required": [
                                     "id",
                                     "fullName",
                                     "email",
-                                    "role"
+                                    "role",
+                                    "projectRole"
                                   ]
                                 }
                               },
                               "required": [
-                                "roleInProject",
                                 "user"
                               ]
                             }
@@ -7049,23 +7149,12 @@
                           "type": "integer",
                           "minimum": 0,
                           "exclusiveMinimum": true
-                        },
-                        "roleInProject": {
-                          "type": "string",
-                          "enum": [
-                            "TECH_LEAD",
-                            "FRONT_END",
-                            "BACK_END",
-                            "DEVOPS",
-                            "CLOUD_ENGINEER"
-                          ]
                         }
                       },
                       "required": [
-                        "userId",
-                        "roleInProject"
+                        "userId"
                       ],
-                      "description": "Associates an existing user to a project with a role."
+                      "description": "Associates an existing user to a project."
                     }
                   },
                   "status": {
@@ -7216,16 +7305,6 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "roleInProject": {
-                            "type": "string",
-                            "enum": [
-                              "TECH_LEAD",
-                              "FRONT_END",
-                              "BACK_END",
-                              "DEVOPS",
-                              "CLOUD_ENGINEER"
-                            ]
-                          },
                           "user": {
                             "type": "object",
                             "properties": {
@@ -7248,18 +7327,22 @@
                                   "PROJECT_MANAGER",
                                   "DEVELOPER"
                                 ]
+                              },
+                              "projectRole": {
+                                "type": "string",
+                                "nullable": true
                               }
                             },
                             "required": [
                               "id",
                               "fullName",
                               "email",
-                              "role"
+                              "role",
+                              "projectRole"
                             ]
                           }
                         },
                         "required": [
-                          "roleInProject",
                           "user"
                         ]
                       }
@@ -7439,16 +7522,6 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "roleInProject": {
-                            "type": "string",
-                            "enum": [
-                              "TECH_LEAD",
-                              "FRONT_END",
-                              "BACK_END",
-                              "DEVOPS",
-                              "CLOUD_ENGINEER"
-                            ]
-                          },
                           "user": {
                             "type": "object",
                             "properties": {
@@ -7471,18 +7544,22 @@
                                   "PROJECT_MANAGER",
                                   "DEVELOPER"
                                 ]
+                              },
+                              "projectRole": {
+                                "type": "string",
+                                "nullable": true
                               }
                             },
                             "required": [
                               "id",
                               "fullName",
                               "email",
-                              "role"
+                              "role",
+                              "projectRole"
                             ]
                           }
                         },
                         "required": [
-                          "roleInProject",
                           "user"
                         ]
                       }
@@ -7710,16 +7787,6 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "roleInProject": {
-                            "type": "string",
-                            "enum": [
-                              "TECH_LEAD",
-                              "FRONT_END",
-                              "BACK_END",
-                              "DEVOPS",
-                              "CLOUD_ENGINEER"
-                            ]
-                          },
                           "user": {
                             "type": "object",
                             "properties": {
@@ -7742,18 +7809,22 @@
                                   "PROJECT_MANAGER",
                                   "DEVELOPER"
                                 ]
+                              },
+                              "projectRole": {
+                                "type": "string",
+                                "nullable": true
                               }
                             },
                             "required": [
                               "id",
                               "fullName",
                               "email",
-                              "role"
+                              "role",
+                              "projectRole"
                             ]
                           }
                         },
                         "required": [
-                          "roleInProject",
                           "user"
                         ]
                       }
@@ -8056,6 +8127,7 @@
                 "objective",
                 "progressHighlight",
                 "teamMood",
+                "reportDate",
                 "createdAt",
                 "updatedAt"
               ]
@@ -8147,6 +8219,10 @@
                             "type": "string",
                             "nullable": true
                           },
+                          "reportDate": {
+                            "type": "string",
+                            "format": "date"
+                          },
                           "createdAt": {
                             "type": "string",
                             "format": "date-time"
@@ -8223,6 +8299,7 @@
                           "objective",
                           "progressHighlight",
                           "teamMood",
+                          "reportDate",
                           "createdAt",
                           "updatedAt",
                           "facilitator",
@@ -8328,6 +8405,11 @@
                     "type": "integer",
                     "minimum": 0,
                     "exclusiveMinimum": true
+                  },
+                  "reportDate": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date"
                   }
                 },
                 "required": [
@@ -8336,7 +8418,8 @@
                   "objective",
                   "progressHighlight",
                   "teamMood",
-                  "projectId"
+                  "projectId",
+                  "reportDate"
                 ],
                 "description": "Payload for POST /project-updates."
               }
@@ -8386,6 +8469,10 @@
                     "teamMood": {
                       "type": "string",
                       "nullable": true
+                    },
+                    "reportDate": {
+                      "type": "string",
+                      "format": "date"
                     },
                     "createdAt": {
                       "type": "string",
@@ -8463,6 +8550,7 @@
                     "objective",
                     "progressHighlight",
                     "teamMood",
+                    "reportDate",
                     "createdAt",
                     "updatedAt",
                     "facilitator",
@@ -8547,6 +8635,10 @@
                       "type": "string",
                       "nullable": true
                     },
+                    "reportDate": {
+                      "type": "string",
+                      "format": "date"
+                    },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time"
@@ -8623,6 +8715,7 @@
                     "objective",
                     "progressHighlight",
                     "teamMood",
+                    "reportDate",
                     "createdAt",
                     "updatedAt",
                     "facilitator",
@@ -8692,6 +8785,11 @@
                     "type": "string",
                     "nullable": true,
                     "minLength": 1
+                  },
+                  "reportDate": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date"
                   }
                 },
                 "description": "Payload for PATCH /project-updates/{id}."
@@ -8742,6 +8840,10 @@
                     "teamMood": {
                       "type": "string",
                       "nullable": true
+                    },
+                    "reportDate": {
+                      "type": "string",
+                      "format": "date"
                     },
                     "createdAt": {
                       "type": "string",
@@ -8819,6 +8921,7 @@
                     "objective",
                     "progressHighlight",
                     "teamMood",
+                    "reportDate",
                     "createdAt",
                     "updatedAt",
                     "facilitator",
@@ -12365,21 +12468,6 @@
           {
             "schema": {
               "type": "string",
-              "enum": [
-                "TECH_LEAD",
-                "FRONT_END",
-                "BACK_END",
-                "DEVOPS",
-                "CLOUD_ENGINEER"
-              ]
-            },
-            "required": false,
-            "name": "roleInProject",
-            "in": "query"
-          },
-          {
-            "schema": {
-              "type": "string",
               "nullable": true,
               "format": "date"
             },
@@ -12404,7 +12492,6 @@
                 "id",
                 "projectId",
                 "userId",
-                "roleInProject",
                 "assignedAt"
               ]
             },
@@ -12474,16 +12561,6 @@
                             "minimum": 0,
                             "exclusiveMinimum": true
                           },
-                          "roleInProject": {
-                            "type": "string",
-                            "enum": [
-                              "TECH_LEAD",
-                              "FRONT_END",
-                              "BACK_END",
-                              "DEVOPS",
-                              "CLOUD_ENGINEER"
-                            ]
-                          },
                           "assignedAt": {
                             "type": "string",
                             "format": "date-time"
@@ -12547,13 +12624,18 @@
                                   "PROJECT_MANAGER",
                                   "DEVELOPER"
                                 ]
+                              },
+                              "projectRole": {
+                                "type": "string",
+                                "nullable": true
                               }
                             },
                             "required": [
                               "id",
                               "fullName",
                               "email",
-                              "role"
+                              "role",
+                              "projectRole"
                             ]
                           }
                         },
@@ -12561,7 +12643,6 @@
                           "id",
                           "projectId",
                           "userId",
-                          "roleInProject",
                           "assignedAt",
                           "project",
                           "user"
@@ -12652,22 +12733,11 @@
                     "type": "integer",
                     "minimum": 0,
                     "exclusiveMinimum": true
-                  },
-                  "roleInProject": {
-                    "type": "string",
-                    "enum": [
-                      "TECH_LEAD",
-                      "FRONT_END",
-                      "BACK_END",
-                      "DEVOPS",
-                      "CLOUD_ENGINEER"
-                    ]
                   }
                 },
                 "required": [
                   "projectId",
-                  "userId",
-                  "roleInProject"
+                  "userId"
                 ],
                 "description": "Payload for POST /project-assignments."
               }
@@ -12696,16 +12766,6 @@
                       "type": "integer",
                       "minimum": 0,
                       "exclusiveMinimum": true
-                    },
-                    "roleInProject": {
-                      "type": "string",
-                      "enum": [
-                        "TECH_LEAD",
-                        "FRONT_END",
-                        "BACK_END",
-                        "DEVOPS",
-                        "CLOUD_ENGINEER"
-                      ]
                     },
                     "assignedAt": {
                       "type": "string",
@@ -12770,13 +12830,18 @@
                             "PROJECT_MANAGER",
                             "DEVELOPER"
                           ]
+                        },
+                        "projectRole": {
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "required": [
                         "id",
                         "fullName",
                         "email",
-                        "role"
+                        "role",
+                        "projectRole"
                       ]
                     }
                   },
@@ -12784,7 +12849,6 @@
                     "id",
                     "projectId",
                     "userId",
-                    "roleInProject",
                     "assignedAt",
                     "project",
                     "user"
@@ -12861,6 +12925,432 @@
           },
           "404": {
             "description": "Assignment not found."
+          }
+        }
+      }
+    },
+    "/project-roles": {
+      "get": {
+        "tags": [
+          "Project Roles"
+        ],
+        "summary": "List project roles",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": false,
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "code",
+                "name"
+              ]
+            },
+            "required": false,
+            "name": "sortBy",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 100
+            },
+            "required": false,
+            "name": "pageSize",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "required": false,
+            "name": "sortOrder",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project roles fetched successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "code",
+                          "name"
+                        ],
+                        "description": "Project role label returned by the API."
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "page": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "exclusiveMinimum": true
+                        },
+                        "pageSize": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "exclusiveMinimum": true
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "hasNextPage": {
+                          "type": "boolean"
+                        },
+                        "hasPrevPage": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "page",
+                        "pageSize",
+                        "totalPages",
+                        "hasNextPage",
+                        "hasPrevPage"
+                      ],
+                      "description": "Pagination details for list endpoints."
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "pagination"
+                  ],
+                  "description": "Standard shape returned by list endpoints. The `data` array items depend on the API route."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Insufficient role permissions."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Project Roles"
+        ],
+        "summary": "Create a project role",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "code",
+                  "name"
+                ],
+                "description": "Payload for creating a project role."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Project role created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "code",
+                    "name"
+                  ],
+                  "description": "Project role label returned by the API."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Insufficient role permissions."
+          },
+          "409": {
+            "description": "Project role already exists."
+          }
+        }
+      }
+    },
+    "/project-roles/{code}": {
+      "get": {
+        "tags": [
+          "Project Roles"
+        ],
+        "summary": "Fetch a project role by code",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "code",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project role found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "code",
+                    "name"
+                  ],
+                  "description": "Project role label returned by the API."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Insufficient role permissions."
+          },
+          "404": {
+            "description": "Project role not found."
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Project Roles"
+        ],
+        "summary": "Update a project role",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "code",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "description": "Payload for updating a project role."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project role updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "code",
+                    "name"
+                  ],
+                  "description": "Project role label returned by the API."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Insufficient role permissions."
+          },
+          "404": {
+            "description": "Project role not found."
+          },
+          "409": {
+            "description": "Project role already exists."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Project Roles"
+        ],
+        "summary": "Delete a project role",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "code",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project role deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "description": "Generic message wrapper used for success or error states."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid identifier."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Insufficient role permissions."
+          },
+          "404": {
+            "description": "Project role not found."
           }
         }
       }
