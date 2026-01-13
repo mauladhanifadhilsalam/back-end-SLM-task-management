@@ -71,7 +71,7 @@ async function addProjectAssignment(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
-  const { projectId, userId, roleInProject } = parsed.data;
+  const { projectId, userId } = parsed.data;
 
   const project = await findProject({ id: projectId });
   if (!project) {
@@ -79,11 +79,11 @@ async function addProjectAssignment(req: Request, res: Response) {
   }
 
   const existingAssignment = project.assignments.find(
-    (assignment) => assignment.user?.id === userId && assignment.roleInProject === roleInProject,
+    (assignment) => assignment.user?.id === userId,
   );
   if (existingAssignment) {
     return res.status(409).json({
-      message: "User already assigned to this project with the specified role",
+      message: "User already assigned to this project",
     });
   }
 
@@ -99,7 +99,6 @@ async function addProjectAssignment(req: Request, res: Response) {
   const created = await createProjectAssignment({
     projectId: project.id,
     userId,
-    roleInProject,
   });
 
   await notifyProjectAssignments(
@@ -108,7 +107,6 @@ async function addProjectAssignment(req: Request, res: Response) {
       name: created.project.name,
       assignments: [
         {
-          roleInProject: created.roleInProject,
           user: created.user,
         },
       ],
@@ -123,7 +121,6 @@ async function addProjectAssignment(req: Request, res: Response) {
     details: toActivityDetails({
       projectId: project.id,
       assigneeId: userId,
-      roleInProject,
     }),
   });
 
@@ -155,7 +152,6 @@ async function removeProjectAssignment(req: Request, res: Response) {
     details: toActivityDetails({
       projectId: assignment.project.id,
       assigneeId: assignment.user.id,
-      roleInProject: assignment.roleInProject,
     }),
   });
 

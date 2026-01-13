@@ -21,14 +21,6 @@ enum RoleType {
   DEVELOPER
 }
 
-enum ProjectRoleType {
-  TECH_LEAD
-  FRONT_END
-  BACK_END
-  DEVOPS
-  CLOUD_ENGINEER
-}
-
 enum ProjectStatus {
   NOT_STARTED
   IN_PROGRESS
@@ -101,11 +93,13 @@ model User {
   email        String          @unique
   passwordHash String
   role         RoleType
+  projectRole  String?
   isActive     Boolean         @default(true)
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
   // Relations
+  projectRoleRef     ProjectRole?       @relation(fields: [projectRole], references: [code], onDelete: SetNull, onUpdate: Cascade)
   projectAssignments ProjectAssignment[]
   requestedTickets   Ticket[]          @relation("TicketRequester")
   ticketAssignees    TicketAssignee[]
@@ -117,6 +111,13 @@ model User {
   teamUpdates        TeamUpdate[]
   projectUpdates     ProjectUpdate[]
 
+}
+
+model ProjectRole {
+  id    Int    @id @default(autoincrement())
+  code  String @unique
+  name  String
+  users User[]
 }
 
 model RefreshToken {
@@ -174,14 +175,13 @@ model ProjectAssignment {
   id            Int              @id @default(autoincrement())
   projectId     Int
   userId        Int
-  roleInProject ProjectRoleType
   assignedAt    DateTime         @default(now())
 
   // Relations
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([projectId, userId, roleInProject])
+  @@unique([projectId, userId])
 }
 
 model ProjectPhase {

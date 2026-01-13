@@ -13,6 +13,7 @@ import { ActivityTargetType } from "@prisma/client";
 import { requireViewer } from "../utils/permissions";
 import { recordActivity, toActivityDetails } from "../services/activity-log.service";
 import { findUserById } from "../services/auth.service";
+import { findProjectRoleByCode } from "../services/project-role.service";
 
 async function getAllUsers(req: Request, res: Response) {
   try {
@@ -47,20 +48,27 @@ async function insertUser(req: Request, res: Response) {
 
   const parsed = userSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.format());
-  const { fullName, role, email, password } = parsed.data;
+  const { fullName, role, email, password, projectRole } = parsed.data;
+
+  if (projectRole) {
+    const existingProjectRole = await findProjectRoleByCode(projectRole);
+    if (!existingProjectRole) {
+      return res.status(400).json({ message: "Unknown project role" });
+    }
+  }
 
   const existing = await findUser({ email });
   if (existing) return res.status(409).json({ message: "Email already used" });
 
   const passwordHash = await hashPassword(password);
-  const user = await createUser({ fullName, role, email, passwordHash });
+  const user = await createUser({ fullName, role, email, passwordHash, projectRole });
 
   await recordActivity({
     userId: viewer.id,
     action: "USER_CREATED",
     targetType: ActivityTargetType.USER,
     targetId: user.id,
-    details: toActivityDetails({ fullName, email, role }),
+    details: toActivityDetails({ fullName, email, role, projectRole }),
   });
 
   res.status(201).json(user);
@@ -78,7 +86,14 @@ async function updateUser(req: Request, res: Response) {
 
   const parsed = userSchema.partial().safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.format());
-  const { fullName, role, email, password, isActive } = parsed.data;
+  const { fullName, role, email, password, isActive, projectRole } = parsed.data;
+
+  if (projectRole) {
+    const existingProjectRole = await findProjectRoleByCode(projectRole);
+    if (!existingProjectRole) {
+      return res.status(400).json({ message: "Unknown project role" });
+    }
+  }
 
   if (email && email !== user.email) {
     const existing = await findUser({ email });
@@ -87,11 +102,19 @@ async function updateUser(req: Request, res: Response) {
 
   // Prisma ignores undefined values
   // so it's fine to pass undefined values
+  const projectRoleRefUpdate =
+    projectRole === undefined
+      ? undefined
+      : projectRole === null
+        ? { disconnect: true }
+        : { connect: { code: projectRole } };
+
   const newUser = await editUser(Number(id), {
     fullName,
     role,
     email,
     isActive,
+    ...(projectRoleRefUpdate ? { projectRoleRef: projectRoleRefUpdate } : {}),
     passwordHash: password ? await hashPassword(password) : undefined,
   });
 
@@ -107,6 +130,7 @@ async function updateUser(req: Request, res: Response) {
         role,
         email,
         isActive,
+        projectRole,
         passwordUpdated: Boolean(password),
       },
     }),

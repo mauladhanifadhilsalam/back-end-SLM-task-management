@@ -8,6 +8,7 @@
 - [Health & Root](#health--root)
 - [Auth](#auth)
 - [Users](#users)
+- [Project Roles](#project-roles)
 - [Project Owners](#project-owners)
 - [Projects](#projects)
 - [Project Phases](#project-phases)
@@ -224,7 +225,7 @@ Authorization: Bearer <token>
 
 `POST /users`
 
-ADMIN only. Role options: PROJECT_MANAGER or DEVELOPER.
+ADMIN only. Role options: PROJECT_MANAGER or DEVELOPER. Optional: include `projectRole` (code) to tag a user's specialty.
 
 - **Auth:** required (Bearer JWT)
 
@@ -363,6 +364,174 @@ Authorization: Bearer <token>
 - `401 Unauthorized` – Missing or invalid token.
 
 - `403 Forbidden` – Authenticated but not allowed to perform this action.
+
+---
+
+## Project Roles
+
+### List Project Roles
+
+`GET /project-roles`
+
+ADMIN only.
+
+- **Auth:** required (Bearer JWT)
+
+**Query Parameters**
+
+| Name        | Type              |
+| ----------- | ----------------- |
+| `page`      | integer           |
+| `pageSize`  | integer           |
+| `sortOrder` | string (ISO date) |
+| `search`    | string            |
+| `sortBy`    | string (enum)     |
+
+**Example Request**
+
+```http
+
+GET {baseUrl}/project-roles?page=1&pageSize=20&sortOrder=asc&search=frontend&sortBy=name
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ƒ?" Successful operation.
+
+- `400 Bad Request` ƒ?" Validation error.
+
+- `401 Unauthorized` ƒ?" Missing or invalid token.
+
+- `403 Forbidden` ƒ?" Authenticated but not allowed to perform this action.
+
+---
+
+### Get Project Role By Code
+
+`GET /project-roles/:code`
+
+ADMIN only.
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+GET {baseUrl}/project-roles/FRONT_END
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ƒ?" Successful operation.
+
+- `401 Unauthorized` ƒ?" Missing or invalid token.
+
+- `403 Forbidden` ƒ?" Authenticated but not allowed to perform this action.
+
+- `404 Not Found` ƒ?" Project role not found.
+
+---
+
+### Create Project Role
+
+`POST /project-roles`
+
+ADMIN only.
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+POST {baseUrl}/project-roles
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `201 Created` ƒ?" Successful operation.
+
+- `400 Bad Request` ƒ?" Validation error.
+
+- `401 Unauthorized` ƒ?" Missing or invalid token.
+
+- `403 Forbidden` ƒ?" Authenticated but not allowed to perform this action.
+
+- `409 Conflict` ƒ?" Project role already exists.
+
+---
+
+### Update Project Role
+
+`PATCH /project-roles/:code`
+
+ADMIN only.
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+PATCH {baseUrl}/project-roles/FRONT_END
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ƒ?" Successful operation.
+
+- `400 Bad Request` ƒ?" Validation error.
+
+- `401 Unauthorized` ƒ?" Missing or invalid token.
+
+- `403 Forbidden` ƒ?" Authenticated but not allowed to perform this action.
+
+- `404 Not Found` ƒ?" Project role not found.
+
+- `409 Conflict` ƒ?" Project role already exists.
+
+---
+
+### Delete Project Role
+
+`DELETE /project-roles/:code`
+
+ADMIN only.
+
+- **Auth:** required (Bearer JWT)
+
+**Example Request**
+
+```http
+
+DELETE {baseUrl}/project-roles/FRONT_END
+
+Authorization: Bearer <token>
+
+```
+
+**Responses**
+
+- `200 OK` ƒ?" Successful operation.
+
+- `401 Unauthorized` ƒ?" Missing or invalid token.
+
+- `403 Forbidden` ƒ?" Authenticated but not allowed to perform this action.
+
+- `404 Not Found` ƒ?" Project role not found.
 
 ---
 
@@ -834,7 +1003,6 @@ Authorization: Bearer <token>
 | `pageSize`      | integer           |
 | `sortOrder`     | string (ISO date) |
 | `userId`        | integer           |
-| `roleInProject` | string (enum)     |
 | `assignedFrom`  | string (ISO date) |
 | `assignedTo`    | string (ISO date) |
 | `sortBy`        | string (enum)     |
@@ -843,7 +1011,7 @@ Authorization: Bearer <token>
 
 ```http
 
-GET {baseUrl}/project-assignments?projectId=1&page=1&pageSize=20&sortOrder=asc&userId=1&roleInProject=DEVELOPER&assignedFrom=2024-01-01&assignedTo=2024-12-31&sortBy=id
+GET {baseUrl}/project-assignments?projectId=1&page=1&pageSize=20&sortOrder=asc&userId=1&assignedFrom=2024-01-01&assignedTo=2024-12-31&sortBy=id
 
 Authorization: Bearer <token>
 

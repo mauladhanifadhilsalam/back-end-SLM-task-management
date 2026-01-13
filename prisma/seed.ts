@@ -8,6 +8,7 @@ import seedNotification from "./seeders/notification.seeder";
 import seedTeamUpdate from "./seeders/team-update.seeder";
 import seedProjectUpdate from "./seeders/project-update.seeder";
 import seedUser from "./seeders/user.seeder";
+import seedProjectRole from "./seeders/project-role.seeder";
 import { refreshDashboard } from "../src/services/dashboard.service";
 
 async function resetSequences() {
@@ -24,6 +25,7 @@ async function resetSequences() {
     "ProjectPhase",
     "Project",
     "ProjectOwner",
+    "ProjectRole",
     "User",
   ];
 
@@ -49,9 +51,11 @@ async function main() {
   await prisma.project.deleteMany();
   await prisma.projectOwner.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.projectRole.deleteMany();
 
   await resetSequences();
 
+  await seedProjectRole();
   await seedUser();
   await seedProjectOwner();
   await seedProject();

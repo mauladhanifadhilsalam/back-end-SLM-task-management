@@ -4,11 +4,11 @@ import { dispatchNotification } from "./notification.dispatcher";
 import capitalizeWord from "../utils/capitalizeWord";
 
 type ProjectAssignment = {
-  roleInProject: string;
   user: {
     id: number;
     fullName: string;
     email: string;
+    projectRole?: string | null;
   } | null;
 };
 
@@ -71,7 +71,7 @@ async function notifyProjectAssignments(
         targetId: project.id,
         subject: `You are assigned to project "${project.name}"`,
         message: `${actorName} assigned you to "${project.name}" as ${formatRole(
-          assignment.roleInProject,
+          assignment.user.projectRole ?? undefined,
         )}.`,
       });
     }),

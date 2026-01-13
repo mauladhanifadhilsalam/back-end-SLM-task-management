@@ -35,6 +35,7 @@ const userBaseSchema = z.object({
   email: z.email(),
   fullName: z.string(),
   role: z.enum(manageableRoles),
+  projectRole: z.string().trim().min(1).nullable().optional(),
   password: passwordSchema,
   isActive: z.boolean().optional(),
 });
@@ -86,6 +87,7 @@ const userResponseSchema = registerSchema(
       fullName: z.string(),
       email: z.email(),
       role: z.nativeEnum(RoleType),
+      projectRole: z.string().nullable(),
       isActive: z.boolean(),
       createdAt: z.string().datetime(),
       updatedAt: z.string().datetime(),

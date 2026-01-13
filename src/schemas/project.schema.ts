@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ProjectStatus, ProjectRoleType, RoleType } from "@prisma/client";
+import { ProjectStatus, RoleType } from "@prisma/client";
 import { baseQuerySchema } from "./base.schema";
 import { registerSchema } from "../openapi/registry";
 
@@ -33,10 +33,9 @@ const projectAssignmentSchema = registerSchema(
   z
     .object({
       userId: z.number().int().positive(),
-      roleInProject: z.enum(ProjectRoleType),
     })
     .openapi({
-      description: "Associates an existing user to a project with a role.",
+      description: "Associates an existing user to a project.",
     }),
 );
 
@@ -119,12 +118,12 @@ const projectPhaseResponseSchema = z.object({
 });
 
 const projectAssignmentResponseSchema = z.object({
-  roleInProject: z.enum(ProjectRoleType),
   user: z.object({
     id: z.number().int().positive(),
     fullName: z.string(),
     email: z.email(),
     role: z.nativeEnum(RoleType),
+    projectRole: z.string().nullable(),
   }),
 });
 

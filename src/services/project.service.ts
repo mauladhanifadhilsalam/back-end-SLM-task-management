@@ -42,12 +42,13 @@ const projectInclude = {
   },
   assignments: {
     select: {
-      roleInProject: true,
       user: {
         select: {
           id: true,
           fullName: true,
           email: true,
+          role: true,
+          projectRole: true,
         },
       },
     },
