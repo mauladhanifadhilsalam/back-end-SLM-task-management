@@ -3,7 +3,8 @@ import env from "../config/env";
 import { isAdmin, isProjectManager } from "../utils/permissions";
 import { findProject } from "./project.service";
 import { createTicket } from "./ticket.service";
-import { findAnyUser, findActiveUserByEmail } from "./user.service";
+import { findLatestAssigneeForProject } from "./ticket-assignee.service";
+import { findAnyUser, findActiveDevelopersByIds, findActiveUserByEmail } from "./user.service";
 
 type EmailTicketInput = {
   subject?: string | null;
@@ -56,6 +57,25 @@ function requesterCanCreate(
   return memberIds.includes(requester.id);
 }
 
+function resolveNextAssigneeId(assigneeIds: number[], lastAssigneeId: number | null) {
+  if (!assigneeIds.length) {
+    return null;
+  }
+
+  const orderedIds = [...assigneeIds].sort((a, b) => a - b);
+  if (!lastAssigneeId) {
+    return orderedIds[0];
+  }
+
+  const index = orderedIds.indexOf(lastAssigneeId);
+  if (index === -1) {
+    return orderedIds[0];
+  }
+
+  const nextIndex = (index + 1) % orderedIds.length;
+  return orderedIds[nextIndex];
+}
+
 async function createTicketFromEmail(input: EmailTicketInput) {
   if (!env.emailTicketProjectId) {
     console.warn("Email ticket import skipped: EMAIL_TICKET_PROJECT_ID missing");
@@ -79,6 +99,17 @@ async function createTicketFromEmail(input: EmailTicketInput) {
     return null;
   }
 
+  const assignmentIds = project.assignments
+    .map((assignment) => assignment.user?.id)
+    .filter((id): id is number => typeof id === "number");
+  const activeDevelopers = await findActiveDevelopersByIds(assignmentIds);
+  const activeDeveloperIds = activeDevelopers.map((developer) => developer.id);
+  const lastAssigneeId =
+    activeDeveloperIds.length > 0
+      ? await findLatestAssigneeForProject(project.id, activeDeveloperIds)
+      : null;
+  const nextAssigneeId = resolveNextAssigneeId(activeDeveloperIds, lastAssigneeId);
+
   const title = input.subject?.trim() || "Email request";
   const body = input.body?.trim();
   const descriptionLines = [
@@ -98,6 +129,7 @@ async function createTicketFromEmail(input: EmailTicketInput) {
     title,
     description: descriptionLines.join("\n"),
     priority: resolveTicketPriority(env.emailTicketPriority),
+    assigneeIds: nextAssigneeId ? [nextAssigneeId] : undefined,
   });
 
   return ticket;

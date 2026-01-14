@@ -77,7 +77,15 @@ const projectAssignmentSeeds: ProjectAssignmentSeed[] = [
   },
   {
     projectOwnerEmail: "support@example.com",
-    userEmail: "support-intake@example.com",
+    userEmail: "frodo@example.com",
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    userEmail: "samwise@example.com",
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    userEmail: "bard@example.com",
   },
 ];
 

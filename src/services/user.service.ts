@@ -111,6 +111,25 @@ async function findActiveUserByEmail(email: string) {
   });
 }
 
+async function findActiveDevelopersByIds(ids: number[]) {
+  if (!ids.length) return [];
+
+  return await prisma.user.findMany({
+    where: {
+      id: { in: ids },
+      role: RoleType.DEVELOPER,
+      isActive: true,
+    },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      role: true,
+      isActive: true,
+    },
+  });
+}
+
 async function createUser({ fullName, role, email, passwordHash, projectRole }: NewUserInput) {
   const projectRoleRef =
     projectRole === undefined || projectRole === null
@@ -163,5 +182,6 @@ export {
   editPassword,
   findAnyUser,
   findActiveUserByEmail,
+  findActiveDevelopersByIds,
   UserSortBy,
 };
