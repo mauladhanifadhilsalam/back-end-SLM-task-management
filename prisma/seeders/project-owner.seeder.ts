@@ -24,4 +24,12 @@ export default async function seedProjectOwner() {
     phone: "+81612345678",
     address: "88 Sakura Street, Osaka",
   });
+
+  await createProjectOwner({
+    name: "Support Team",
+    email: "support@example.com",
+    company: "SLM",
+    phone: "+12125550999",
+    address: "100 Support Way, New York",
+  });
 }

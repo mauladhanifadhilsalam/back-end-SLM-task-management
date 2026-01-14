@@ -26,6 +26,17 @@ const env: {
   rateLimitLoginMax: number;
   rateLimitAuthWindowMs: number;
   rateLimitAuthMax: number;
+  imapHost: string;
+  imapPort: number;
+  imapUser: string;
+  imapPass: string;
+  imapSecure: boolean;
+  imapMailbox: string;
+  imapPollIntervalMs: number;
+  emailTicketProjectId?: number;
+  emailTicketRequesterId?: number;
+  emailTicketPriority: string;
+  emailTicketType: string;
 } = {
   jwtSecret: process.env.JWT_SECRET || "secret",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "1h",
@@ -54,6 +65,21 @@ const env: {
   rateLimitLoginMax: parseInt(process.env.RATE_LIMIT_LOGIN_MAX || "10"),
   rateLimitAuthWindowMs: parseInt(process.env.RATE_LIMIT_AUTH_WINDOW_MS || "60000"),
   rateLimitAuthMax: parseInt(process.env.RATE_LIMIT_AUTH_MAX || "300"),
+  imapHost: process.env.IMAP_HOST || "",
+  imapPort: parseInt(process.env.IMAP_PORT || "993"),
+  imapUser: process.env.IMAP_USER || "",
+  imapPass: process.env.IMAP_PASS || "",
+  imapSecure: process.env.IMAP_SECURE !== "false",
+  imapMailbox: process.env.IMAP_MAILBOX || "INBOX",
+  imapPollIntervalMs: parseInt(process.env.IMAP_POLL_INTERVAL_MS || "60000"),
+  emailTicketProjectId: process.env.EMAIL_TICKET_PROJECT_ID
+    ? parseInt(process.env.EMAIL_TICKET_PROJECT_ID)
+    : undefined,
+  emailTicketRequesterId: process.env.EMAIL_TICKET_REQUESTER_ID
+    ? parseInt(process.env.EMAIL_TICKET_REQUESTER_ID)
+    : undefined,
+  emailTicketPriority: process.env.EMAIL_TICKET_PRIORITY || "MEDIUM",
+  emailTicketType: process.env.EMAIL_TICKET_TYPE || "ISSUE",
 };
 
 export default env;

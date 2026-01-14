@@ -87,6 +87,26 @@ async function findAnyUser(id: number) {
       fullName: true,
       email: true,
       role: true,
+      isActive: true,
+    },
+  });
+}
+
+async function findActiveUserByEmail(email: string) {
+  return await prisma.user.findFirst({
+    where: {
+      email: {
+        equals: email,
+        mode: "insensitive",
+      },
+      isActive: true,
+    },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      role: true,
+      isActive: true,
     },
   });
 }
@@ -142,5 +162,6 @@ export {
   deleteUser,
   editPassword,
   findAnyUser,
+  findActiveUserByEmail,
   UserSortBy,
 };
