@@ -5,6 +5,22 @@ import { findProjectOwner } from "../../src/services/project-owner.service";
 export default async function seedProject() {
   const projects = [
     {
+      ownerEmail: "support@example.com",
+      name: "Support Inbox",
+      categories: ["Support"],
+      startDate: "2025-01-01",
+      endDate: "2025-12-31",
+      status: ProjectStatus.IN_PROGRESS,
+      notes: "Inbound support mailbox for external customer requests.",
+      phases: [
+        {
+          name: "Triage",
+          startDate: "2025-01-01",
+          endDate: "2025-12-31",
+        },
+      ],
+    },
+    {
       ownerEmail: "koji@example.com",
       name: "Project Kintsugi — Sensor Grid & Ops Intelligence",
       categories: ["IoT", "Data", "Analytics"],

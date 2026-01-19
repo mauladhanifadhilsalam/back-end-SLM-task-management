@@ -102,5 +102,26 @@ async function deleteTicketAssignee(id: number) {
   });
 }
 
-export { findTicketAssignees, findTicketAssignee, createTicketAssignee, deleteTicketAssignee };
+async function findLatestAssigneeForProject(projectId: number, userIds: number[]) {
+  if (!userIds.length) return null;
+
+  const latest = await prisma.ticketAssignee.findFirst({
+    where: {
+      userId: { in: userIds },
+      ticket: { projectId },
+    },
+    orderBy: { assignedAt: "desc" },
+    select: { userId: true },
+  });
+
+  return latest?.userId ?? null;
+}
+
+export {
+  findTicketAssignees,
+  findTicketAssignee,
+  createTicketAssignee,
+  deleteTicketAssignee,
+  findLatestAssigneeForProject,
+};
 export type { TicketAssigneeFilters, NewTicketAssigneeInput };

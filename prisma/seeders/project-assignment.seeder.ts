@@ -75,6 +75,18 @@ const projectAssignmentSeeds: ProjectAssignmentSeed[] = [
     projectOwnerEmail: "koji@example.com",
     userEmail: "frodo@example.com",
   },
+  {
+    projectOwnerEmail: "support@example.com",
+    userEmail: "frodo@example.com",
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    userEmail: "samwise@example.com",
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    userEmail: "bard@example.com",
+  },
 ];
 
 async function getProjectId(ownerEmail: string, cache: Map<string, number>): Promise<number> {

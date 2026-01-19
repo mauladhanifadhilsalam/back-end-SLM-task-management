@@ -13,6 +13,13 @@ export default async function seedUser() {
   };
 
   await createUser({
+    fullName: "Support Intake",
+    email: "support-intake@example.com",
+    role: "PROJECT_MANAGER",
+    passwordHash,
+  });
+
+  await createUser({
     fullName: "Sauron",
     email: "sauron@example.com",
     role: "ADMIN",
