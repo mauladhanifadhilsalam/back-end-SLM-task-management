@@ -3,7 +3,7 @@ import env from "../config/env";
 import { isAdmin, isProjectManager } from "../utils/permissions";
 import { findProject } from "./project.service";
 import { createTicket } from "./ticket.service";
-import { findLatestAssigneeForProject } from "./ticket-assignee.service";
+import { findLatestAssigneeForProject, findLeastLoadedAssignees } from "./ticket-assignee.service";
 import { findAnyUser, findActiveDevelopersByIds, findActiveUserByEmail } from "./user.service";
 
 type EmailTicketInput = {
@@ -104,11 +104,16 @@ async function createTicketFromEmail(input: EmailTicketInput) {
     .filter((id): id is number => typeof id === "number");
   const activeDevelopers = await findActiveDevelopersByIds(assignmentIds);
   const activeDeveloperIds = activeDevelopers.map((developer) => developer.id);
+  const leastLoadedIds =
+    activeDeveloperIds.length > 0
+      ? await findLeastLoadedAssignees(project.id, activeDeveloperIds)
+      : [];
   const lastAssigneeId =
     activeDeveloperIds.length > 0
       ? await findLatestAssigneeForProject(project.id, activeDeveloperIds)
       : null;
-  const nextAssigneeId = resolveNextAssigneeId(activeDeveloperIds, lastAssigneeId);
+  const candidateIds = leastLoadedIds.length ? leastLoadedIds : activeDeveloperIds;
+  const nextAssigneeId = resolveNextAssigneeId(candidateIds, lastAssigneeId);
 
   const title = input.subject?.trim() || "Email request";
   const body = input.body?.trim();
