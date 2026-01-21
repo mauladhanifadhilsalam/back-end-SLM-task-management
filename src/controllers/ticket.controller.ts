@@ -33,10 +33,21 @@ import {
 
 type TicketDates = { startDate: Date | null; dueDate: Date | null };
 
+function businessDaysBetween(start: Date, end: Date) {
+  let count = 0;
+  for (const cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
+    const weekday = cursor.getDay();
+    if (weekday !== 0 && weekday !== 6) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
 function withTicketDuration<T extends TicketDates>(ticket: T) {
   const duration =
     ticket.startDate && ticket.dueDate
-      ? (ticket.dueDate.getTime() - ticket.startDate.getTime()) / 1000 / 60 / 60 / 24
+      ? businessDaysBetween(ticket.startDate, ticket.dueDate)
       : null;
 
   return { ...ticket, duration };
