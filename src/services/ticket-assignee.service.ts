@@ -1,5 +1,5 @@
 import prisma from "../db/prisma";
-import { Prisma, TicketAssignee } from "@prisma/client";
+import { Prisma, TicketAssignee, TicketStatus } from "@prisma/client";
 import { buildPaginatedResult, resolvePagination, PaginatedResult } from "../utils/pagination";
 import z from "zod";
 import { ticketAssigneeQuerySchema } from "../schemas/ticket-assignee.schema";
@@ -117,11 +117,49 @@ async function findLatestAssigneeForProject(projectId: number, userIds: number[]
   return latest?.userId ?? null;
 }
 
+async function findLeastLoadedAssignees(projectId: number, userIds: number[]) {
+  if (!userIds.length) return [];
+
+  const counts = await prisma.ticketAssignee.groupBy({
+    by: ["userId"],
+    where: {
+      userId: { in: userIds },
+      ticket: {
+        projectId,
+        status: { notIn: [TicketStatus.DONE, TicketStatus.CLOSED, TicketStatus.RESOLVED] },
+      },
+    },
+    _count: { _all: true },
+  });
+
+  const countsByUser = new Map<number, number>();
+  counts.forEach((row) => {
+    countsByUser.set(row.userId, row._count._all);
+  });
+
+  let minCount = Number.POSITIVE_INFINITY;
+  const candidates: number[] = [];
+
+  for (const userId of userIds) {
+    const count = countsByUser.get(userId) ?? 0;
+    if (count < minCount) {
+      minCount = count;
+      candidates.length = 0;
+      candidates.push(userId);
+    } else if (count === minCount) {
+      candidates.push(userId);
+    }
+  }
+
+  return candidates;
+}
+
 export {
   findTicketAssignees,
   findTicketAssignee,
   createTicketAssignee,
   deleteTicketAssignee,
   findLatestAssigneeForProject,
+  findLeastLoadedAssignees,
 };
 export type { TicketAssigneeFilters, NewTicketAssigneeInput };
