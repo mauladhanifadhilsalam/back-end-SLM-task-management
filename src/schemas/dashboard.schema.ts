@@ -55,6 +55,38 @@ const developerDashboardListSchema = registerSchema(
     .openapi({ description: "Array of developer dashboard rows." }),
 );
 
+const inboxSupportRewardDeveloperSchema = registerSchema(
+  "InboxSupportRewardDeveloper",
+  z
+    .object({
+      userId: z.number().int().positive(),
+      fullName: z.string(),
+      email: z.string().email(),
+      completedTicketCount: z.number().int().nonnegative(),
+      averagePriorityScore: z.number().nonnegative(),
+      averageDueUrgencyScore: z.number().nonnegative(),
+      ticketLoadScore: z.number().nonnegative(),
+      rewardScore: z.number().nonnegative(),
+    })
+    .openapi({ description: "Reward scoring entry for inbox support developers." }),
+);
+
+const inboxSupportRewardSummarySchema = registerSchema(
+  "InboxSupportRewardSummary",
+  z
+    .object({
+      projectId: z.number().int().positive(),
+      projectName: z.string(),
+      criteriaWeights: z.object({
+        priority: z.number().nonnegative(),
+        dueTime: z.number().nonnegative(),
+        ticketLoad: z.number().nonnegative(),
+      }),
+      developers: z.array(inboxSupportRewardDeveloperSchema),
+    })
+    .openapi({ description: "AHP reward scores for the support inbox." }),
+);
+
 const projectManagerDashboardSchema = registerSchema(
   "ProjectManagerDashboard",
   z
@@ -141,6 +173,8 @@ const dailyCadenceListSchema = registerSchema(
 export {
   developerDashboardEntrySchema,
   developerDashboardListSchema,
+  inboxSupportRewardDeveloperSchema,
+  inboxSupportRewardSummarySchema,
   projectManagerDashboardSchema,
   dailyCadenceEntrySchema,
   dailyCadenceListSchema,

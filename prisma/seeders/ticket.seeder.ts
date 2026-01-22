@@ -14,6 +14,9 @@ type TicketSeed = {
   status?: TicketStatus;
   startDate?: string;
   dueDate?: string;
+  completedAt?: string;
+  completedDaysAgo?: number;
+  dueOffsetDays?: number;
 };
 
 const ticketSeeds: TicketSeed[] = [
@@ -141,6 +144,162 @@ const ticketSeeds: TicketSeed[] = [
     startDate: "2025-03-12",
     dueDate: "2025-03-30",
   },
+  {
+    projectOwnerEmail: "support@example.com",
+    requesterEmail: "support-intake@example.com",
+    assigneeEmails: ["frodo@example.com"],
+    type: TicketType.ISSUE,
+    title: "Inbox triage: billing address correction",
+    description: "Customer requested a billing address update after invoice lock.",
+    actionPlan: null,
+    priority: TicketPriority.MEDIUM,
+    status: TicketStatus.DONE,
+    completedDaysAgo: 26,
+    dueOffsetDays: -1,
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    requesterEmail: "support-intake@example.com",
+    assigneeEmails: ["samwise@example.com"],
+    type: TicketType.TASK,
+    title: "Inbox follow-up: export failed for Q1 usage",
+    description: "Reproduce CSV export failure and deliver corrected file to customer.",
+    actionPlan: null,
+    priority: TicketPriority.HIGH,
+    status: TicketStatus.DONE,
+    completedDaysAgo: 22,
+    dueOffsetDays: 0,
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    requesterEmail: "support-intake@example.com",
+    assigneeEmails: ["bard@example.com"],
+    type: TicketType.ISSUE,
+    title: "Inbox escalation: webhook retries hitting rate limits",
+    description: "Reduce retry burst and confirm delivery for support inbox webhook.",
+    actionPlan: null,
+    priority: TicketPriority.CRITICAL,
+    status: TicketStatus.DONE,
+    completedDaysAgo: 19,
+    dueOffsetDays: 2,
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    requesterEmail: "support-intake@example.com",
+    assigneeEmails: ["frodo@example.com"],
+    type: TicketType.TASK,
+    title: "Inbox cleanup: resend bounced receipt",
+    description: "Reissue receipt email and verify customer receipt.",
+    actionPlan: null,
+    priority: TicketPriority.LOW,
+    status: TicketStatus.DONE,
+    completedDaysAgo: 29,
+    dueOffsetDays: -3,
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    requesterEmail: "support-intake@example.com",
+    assigneeEmails: ["samwise@example.com"],
+    type: TicketType.ISSUE,
+    title: "Inbox follow-up: invoice PDF rendering bug",
+    description: "Fix PDF layout to avoid truncation on long addresses.",
+    actionPlan: null,
+    priority: TicketPriority.MEDIUM,
+    status: TicketStatus.DONE,
+    completedDaysAgo: 12,
+    dueOffsetDays: 4,
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    requesterEmail: "support-intake@example.com",
+    assigneeEmails: ["bard@example.com"],
+    type: TicketType.TASK,
+    title: "Inbox escalation: reconcile duplicate webhook alerts",
+    description: "Deduplicate webhook alert payloads and confirm with customer.",
+    actionPlan: null,
+    priority: TicketPriority.HIGH,
+    status: TicketStatus.DONE,
+    completedDaysAgo: 4,
+    dueOffsetDays: -2,
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    requesterEmail: "support-intake@example.com",
+    assigneeEmails: ["frodo@example.com"],
+    type: TicketType.ISSUE,
+    title: "Inbox request: update refund destination",
+    description: "Customer asked to change refund method from card to bank transfer.",
+    actionPlan: null,
+    priority: TicketPriority.HIGH,
+    status: TicketStatus.DONE,
+    completedDaysAgo: 17,
+    dueOffsetDays: -1,
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    requesterEmail: "support-intake@example.com",
+    assigneeEmails: ["samwise@example.com"],
+    type: TicketType.TASK,
+    title: "Inbox request: extend trial access",
+    description: "Extend trial by 7 days after billing dispute resolution.",
+    actionPlan: null,
+    priority: TicketPriority.LOW,
+    status: TicketStatus.DONE,
+    completedDaysAgo: 9,
+    dueOffsetDays: 3,
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    requesterEmail: "support-intake@example.com",
+    assigneeEmails: ["bard@example.com"],
+    type: TicketType.ISSUE,
+    title: "Inbox escalation: API token rotation",
+    description: "Rotate compromised API token and confirm service recovery.",
+    actionPlan: null,
+    priority: TicketPriority.CRITICAL,
+    status: TicketStatus.DONE,
+    completedDaysAgo: 6,
+    dueOffsetDays: 1,
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    requesterEmail: "support-intake@example.com",
+    assigneeEmails: ["frodo@example.com"],
+    type: TicketType.TASK,
+    title: "Inbox task: resend onboarding pack",
+    description: "Resend onboarding material with corrected links.",
+    actionPlan: null,
+    priority: TicketPriority.MEDIUM,
+    status: TicketStatus.DONE,
+    completedDaysAgo: 14,
+    dueOffsetDays: 2,
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    requesterEmail: "support-intake@example.com",
+    assigneeEmails: ["samwise@example.com"],
+    type: TicketType.ISSUE,
+    title: "Inbox investigation: missing usage spike",
+    description: "Verify usage spike data and correct analytics dashboard.",
+    actionPlan: null,
+    priority: TicketPriority.MEDIUM,
+    status: TicketStatus.DONE,
+    completedDaysAgo: 20,
+    dueOffsetDays: -2,
+  },
+  {
+    projectOwnerEmail: "support@example.com",
+    requesterEmail: "support-intake@example.com",
+    assigneeEmails: ["bard@example.com"],
+    type: TicketType.TASK,
+    title: "Inbox cleanup: close stale support thread",
+    description: "Archive stale conversation after final confirmation.",
+    actionPlan: null,
+    priority: TicketPriority.LOW,
+    status: TicketStatus.DONE,
+    completedDaysAgo: 2,
+    dueOffsetDays: 4,
+  },
 ];
 
 async function getUserId(email: string, cache: Map<string, number>): Promise<number> {
@@ -184,6 +343,7 @@ async function getProjectId(ownerEmail: string, cache: Map<string, number>): Pro
 export default async function seedTicket() {
   const userCache = new Map<string, number>();
   const projectCache = new Map<string, number>();
+  const now = new Date();
 
   for (const seed of ticketSeeds) {
     const projectId = await getProjectId(seed.projectOwnerEmail, projectCache);
@@ -194,7 +354,7 @@ export default async function seedTicket() {
       ),
     ];
 
-    await createTicket({
+    const ticket = await createTicket({
       projectId,
       requesterId,
       type: seed.type,
@@ -207,5 +367,29 @@ export default async function seedTicket() {
       dueDate: seed.dueDate ? new Date(seed.dueDate) : undefined,
       assigneeIds,
     });
+
+    const completedAt = seed.completedAt
+      ? new Date(seed.completedAt)
+      : seed.completedDaysAgo !== undefined
+        ? new Date(now.getTime() - seed.completedDaysAgo * 24 * 60 * 60 * 1000)
+        : null;
+
+    if (completedAt) {
+      const startDate = seed.startDate
+        ? new Date(seed.startDate)
+        : new Date(completedAt.getTime() - 2 * 24 * 60 * 60 * 1000);
+      const dueDate = seed.dueDate
+        ? new Date(seed.dueDate)
+        : new Date(completedAt.getTime() + (seed.dueOffsetDays ?? 1) * 24 * 60 * 60 * 1000);
+
+      await prisma.ticket.update({
+        where: { id: ticket.id },
+        data: {
+          startDate,
+          dueDate,
+          updatedAt: completedAt,
+        },
+      });
+    }
   }
 }

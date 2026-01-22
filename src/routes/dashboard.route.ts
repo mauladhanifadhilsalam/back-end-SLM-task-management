@@ -3,6 +3,7 @@ import {
   getAllDeveloperDashboards,
   getDailyCadence,
   getDeveloperDashboard,
+  getInboxSupportRewards,
   getProjectManagerDashboard,
 } from "../controllers/dashboard.controller";
 import requireRole from "../middleware/requireRole";
@@ -15,6 +16,7 @@ router.get("/developer", requireRole(RoleType.DEVELOPER), getDeveloperDashboard)
 router.use(requireRole(RoleType.PROJECT_MANAGER));
 router.get("/project-manager", getProjectManagerDashboard);
 router.get("/project-manager/dev-stat", getAllDeveloperDashboards);
+router.get("/project-manager/inbox-leaderboard", getInboxSupportRewards);
 router.get("/project-manager/daily-cadence/:projectId", getDailyCadence);
 
 export default router;

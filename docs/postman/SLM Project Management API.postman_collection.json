@@ -2699,6 +2699,25 @@
           "response": []
         },
         {
+          "name": "Support Inbox Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/project-manager/inbox-leaderboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "project-manager",
+                "inbox-leaderboard"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Daily Cadence (Project Manager)",
           "request": {
             "method": "GET",

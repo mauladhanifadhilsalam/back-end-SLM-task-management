@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   dailyCadenceEntrySchema,
   developerDashboardListSchema,
+  inboxSupportRewardSummarySchema,
   projectManagerDashboardSchema,
 } from "../../schemas/dashboard.schema";
 
@@ -62,6 +63,26 @@ function registerDashboardPaths(registry: OpenAPIRegistry) {
       401: { description: "Unauthorized." },
       403: { description: "Forbidden for non-project-managers." },
       404: { description: "Dashboards not found." },
+    },
+  });
+
+  registry.registerPath({
+    method: "get",
+    path: "/dashboard/project-manager/inbox-leaderboard",
+    tags: ["Dashboard"],
+    summary: "Support inbox leaderboard",
+    description:
+      "Requires `RoleType.PROJECT_MANAGER`. Returns AHP scores for developers assigned to the support inbox.",
+    responses: {
+      200: {
+        description: "Inbox rewards fetched.",
+        content: {
+          "application/json": { schema: inboxSupportRewardSummarySchema },
+        },
+      },
+      401: { description: "Unauthorized." },
+      403: { description: "Forbidden for non-project-managers." },
+      404: { description: "Support inbox project not found." },
     },
   });
 
