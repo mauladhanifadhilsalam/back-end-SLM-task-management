@@ -5,6 +5,7 @@ import {
   findDailyCadence,
   findProjectManagerDashboard,
 } from "../services/dashboard.service";
+import { findInboxSupportRewards } from "../services/inbox-reward.service";
 
 async function getDeveloperDashboard(req: Request, res: Response) {
   if (!req.user) {
@@ -73,9 +74,23 @@ async function getDailyCadence(req: Request, res: Response) {
   }
 }
 
+async function getInboxSupportRewards(_req: Request, res: Response) {
+  try {
+    const rewards = await findInboxSupportRewards();
+    if (!rewards) {
+      return res.status(404).json({ message: "Support inbox project not found" });
+    }
+    return res.status(200).json(rewards);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
 export {
   getDeveloperDashboard,
   getAllDeveloperDashboards,
   getProjectManagerDashboard,
   getDailyCadence,
+  getInboxSupportRewards,
 };
