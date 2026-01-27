@@ -21,7 +21,7 @@ function buildOpenApiDocument() {
       version: "1.0.0",
       description: "Generated automatically from Zod schemas and route metadata.",
     },
-    servers: [{ url: "/" }],
+    servers: [{ url: "/api" }],
     security: [{ bearerAuth: [] }],
   });
 }

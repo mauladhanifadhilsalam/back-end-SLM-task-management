@@ -1,6 +1,7 @@
 # SLM Project Management API – Endpoint Reference
 
 > This document focuses on **HTTP endpoints**. High-level concepts, architecture, and domain
+> Example requests assume `{baseUrl}` already includes the `/api` prefix.
 
 ## Contents
 
