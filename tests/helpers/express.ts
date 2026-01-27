@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { RoleType } from "@prisma/client";
 import { vi } from "vitest";
 
 type MockResponse = Response & {
@@ -21,7 +22,16 @@ function createMockResponse(): MockResponse {
   return res;
 }
 
-function createMockRequest(overrides: Partial<Request> = {}): Request {
+type MockUser = {
+  sub: string;
+  role?: RoleType;
+};
+
+type RequestOverrides = Partial<Request> & {
+  user?: MockUser;
+};
+
+function createMockRequest(overrides: RequestOverrides = {}): Request {
   return { ...overrides } as Request;
 }
 
