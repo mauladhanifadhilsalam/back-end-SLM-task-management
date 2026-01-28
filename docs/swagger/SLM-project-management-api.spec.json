@@ -4480,6 +4480,11 @@
             "type": "integer",
             "minimum": 0,
             "exclusiveMinimum": true
+          },
+          "userId": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
           }
         },
         "required": [
@@ -4490,7 +4495,7 @@
           "status",
           "projectId"
         ],
-        "description": "Payload for POST /team-updates."
+        "description": "Payload for POST /team-updates. Admins may provide userId to post on behalf of another user."
       },
       "TeamUpdateUpdateInput": {
         "type": "object",
@@ -17242,6 +17247,11 @@
                     "type": "integer",
                     "minimum": 0,
                     "exclusiveMinimum": true
+                  },
+                  "userId": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
                   }
                 },
                 "required": [
@@ -17252,7 +17262,7 @@
                   "status",
                   "projectId"
                 ],
-                "description": "Payload for POST /team-updates."
+                "description": "Payload for POST /team-updates. Admins may provide userId to post on behalf of another user."
               }
             }
           }
@@ -17366,6 +17376,9 @@
           },
           "401": {
             "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Insufficient permissions."
           },
           "404": {
             "description": "Project not found."

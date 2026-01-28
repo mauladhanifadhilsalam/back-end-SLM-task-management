@@ -29,8 +29,12 @@ const createTeamUpdateSchema = registerSchema(
   teamUpdateBaseSchema
     .extend({
       projectId: z.coerce.number().int().positive(),
+      userId: z.coerce.number().int().positive().optional(),
     })
-    .openapi({ description: "Payload for POST /team-updates." }),
+    .openapi({
+      description:
+        "Payload for POST /team-updates. Admins may provide userId to post on behalf of another user.",
+    }),
 );
 
 const updateTeamUpdateSchema = registerSchema(
@@ -66,7 +70,7 @@ const teamUpdateDeveloperSchema = z.object({
   id: z.number().int().positive(),
   fullName: z.string(),
   email: z.email(),
-  role: z.nativeEnum(RoleType),
+  role: z.enum(RoleType),
 });
 
 const teamUpdateResponseSchema = registerSchema(
@@ -81,8 +85,8 @@ const teamUpdateResponseSchema = registerSchema(
       todayWork: z.string(),
       blocker: z.string().nullable(),
       nextAction: z.string().nullable(),
-      createdAt: z.string().datetime(),
-      updatedAt: z.string().datetime(),
+      createdAt: z.iso.datetime(),
+      updatedAt: z.iso.datetime(),
       developer: teamUpdateDeveloperSchema,
     })
     .openapi({ description: "Team update resource returned by the API." }),

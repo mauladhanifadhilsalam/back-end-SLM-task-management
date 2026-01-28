@@ -78,6 +78,7 @@ function registerTeamUpdatePaths(registry: OpenAPIRegistry) {
       },
       400: { description: "Validation failed." },
       401: { description: "Unauthorized." },
+      403: { description: "Insufficient permissions." },
       404: { description: "Project not found." },
     },
   });
