@@ -81,8 +81,14 @@ async function insertTeamUpdate(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
+  if (parsed.data.userId && !isAdmin(viewer)) {
+    return res.status(403).json({
+      message: "Only admins can set userId when creating a team update",
+    });
+  }
+
   const created = await createTeamUpdate({
-    userId: viewer.id,
+    userId: parsed.data.userId ?? viewer.id,
     projectId: parsed.data.projectId,
     yesterdayWork: parsed.data.yesterdayWork,
     todayWork: parsed.data.todayWork,
