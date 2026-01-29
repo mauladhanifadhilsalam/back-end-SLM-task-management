@@ -15,7 +15,7 @@ type TeamUpdateSeed = {
 const teamUpdateSeeds: TeamUpdateSeed[] = [
   {
     authorEmail: "gandalf@yahoo.com",
-    ownerEmail: "koji@example.com",
+    ownerEmail: "scott@example.com",
     yesterdayWork: "Instrumented SSO callback tracing and attached logs to the incident ticket.",
     todayWork: "Implement retry backoff toggles for the new auth gateway.",
     blocker: "Need confirmation from infra about proxy timeout thresholds.",
