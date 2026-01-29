@@ -1,6 +1,7 @@
 # SLM Project Management API – Endpoint Reference
 
 > This document focuses on **HTTP endpoints**. High-level concepts, architecture, and domain
+> Example requests assume `{baseUrl}` already includes the `/api` prefix.
 
 ## Contents
 
@@ -2066,6 +2067,7 @@ Authorization: Bearer <token>
 `POST /team-updates`
 
 - **Auth:** required (Bearer JWT)
+- **Admin note:** `userId` is optional; when provided it posts on behalf of that user. Non-admins cannot set `userId`.
 
 **Example Request**
 
@@ -2084,6 +2086,8 @@ Authorization: Bearer <token>
 - `400 Bad Request` ƒ?" Validation error.
 
 - `401 Unauthorized` ƒ?" Missing or invalid token.
+
+- `403 Forbidden` ƒ?" Only admins can set `userId` when creating a team update.
 
 - `404 Not Found` ƒ?" Project not found.
 

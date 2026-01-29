@@ -11,7 +11,8 @@ import {
   updateTeamUpdateSchema,
   teamUpdateQuerySchema,
 } from "../schemas/team-update.schema";
-import { Viewer, requireViewer, isAdmin } from "../utils/permissions";
+import { findProject } from "../services/project.service";
+import { Viewer, requireViewer, isAdmin, isProjectManager } from "../utils/permissions";
 
 function parseIdParam(raw?: string) {
   const id = Number(raw);
@@ -81,8 +82,27 @@ async function insertTeamUpdate(req: Request, res: Response) {
     return res.status(400).json(parsed.error.format());
   }
 
+  if (parsed.data.userId && !isAdmin(viewer)) {
+    return res.status(403).json({
+      message: "Only admins can set userId when creating a team update",
+    });
+  }
+
+  const project = await findProject({ id: parsed.data.projectId });
+  if (!project) {
+    return res.status(404).json({ message: "Project not found" });
+  }
+
+  const projectMemberIds = project.assignments
+    .map((assignment) => assignment.user?.id)
+    .filter((id): id is number => typeof id === "number");
+  const viewerIsPrivileged = isAdmin(viewer) || isProjectManager(viewer);
+  if (!viewerIsPrivileged && !projectMemberIds.includes(viewer.id)) {
+    return res.status(403).json({ message: "Insufficient permissions" });
+  }
+
   const created = await createTeamUpdate({
-    userId: viewer.id,
+    userId: parsed.data.userId ?? viewer.id,
     projectId: parsed.data.projectId,
     yesterdayWork: parsed.data.yesterdayWork,
     todayWork: parsed.data.todayWork,
